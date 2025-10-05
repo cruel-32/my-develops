@@ -20,8 +20,8 @@ app.use(
   }),
 );
 
-const port = 4000;
-const host = '0.0.0.0';
+const port = process.env.PORT ? parseInt(process.env.PORT) : 4000;
+const host = process.env.HOST || '0.0.0.0';
 
 const server = app.listen(port, host, () => {
   console.log(`Backend listening on http://${host}:${port}`);
