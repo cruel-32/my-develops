@@ -1,4 +1,5 @@
 # FSD - entites layer
+
 프로젝트에서 다루는 핵심 데이터 개념을 나타냅니다.
 비즈니스 용어(예: User, Post, Product)와 일치하는 경우가 많습니다.
 
@@ -6,12 +7,12 @@ Entity Slice에는 다음을 포함할 수 있습니다:
 
 구성
 
-* 📁 model — 데이터 상태와 검증 스키마
-* 📁 api — 해당 Entity의 API 요청
-* 📁 ui — Entity의 시각적 표현
-    * 완전한 UI 블록이 아니어도 됨
-    * 여러 페이지에서 재사용 가능하게 설계
-    * 비즈니스 로직은 props/slot으로 연결 권장
+- 📁 model — 데이터 상태와 검증 스키마
+- 📁 api — 해당 Entity의 API 요청
+- 📁 ui — Entity의 시각적 표현
+  - 완전한 UI 블록이 아니어도 됨
+  - 여러 페이지에서 재사용 가능하게 설계
+  - 비즈니스 로직은 props/slot으로 연결 권장
 
 Entity 간 관계
 
@@ -23,8 +24,9 @@ Entity 간 관계
 @x 표기를 사용해 교차 Public API로 연결을 명시적으로 드러내세요.
 
 ### entities/artist/model/artist.ts
+
 ```typescript
-import type { Song } from "entities/song/@x/artist";
+import type { Song } from 'entities/song/@x/artist';
 
 export interface Artist {
   name: string;

@@ -1,21 +1,10 @@
-import { initTRPC } from '@trpc/server';
-import { z } from 'zod';
-import { db } from '@/infrastructure/db/connection';
-import { users } from '@/infrastructure/db/schema';
+import { router } from '@/trpc';
+import { userRouter } from './modules/user/routes';
 
-const t = initTRPC.create();
-
-export const appRouter = t.router({
-  getUser: t.procedure.input(z.string()).query(async (opts) => {
-    // Example using the database package
-    // const usersList = await db.select().from(users);
-    return { id: opts.input, name: 'Bilbo' };
-  }),
-  // createUser: t.procedure.input(usersSchema.CreateUserSchema).mutation(async (opts) => {
-  //   // Example using the database package
-  //   // const newUser = await db.insert(users).values(opts.input).returning();
-  //   return { id: 1, ...opts.input };
-  // }),
+export const appRouter = router({
+  // user 모듈의 라우터를 'user' 네임스페이스 아래에 통합합니다.
+  // 클라이언트에서는 `trpc.user.signUp.mutate()` 와 같이 호출하게 됩니다.
+  user: userRouter,
 });
 
 export type AppRouter = typeof appRouter;

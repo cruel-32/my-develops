@@ -1,10 +1,10 @@
-export { Button, buttonVariants } from "./button"
+export { Button, buttonVariants } from './button';
 export {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "./accordion"
+} from './accordion';
 export {
   AlertDialog,
   AlertDialogAction,
@@ -15,9 +15,16 @@ export {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "./alert-dialog"
-export { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./card"
-export { Checkbox } from "./checkbox"
+} from './alert-dialog';
+export {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from './card';
+export { Checkbox } from './checkbox';
 export {
   Dialog,
   DialogContent,
@@ -26,7 +33,7 @@ export {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./dialog"
+} from './dialog';
 export {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -43,17 +50,32 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "./dropdown-menu"
-export { Popover, PopoverContent, PopoverTrigger } from "./popover"
-export { Progress } from "./progress"
-export { ScrollArea, ScrollBar } from "./scroll-area"
-export { Separator } from "./separator"
-export { Slider } from "./slider"
-export { Tabs, TabsContent, TabsList, TabsTrigger } from "./tabs"
-export { Toggle, toggleVariants } from "./toggle"
+} from './dropdown-menu';
+export {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  useFormField,
+} from './form';
+export { Input } from './input';
+export { Label } from './label';
+export { Popover, PopoverContent, PopoverTrigger } from './popover';
+export { Progress } from './progress';
+export { ScrollArea, ScrollBar } from './scroll-area';
+export { Separator } from './separator';
+export { Slider } from './slider';
+export { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
+export { Toggle, toggleVariants } from './toggle';
 export {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "./tooltip"
+} from './tooltip';
+
+// Export commonly used icons from lucide-react
+export { ChevronLeft, ChevronRight, ArrowLeft, ArrowRight } from 'lucide-react';

@@ -1,58 +1,29 @@
-# Turborepo Tailwind CSS starter
+# 차세대 풀스택 개발을 위한 모노레포 아키텍처
 
-This Turborepo starter is maintained by the Turborepo core team.
+이 프로젝트는 **타입 안정성(Type-Safety)**, **개발 생산성**, 그리고 **확장성**에 중점을 두고 설계된 최신 풀스택 웹 애플리케이션의 청사진입니다. `pnpm` 워크스페이스 기반의 모노레포 환경에서 `Next.js`와 `tRPC`를 중심으로 최신 기술 스택을 통합하여 효율적인 개발 및 배포 파이프라인을 구축하는 것을 목표로 합니다.
 
-## Using this example
+## 1. 핵심 아키텍처
 
-Run the following command:
+이 프로젝트는 여러 컴포넌트가 유기적으로 결합된 현대적인 웹 아키텍처를 따릅니다.
 
-```sh
-npx create-turbo@latest -e with-tailwind
-```
+### 1.1. 모노레포 (Monorepo)
 
-## What's inside?
+- **중앙화된 관리**: `pnpm` 워크스페이스를 통해 여러 앱(`web`, `backend`)과 패키지(`ui`, `api` 등)의 의존성을 단일 저장소에서 효율적으로 관리합니다.
+- **빌드 최적화**: `Turborepo`를 도입하여 패키지 간의 의존성을 분석하고, 변경되지 않은 코드의 빌드 결과를 캐싱합니다. 이를 통해 전체 빌드 시간을 획기적으로 단축하고 병렬 실행을 통해 CI/CD 파이프라인을 가속화합니다.
+- **일관성 있는 개발 환경**: ESLint, Prettier, TypeScript 설정을 `@repo` 패키지로 분리하여 모든 워크스페이스에서 일관된 코드 스타일과 품질을 유지합니다.
 
-This Turborepo includes the following packages/apps:
+### 1.2. 풀스택 타입 안정성 (tRPC)
 
-### Apps and Packages
+- **End-to-End Type Safety**: `tRPC`를 통해 백엔드 API의 타입 정의(`Zod` 스키마)를 별도의 코드 생성 과정 없이 프론트엔드에서 그대로 재사용합니다. 이는 API 요청 및 응답 데이터의 타입을 컴파일 시간에 검증할 수 있게 하여 런타임 에러를 사전에 방지합니다.
+- **뛰어난 개발 경험**: API를 마치 타입스크립트 함수처럼 자동 완성 기능을 활용하여 호출할 수 있어 개발 생산성이 극대화됩니다. API 변경 시, 이를 사용하는 모든 프론트엔드 코드가 즉시 타입 에러를 발생시켜 변경 사항을 추적하기 용이합니다.
 
-- `docs`: a [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `web`: another [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `ui`: a stub React component library with [Tailwind CSS](https://tailwindcss.com/) shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### 1.3. 프론트엔드 (Next.js 14 App Router)
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- **서버 중심 아키텍처**: `Next.js`의 App Router를 기반으로 React Server Components (RSC)를 적극적으로 활용하여 서버에서 데이터를 렌더링하고, 클라이언트에는 최소한의 JavaScript만 전송하여 초기 로딩 성능을 최적화합니다.
+- **Feature-Sliced Design**: FSD 아키텍처 방법론에 의해 `entities`, `features`, `widgets`, `pages`, `apps`, `shared` 등의 계층으로 구조화하여 관심사를 명확히 분리하고 재사용성을 높였습니다.
+- **상태 관리**: `TanStack Query (React Query)`를 사용하여 서버 상태(API 데이터)를 관리하고, 캐싱, 재요청, 비관적 업데이트(optimistic updates) 등의 고급 기능을 손쉽게 구현합니다.
 
-### Building packages/ui
+### 1.4. 백엔드 (Node.js & Express)
 
-This example is set up to produce compiled styles for `ui` components into the `dist` directory. The component `.tsx` files are consumed by the Next.js apps directly using `transpilePackages` in `next.config.ts`. This was chosen for several reasons:
-
-- Make sharing one `tailwind.config.ts` to apps and packages as easy as possible.
-- Make package compilation simple by only depending on the Next.js Compiler and `tailwindcss`.
-- Ensure Tailwind classes do not overwrite each other. The `ui` package uses a `ui-` prefix for it's classes.
-- Maintain clear package export boundaries.
-
-Another option is to consume `packages/ui` directly from source without building. If using this option, you will need to update the `tailwind.config.ts` in your apps to be aware of your package locations, so it can find all usages of the `tailwindcss` class names for CSS compilation.
-
-For example, in [tailwind.config.ts](packages/tailwind-config/tailwind.config.ts):
-
-```js
-  content: [
-    // app content
-    `src/**/*.{js,ts,jsx,tsx}`,
-    // include packages if not transpiling
-    "../../packages/ui/*.{js,ts,jsx,tsx}",
-  ],
-```
-
-If you choose this strategy, you can remove the `tailwindcss` and `autoprefixer` dependencies from the `ui` package.
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [Tailwind CSS](https://tailwindcss.com/) for styles
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- **모듈형 라우터**: `Express.js` 프레임워크 위에서 기능 단위(예: `user`, `project`)로 `tRPC` 라우터를 모듈화하여 구성합니다. 이렇게 분리된 라우터들은 최종적으로 하나의 `appRouter`로 병합되어 API 서버의 유지보수성과 확장성을 확보합니다.
+- **인증 및 보안**: `jsonwebtoken (JWT)`을 사용한 토큰 기반 인증 시스템을 구현하며, `bcrypt`를 통해 사용자 비밀번호를 안전하게 해싱하여 관리합니다.

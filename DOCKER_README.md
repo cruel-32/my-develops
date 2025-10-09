@@ -14,12 +14,14 @@
 ## 🚀 빠른 시작
 
 ### 1. 초기 설정
+
 ```bash
 # 의존성 설치 및 환경 설정
 pnpm run setup
 ```
 
 ### 2. 개발 환경 실행
+
 ```bash
 # 개발용 빌드 및 실행
 pnpm run docker:build:dev
@@ -27,6 +29,7 @@ pnpm run docker:up:dev
 ```
 
 ### 3. 프로덕션 환경 실행
+
 ```bash
 # 프로덕션용 빌드 및 실행
 pnpm run docker:build:prod
@@ -54,6 +57,7 @@ pnpm run docker:up:prod
 ## 🛠️ 사용 가능한 명령어
 
 ### Docker 빌드
+
 ```bash
 # 개발용 빌드
 pnpm run docker:build:dev
@@ -66,6 +70,7 @@ pnpm run docker:build:prod
 ```
 
 ### Docker 배포
+
 ```bash
 # 서비스 시작
 pnpm run docker:up:dev
@@ -91,11 +96,13 @@ pnpm run docker:status:prod
 ## 🌐 서비스 접근
 
 ### 개발 환경
+
 - **Web App**: http://localhost:3000
 - **Backend API**: http://localhost:4000
 - **PostgreSQL**: localhost:5432
 
 ### 프로덕션 환경
+
 - **Web App**: http://localhost:3000
 - **Backend API**: http://localhost:4000
 - **PostgreSQL**: localhost:5432
@@ -103,6 +110,7 @@ pnpm run docker:status:prod
 ## 🔧 환경 변수
 
 ### .env 파일 설정
+
 ```env
 # Database
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/mydevelops
@@ -118,6 +126,7 @@ NEXT_PUBLIC_API_URL=http://localhost:4000
 ## 📦 Turborepo Docker 최적화
 
 ### turbo prune 활용
+
 각 Dockerfile은 `turbo prune` 명령어를 사용하여 최적화됩니다:
 
 1. **의존성 분리**: `--docker` 플래그로 의존성과 소스 파일을 분리
@@ -125,6 +134,7 @@ NEXT_PUBLIC_API_URL=http://localhost:4000
 3. **멀티 스테이지 빌드**: 빌드와 런타임 환경 분리
 
 ### 빌드 과정
+
 ```dockerfile
 # 1. Prune 단계: 필요한 워크스페이스만 추출
 RUN turbo prune web --docker
@@ -141,6 +151,7 @@ RUN pnpm run build
 ## 🔧 사용된 기술 스택
 
 ### 최신 버전 사용
+
 - **Node.js**: 22-alpine (LTS)
 - **PostgreSQL**: 17-alpine (최신)
 - **Docker Compose**: v2 (version 명시 제거)
@@ -151,6 +162,7 @@ RUN pnpm run build
 ### 일반적인 문제들
 
 1. **포트 충돌**
+
    ```bash
    # 사용 중인 포트 확인
    lsof -i :3000
@@ -159,10 +171,11 @@ RUN pnpm run build
    ```
 
 2. **Docker 이미지 정리**
+
    ```bash
    # 사용하지 않는 이미지 삭제
    docker image prune -a
-   
+
    # 볼륨 정리
    docker volume prune
    ```
@@ -176,6 +189,7 @@ RUN pnpm run build
    ```
 
 ### 개발 환경 디버깅
+
 ```bash
 # 컨테이너 내부 접속
 docker exec -it my-develops-backend-dev sh

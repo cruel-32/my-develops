@@ -6,7 +6,8 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "start": "turbo run start --filter=web --filter=backend",
     "docker:build": "./scripts/docker-build.sh",
     "docker:build:dev": "./scripts/docker-build.sh development",
@@ -29,12 +30,24 @@
     "setup": "./scripts/setup.sh"
   },
   "devDependencies": {
+    "@types/node": "^24.7.1",
+    "@types/react": "^19.2.2",
+    "eslint": "^9.37.0",
+    "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
-    "turbo": "^2.5.8"
+    "tailwindcss": "^4.1.14",
+    "tsc-alias": "^1.8.16",
+    "turbo": "^2.5.8",
+    "typescript": "5.9.3"
   },
-  "packageManager": "pnpm@10.18.0",
+  "dependencies": {
+    "@trpc/server": "^11.6.0",
+    "react-hook-form": "^7.64.0",
+    "zod": "^4.1.12"
+  },
+  "packageManager": "pnpm@10.18.1+sha512.77a884a165cbba2d8d1c19e3b4880eee6d2fcabd0d879121e282196b80042351d5eb3ca0935fa599da1dc51265cc68816ad2bddd2a2de5ea9fdf92adbec7cd34",
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   }
 }

@@ -1,0 +1,9 @@
+{
+  "extends": "@repo/typescript-config/base.json",
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [{ "path": "../../apps/backend" }],
+  "include": ["index.ts"],
+  "exclude": ["node_modules"]
+}
