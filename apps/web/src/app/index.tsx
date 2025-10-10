@@ -1,9 +1,9 @@
 import '@repo/ui/styles.css';
-import '../styles/globals.css';
+import './styles/globals.css';
 import { Nanum_Gothic } from 'next/font/google';
 
-import WithProviders from '../providers/index';
-import { NextProgress } from '../lib/NextProgress';
+import WithProviders from './providers/index';
+import { NextProgress } from './lib/NextProgress';
 
 import type { Metadata } from 'next';
 

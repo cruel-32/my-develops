@@ -17,11 +17,14 @@
 - **End-to-End Type Safety**: `tRPC`를 통해 백엔드 API의 타입 정의(`Zod` 스키마)를 별도의 코드 생성 과정 없이 프론트엔드에서 그대로 재사용합니다. 이는 API 요청 및 응답 데이터의 타입을 컴파일 시간에 검증할 수 있게 하여 런타임 에러를 사전에 방지합니다.
 - **뛰어난 개발 경험**: API를 마치 타입스크립트 함수처럼 자동 완성 기능을 활용하여 호출할 수 있어 개발 생산성이 극대화됩니다. API 변경 시, 이를 사용하는 모든 프론트엔드 코드가 즉시 타입 에러를 발생시켜 변경 사항을 추적하기 용이합니다.
 
-### 1.3. 프론트엔드 (Next.js 14 App Router)
+### 1.3. 프론트엔드 (Next.js & Feature-Sliced Design)
 
-- **서버 중심 아키텍처**: `Next.js`의 App Router를 기반으로 React Server Components (RSC)를 적극적으로 활용하여 서버에서 데이터를 렌더링하고, 클라이언트에는 최소한의 JavaScript만 전송하여 초기 로딩 성능을 최적화합니다.
-- **Feature-Sliced Design**: FSD 아키텍처 방법론에 의해 `entities`, `features`, `widgets`, `pages`, `apps`, `shared` 등의 계층으로 구조화하여 관심사를 명확히 분리하고 재사용성을 높였습니다.
-- **상태 관리**: `TanStack Query (React Query)`를 사용하여 서버 상태(API 데이터)를 관리하고, 캐싱, 재요청, 비관적 업데이트(optimistic updates) 등의 고급 기능을 손쉽게 구현합니다.
+- **서버 중심 렌더링**: `Next.js`의 App Router를 기반으로 React Server Components (RSC)를 적극적으로 활용하여 서버에서 UI를 렌더링하고, 클라이언트에는 최소한의 JavaScript만 전송하여 초기 로딩 성능을 최적화합니다.
+- **Feature-Sliced Design (FSD) 아키텍처**: 프로젝트의 유지보수성과 확장성을 극대화하기 위해 FSD 방법론을 아키텍처의 근간으로 삼았습니다. FSD는 프론트엔드 애플리케이션을 **레이어(Layers)**, **슬라이스(Slices)**, **세그먼트(Segments)** 라는 명확한 기준으로 구조화합니다.
+  - **Layers**: `app`, `pages`, `widgets`, `features`, `entities`, `shared` 와 같이 미리 정의된 6개의 계층으로 구성됩니다. 상위 레이어는 하위 레이어에만 의존할 수 있어, 코드의 의존성 흐름을 명확하고 예측 가능하게 만듭니다.
+  - **Slices**: 각 레이어를 비즈니스 도메인(예: `user`, `post`)에 따라 분리하여 기능의 응집도를 높이고 다른 기능과의 결합도를 낮춥니다.
+  - **Segments**: 슬라이스 내부를 `ui`, `model`, `api`, `lib` 등 기술적 목적에 따라 나누어 코드의 역할을 명확히 합니다.
+- **상태 관리**: `TanStack Query (React Query)`를 사용하여 서버 상태(API 데이터)를 관리하고, 캐싱, 재요청, 낙관적 업데이트(optimistic updates) 등의 고급 기능을 손쉽게 구현합니다.
 
 ### 1.4. 백엔드 (Node.js & Express)
 

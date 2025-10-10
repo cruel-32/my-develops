@@ -1,4 +1,4 @@
-import { BaseLayout } from '@/widgets/layouts';
+import { BaseLayout } from '@/widgets/base-layout';
 import { JoinForm } from '@/features/joinForm';
 
 export const JoinPage = () => {
