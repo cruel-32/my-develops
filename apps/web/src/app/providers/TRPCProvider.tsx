@@ -16,12 +16,11 @@ export default function TRPCProviderApp({
 }) {
   const [queryClient] = useState(() => new QueryClient());
   // The trpcClient is now imported, not created here
-  const [client] = useState(() => trpcClient);
 
   return (
     <QueryClientProvider client={queryClient}>
       {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
-      <Provider client={client} queryClient={queryClient}>
+      <Provider client={trpcClient} queryClient={queryClient}>
         {children}
       </Provider>
     </QueryClientProvider>

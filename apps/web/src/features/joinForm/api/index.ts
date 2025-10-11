@@ -1,7 +1,7 @@
 'use client';
 
 import { trpc } from '@/web/shared/api/index';
-import type { JoinFormType } from '../model/schema';
+import type { JoinFormData } from '../model/schema';
 
 /**
  * SignUp mutation hook
@@ -25,4 +25,4 @@ export const useSignUpMutation = () => {
 /**
  * Type-safe signUp function
  */
-export type SignUpMutationFn = (data: JoinFormType) => Promise<void>;
+export type SignUpMutationFn = (data: JoinFormData) => Promise<void>;

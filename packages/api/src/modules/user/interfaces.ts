@@ -4,9 +4,10 @@ export const signUpSchema = z.object({
   email: z.string().email(),
   name: z.string().min(2),
   password: z.string().min(8),
+  confirmPassword: z.string(),
 });
 
-export const logInSchema = z.object({
+export const loginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
@@ -22,6 +23,6 @@ export const changePasswordSchema = z.object({
 });
 
 export type SignUpInput = z.infer<typeof signUpSchema>;
-export type LogInInput = z.infer<typeof logInSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
 export type RefreshInput = z.infer<typeof refreshSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

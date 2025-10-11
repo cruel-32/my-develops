@@ -1,8 +1,9 @@
 import { z } from 'zod';
 
-export const JOIN_FORM_SCHEMA = z
+export const joinFormSchema = z
   .object({
     email: z.string().email({ message: '유효한 이메일을 입력해주세요.' }),
+    name: z.string().min(2, { message: '이름은 2자 이상이어야 합니다.' }),
     password: z
       .string()
       .min(8, { message: '비밀번호는 8자 이상이어야 합니다.' }),
@@ -13,4 +14,4 @@ export const JOIN_FORM_SCHEMA = z
     path: ['confirmPassword'],
   });
 
-export type JoinFormType = z.infer<typeof JOIN_FORM_SCHEMA>;
+export type JoinFormData = z.infer<typeof joinFormSchema>;

@@ -158,7 +158,7 @@ const [trpcClient] = useState(() =>
 
 ```typescript
 // apps/backend/src/modules/user/controllers.ts
-export const logInController = async ({ input, ctx }: any) => {
+export const loginController = async ({ input, ctx }: any) => {
   const { email, password } = input;
 
   const user = await authenticateUser(email, password);
@@ -210,7 +210,7 @@ export const useLoginMutation = () => {
   const trpc = useTRPC();
   const { setAccessToken } = useAuth();
 
-  return trpc.user.logIn.useMutation({
+  return trpc.user.login.useMutation({
     onSuccess: (data) => {
       // ✅ accessToken을 메모리(State)에 저장
       setAccessToken(data.accessToken);

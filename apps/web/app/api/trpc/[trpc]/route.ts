@@ -3,49 +3,53 @@ import { NextRequest, NextResponse } from 'next/server';
 const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 /**
- * tRPC proxy handler for Next.js App Router
- * Forwards requests to the backend tRPC server
+ * tRPC proxy handler for the Next.js App Router.
+ * This single handler forwards both GET and POST requests to the backend tRPC server.
+ *
+ * @param request The incoming Next.js request.
+ * @returns A NextResponse from the backend.
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ trpc: string }> }
-) {
+async function handler(request: NextRequest) {
   try {
-    const { trpc } = await params;
-    const body = await request.text();
+    // Extract the tRPC path from the URL.
+    const pathname = request.nextUrl.pathname;
+    const trpcPath = pathname.split('/api/trpc/')[1];
 
-    // ✅ Extract cookies from incoming request
+    if (!trpcPath) {
+      return NextResponse.json({ error: 'Invalid tRPC path' }, { status: 400 });
+    }
+
+    // Forward cookies from the incoming request to the backend.
     const cookies = request.headers.get('cookie') || '';
 
-    // Forward request to backend tRPC server
-    // Backend standalone adapter uses root path
-    const backendUrl = `${BACKEND_URL}/${trpc}`;
+    // Construct the backend URL.
+    const backendUrl = `${BACKEND_URL}/${trpcPath}${request.nextUrl.search}`;
 
+    // Use the incoming request's body directly.
+    const body = request.method === 'POST' ? await request.blob() : undefined;
+
+    // Forward the request to the backend tRPC server.
     const response = await fetch(backendUrl, {
-      method: 'POST',
+      method: request.method,
       headers: {
         'Content-Type': 'application/json',
-        'x-trpc-source': request.headers.get('x-trpc-source') || 'nextjs',
-        Cookie: cookies, // ✅ Forward cookies to backend
+        'x-trpc-source': request.headers.get('x-trpc-source') || 'nextjs-proxy',
+        Cookie: cookies,
       },
       body,
-      credentials: 'include', // ✅ Include cookies in request
+      // Important: Duplex is required for streaming request bodies.
+      // @ts-expect-error - `duplex` is a valid option for fetch
+      duplex: 'half',
     });
 
-    const data = await response.text();
+    // At this point, we're just proxying the response back to the client.
+    // We don't need to parse the response body (e.g., with .json() or .text()).
+    // We can just stream it back.
 
-    // ✅ Extract Set-Cookie headers from backend response
-    const setCookieHeader = response.headers.get('set-cookie');
-    const responseHeaders: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
+    // Forward the response headers from the backend, especially 'Set-Cookie'.
+    const responseHeaders = new Headers(response.headers);
 
-    // ✅ Forward Set-Cookie headers to client
-    if (setCookieHeader) {
-      responseHeaders['Set-Cookie'] = setCookieHeader;
-    }
-
-    return new NextResponse(data, {
+    return new NextResponse(response.body, {
       status: response.status,
       headers: responseHeaders,
     });
@@ -58,55 +62,4 @@ export async function POST(
   }
 }
 
-/**
- * Handle GET requests (for queries)
- */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ trpc: string }> }
-) {
-  try {
-    const { trpc } = await params;
-    const searchParams = request.nextUrl.searchParams;
-
-    // ✅ Extract cookies from incoming request
-    const cookies = request.headers.get('cookie') || '';
-
-    // Forward request to backend tRPC server
-    // Backend standalone adapter uses root path
-    const backendUrl = `${BACKEND_URL}/${trpc}?${searchParams.toString()}`;
-
-    const response = await fetch(backendUrl, {
-      method: 'GET',
-      headers: {
-        'x-trpc-source': request.headers.get('x-trpc-source') || 'nextjs',
-        Cookie: cookies, // ✅ Forward cookies to backend
-      },
-      credentials: 'include', // ✅ Include cookies in request
-    });
-
-    const data = await response.text();
-
-    // ✅ Extract Set-Cookie headers from backend response
-    const setCookieHeader = response.headers.get('set-cookie');
-    const responseHeaders: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-
-    // ✅ Forward Set-Cookie headers to client
-    if (setCookieHeader) {
-      responseHeaders['Set-Cookie'] = setCookieHeader;
-    }
-
-    return new NextResponse(data, {
-      status: response.status,
-      headers: responseHeaders,
-    });
-  } catch (error) {
-    console.error('tRPC proxy error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-}
+export { handler as GET, handler as POST };

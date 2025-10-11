@@ -11,8 +11,8 @@ import type { LoginFormData } from '../model/schema';
  * and automatically included in subsequent requests via credentials: 'include'
  */
 export const useLoginMutation = () => {
-  return trpc.trpc.user.logIn.useMutation({
-    onSuccess: (data: unknown) => {
+  return trpc.trpc.user.login.useMutation({
+    onSuccess: (data) => {
       console.log('Login successful:', data);
       // ✅ Tokens are automatically stored in HttpOnly cookies
       // No manual token storage needed - cookies are handled by browser
@@ -20,7 +20,7 @@ export const useLoginMutation = () => {
       // TODO: Redirect to dashboard
       // window.location.href = '/dashboard';
     },
-    onError: (error: unknown) => {
+    onError: (error) => {
       console.error('Login failed:', error);
       // TODO: Show error notification to user
     },

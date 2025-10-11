@@ -11,7 +11,6 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.2.2",
     "@repo/api": "workspace:*",
     "@repo/ui": "workspace:*",
     "@tanstack/react-query": "^5.90.2",
@@ -31,7 +30,7 @@
     "@repo/tailwind-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "^4.1.14",
-    "@types/react-dom": "^19.2.0",
+    "@types/react-dom": "^19.2.1",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
     "steiger": "^0.5.11"

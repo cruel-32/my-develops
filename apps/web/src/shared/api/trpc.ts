@@ -1,6 +1,6 @@
 'use client';
 import { createTRPCReact } from '@trpc/react-query';
-import { httpBatchLink, createTRPCClient } from '@trpc/client';
+import { httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '@repo/api';
 
 export const trpc = createTRPCReact<AppRouter>();
@@ -10,57 +10,38 @@ function getBaseUrl() {
   return process.env.NEXT_INTERNAL_APP_URL || 'http://localhost:3000';
 }
 
-// Token refresh logic
-let isRefreshing = false;
-let refreshPromise: Promise<boolean> | null = null;
-
-async function refreshAccessToken(): Promise<boolean> {
-  if (isRefreshing && refreshPromise) {
-    return refreshPromise;
-  }
-  isRefreshing = true;
-  refreshPromise = (async () => {
-    try {
-      const response = await fetch(`${getBaseUrl()}/api/trpc/user.refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-trpc-source': 'react',
-        },
-        credentials: 'include',
-        body: JSON.stringify({}),
-      });
-      if (!response.ok) return false;
-      const data = await response.json();
-      return data?.[0]?.result?.data?.success ?? false;
-    } catch (error) {
-      return false;
-    } finally {
-      isRefreshing = false;
-      refreshPromise = null;
-    }
-  })();
-  return refreshPromise;
-}
+// Token refresh logic - now handled automatically by server-side middleware
 
 async function fetchWithTokenRefresh(
   url: RequestInfo | URL,
   options?: RequestInit
 ): Promise<Response> {
   const response = await fetch(url, { ...options, credentials: 'include' });
+
+  // 401 에러가 발생한 경우에만 토큰 갱신 시도
   if (response.status !== 401) {
     return response;
   }
-  const refreshed = await refreshAccessToken();
-  if (!refreshed) {
-    if (typeof window !== 'undefined') window.location.href = '/login';
-    return response;
+
+  // 서버 측에서 자동 토큰 갱신이 구현되었으므로,
+  // 클라이언트에서는 단순히 한 번 더 재시도
+  const retryResponse = await fetch(url, {
+    ...options,
+    credentials: 'include',
+  });
+
+  // 재시도 후에도 401이면 토큰 갱신 실패로 간주
+  if (retryResponse.status === 401) {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
   }
-  return await fetch(url, { ...options, credentials: 'include' });
+
+  return retryResponse;
 }
 
 // Create and export the pre-configured tRPC client
-export const trpcClient = createTRPCClient<AppRouter>({
+export const trpcClient = trpc.createClient({
   links: [
     httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,

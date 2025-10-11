@@ -56,7 +56,7 @@ function serializeCookie(options: typeof COOKIE_OPTIONS) {
 
 ```typescript
 // apps/backend/src/modules/user/controllers.ts
-export const logInController = async ({ input, ctx }: any) => {
+export const loginController = async ({ input, ctx }: any) => {
   const { email, password } = input;
 
   // 사용자 인증 로직

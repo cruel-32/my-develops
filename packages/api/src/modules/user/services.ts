@@ -2,10 +2,10 @@ import { TRPCError } from '@trpc/server';
 import { db, users } from '@repo/db';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import type {
   SignUpInput,
-  LogInInput,
+  LoginInput,
   ChangePasswordInput,
 } from './interfaces';
 
@@ -51,7 +51,7 @@ export const signUp = async (input: SignUpInput) => {
   return newUser;
 };
 
-export const logIn = async (input: LogInInput) => {
+export const login = async (input: LoginInput) => {
   const userArr = await db
     .select()
     .from(users)

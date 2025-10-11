@@ -2,14 +2,15 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { JOIN_FORM_SCHEMA, JoinFormType } from './schema';
+import { joinFormSchema, JoinFormData } from './schema';
 import { useSignUpMutation } from '../api';
 
 export const useJoinForm = () => {
-  const form = useForm<JoinFormType>({
-    resolver: zodResolver(JOIN_FORM_SCHEMA),
+  const form = useForm<JoinFormData>({
+    resolver: zodResolver(joinFormSchema),
     defaultValues: {
       email: '',
+      name: '',
       password: '',
       confirmPassword: '',
     },
@@ -17,7 +18,7 @@ export const useJoinForm = () => {
 
   const { mutate: signUp, isPending } = useSignUpMutation();
 
-  const onSubmit = (data: JoinFormType) => {
+  const onSubmit = (data: JoinFormData) => {
     signUp(data);
   };
 

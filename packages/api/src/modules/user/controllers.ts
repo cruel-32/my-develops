@@ -1,7 +1,7 @@
 import * as userService from './services';
 import type {
   SignUpInput,
-  LogInInput,
+  LoginInput,
   ChangePasswordInput,
 } from './interfaces';
 import {
@@ -14,15 +14,15 @@ export const signUpController = async ({ input }: { input: SignUpInput }) => {
   return await userService.signUp(input);
 };
 
-export const logInController = async ({
+export const loginController = async ({
   input,
   ctx,
 }: {
-  input: LogInInput;
+  input: LoginInput;
   ctx: { req: any; res: any };
 }) => {
   // Get tokens from service
-  const { accessToken, refreshToken } = await userService.logIn(input);
+  const { accessToken, refreshToken } = await userService.login(input);
 
   // ✅ Set tokens in HttpOnly cookies
   setAuthCookies(ctx.res, accessToken, refreshToken);

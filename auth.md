@@ -296,15 +296,15 @@ const isAuthed = t.middleware(({ ctx, next }) => {
 ##### 로그인 컨트롤러
 
 ```typescript
-export const logInController = async ({
+export const loginController = async ({
   input,
   ctx,
 }: {
-  input: LogInInput;
+  input: LoginInput;
   ctx: { req: any; res: any };
 }) => {
   // 1. 서비스에서 토큰 생성
-  const { accessToken, refreshToken } = await userService.logIn(input);
+  const { accessToken, refreshToken } = await userService.login(input);
 
   // 2. ✅ HttpOnly Cookie로 설정
   setAuthCookies(ctx.res, accessToken, refreshToken);
@@ -426,9 +426,9 @@ const server = createHTTPServer({
 ```
 1. 사용자가 이메일/비밀번호 입력
    ↓
-2. Browser → Next.js (/api/trpc/user.logIn)
+2. Browser → Next.js (/api/trpc/user.login)
    ↓
-3. Next.js → Backend (POST /user.logIn)
+3. Next.js → Backend (POST /user.login)
    ↓
 4. Backend: 사용자 인증 및 JWT 토큰 생성
    - accessToken: 15분
@@ -613,7 +613,7 @@ pnpm dev
 #### Network 탭에서 확인
 
 1. 개발자 도구 → Network
-2. 로그인 요청 찾기 (`user.logIn`)
+2. 로그인 요청 찾기 (`user.login`)
 3. Response Headers 확인:
 
 ```
