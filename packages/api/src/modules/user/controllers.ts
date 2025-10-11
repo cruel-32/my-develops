@@ -8,7 +8,7 @@ import {
   setAuthCookies,
   setAccessTokenCookie,
   clearAuthCookies,
-} from '@/lib/cookie';
+} from '@/api/lib/cookie';
 
 export const signUpController = async ({ input }: { input: SignUpInput }) => {
   return await userService.signUp(input);

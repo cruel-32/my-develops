@@ -1,7 +1,7 @@
 import { db } from './connection';
 import { roles, users, operatorRoles } from './schema';
 import { eq } from 'drizzle-orm';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 /**
  * 애플리케이션 시작 시 데이터베이스 초기화를 수행합니다.

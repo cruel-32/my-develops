@@ -3,10 +3,10 @@ import { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone';
 import jwt from 'jsonwebtoken';
 
 // JWT payload 타입을 정의합니다.
-interface UserPayload {
+export type UserPayload = {
   id: number;
   email: string;
-}
+};
 
 // --- Context Creation ---
 // HTTP 요청에서 헤더, 쿠키를 받아 context를 생성합니다.

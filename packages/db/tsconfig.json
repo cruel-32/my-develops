@@ -1,17 +1,13 @@
 {
   "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
-    "composite": true,
-    "incremental": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "rootDir": "src",
     "outDir": "dist",
     "baseUrl": ".",
+    "rootDir": "src",
     "paths": {
-      "@/be/*": ["./src/*"],
-      "@/api/*": ["../../packages/api/src/*"],
-      "@/db/*": ["../../packages/db/src/*"]
+      "@/db/*": ["./src/*"]
     }
   },
   "include": ["src"],

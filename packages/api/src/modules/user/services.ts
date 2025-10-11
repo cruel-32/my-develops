@@ -1,6 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import { db } from '@/db/connection';
-import { users } from '@/db/schema';
+import { db, users } from '@repo/db';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';

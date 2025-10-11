@@ -1,4 +1,4 @@
-import DefaultApp, { metadata } from '@/app';
+import DefaultApp, { metadata } from '@/web/app';
 
 export { metadata };
 

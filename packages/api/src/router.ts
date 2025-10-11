@@ -1,5 +1,5 @@
-import { router } from '@/trpc';
-import { userRouter } from './modules/user/routes';
+import { router } from '@/api/trpc';
+import { userRouter } from '@/api/modules/user/routes';
 
 export const appRouter = router({
   // user 모듈의 라우터를 'user' 네임스페이스 아래에 통합합니다.

@@ -17,7 +17,7 @@ import {
   Separator,
   CardFooter,
   ChevronLeft,
-} from '@/shared/ui';
+} from '@/web/shared/ui';
 import { useJoinForm } from '../model/hook';
 
 export function JoinForm() {

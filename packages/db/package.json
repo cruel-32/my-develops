@@ -1,5 +1,5 @@
 {
-  "name": "@repo/api",
+  "name": "@repo/db",
   "version": "1.0.0",
   "private": true,
   "main": "./src/index.ts",
@@ -11,20 +11,23 @@
   },
   "scripts": {
     "build": "tsc && tsc-alias -p tsconfig.json",
-    "check-types": "tsc --noEmit"
+    "db:migrate": "tsx src/migrate.ts",
+    "db:seed": "tsx src/seed.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:studio": "drizzle-kit studio"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/bcrypt": "^5.0.2",
-    "@types/jsonwebtoken": "^9.0.6",
-    "tsc-alias": "^1.8.16"
+    "@types/pg": "^8.11.6",
+    "drizzle-kit": "^0.22.7",
+    "tsc-alias": "^1.8.16",
+    "tsx": "^4.15.6"
   },
   "dependencies": {
-    "@repo/db": "workspace:*",
-    "@trpc/server": "^10.45.2",
     "bcrypt": "^6.0.0",
+    "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.2",
-    "jsonwebtoken": "^9.0.2",
-    "zod": "^3.23.8"
+    "pg": "^8.12.0"
   }
 }

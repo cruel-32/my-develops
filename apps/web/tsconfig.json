@@ -3,7 +3,11 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/web/*": ["./src/*"],
+      "@/be/*": ["../backend/src/*"],
+      "@/api/*": ["../../packages/api/src/*"],
+      "@/db/*": ["../../packages/db/src/*"]
+
     },
     "plugins": [
       {
@@ -11,7 +15,6 @@
       }
     ]
   },
-  "references": [{ "path": "../../packages/api" }],
   "include": [
     "**/*.ts",
     "**/*.tsx",

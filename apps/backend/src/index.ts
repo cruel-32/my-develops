@@ -1,13 +1,19 @@
 import { config } from 'dotenv';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { NextFunction } from 'express';
+import { Request, Response } from 'express';
+
+// ESM __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Load .env from monorepo root
 config({ path: resolve(__dirname, '../../../.env') });
 
 import { createHTTPServer } from '@trpc/server/adapters/standalone';
-import { appRouter } from './router';
-import { createContext } from './trpc'; // createContext 임포트
-import { initializeDatabase } from './db/initialize';
+import { appRouter, createContext } from '@repo/api';
+import { initializeDatabase } from '@repo/db';
 
 async function startServer() {
   // 데이터베이스 초기화
@@ -17,7 +23,7 @@ async function startServer() {
     router: appRouter,
     createContext, // 서버에 context 생성 함수 제공
     // ✅ CORS 설정 - Cookie 전달을 위해 credentials 허용
-    middleware(req, res, next) {
+    middleware(req: Request, res: Response, next: NextFunction) {
       const origin = req.headers.origin || 'http://localhost:3000';
 
       // CORS 헤더 설정

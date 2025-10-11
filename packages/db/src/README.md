@@ -422,4 +422,4 @@ pnpm db:push
 
 ---
 
-_For DDD integration, see `modules/_/infrastructure/repositories/`\*
+_For DDD integration, see `modules/_/infrastructure/repositories/`

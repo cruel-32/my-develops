@@ -1,6 +1,6 @@
 'use client';
 
-import { trpc } from '@/shared/api/index';
+import { trpc } from '@/web/shared/api/index';
 import { useMutation } from '@tanstack/react-query';
 import type { JoinFormType } from '../model/schema';
 

@@ -1,4 +1,4 @@
-import { publicProcedure, protectedProcedure, router } from '@/trpc';
+import { publicProcedure, protectedProcedure, router } from '@/api/trpc';
 import { signUpSchema, logInSchema, changePasswordSchema } from './interfaces';
 import {
   signUpController,

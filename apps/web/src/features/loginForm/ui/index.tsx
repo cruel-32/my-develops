@@ -16,7 +16,7 @@ import {
   FormMessage,
   Input,
   Separator,
-} from '@/shared/ui';
+} from '@/web/shared/ui';
 import { useLoginForm } from '../model/hook';
 
 export const LoginForm = () => {

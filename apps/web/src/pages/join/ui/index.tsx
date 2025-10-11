@@ -1,5 +1,5 @@
-import { BaseLayout } from '@/widgets/base-layout';
-import { JoinForm } from '@/features/joinForm';
+import { BaseLayout } from '@/web/widgets/base-layout';
+import { JoinForm } from '@/web/features/joinForm';
 
 export const JoinPage = () => {
   return (

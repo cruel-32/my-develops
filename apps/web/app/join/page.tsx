@@ -1,4 +1,4 @@
-import { JoinPage, metadata } from '@/pages/join';
+import { JoinPage, metadata } from '@/web/pages/join';
 
 export { metadata };
 
