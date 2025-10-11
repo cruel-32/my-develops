@@ -1,4 +1,4 @@
-import { LoginPage, metadata } from '@/views/login';
+import { LoginPage, metadata } from '@/pages/login';
 
 export { metadata };
 
