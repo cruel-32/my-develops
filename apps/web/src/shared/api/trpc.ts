@@ -1,11 +1,9 @@
 'use client';
-import { createTRPCContext } from '@trpc/tanstack-react-query';
+import { createTRPCReact } from '@trpc/react-query';
 import { httpBatchLink, createTRPCClient } from '@trpc/client';
 import type { AppRouter } from '@repo/api';
 
-// Export the context hooks first
-export const { TRPCProvider, useTRPC, useTRPCClient } =
-  createTRPCContext<AppRouter>();
+export const trpc = createTRPCReact<AppRouter>();
 
 function getBaseUrl() {
   if (typeof window !== 'undefined') return '';
