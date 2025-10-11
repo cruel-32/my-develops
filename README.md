@@ -127,7 +127,7 @@ src/
 | Docker Compose | 멀티 컨테이너 오케스트레이션         |
 | ESLint         | 코드 품질, 표준 강제                 |
 | Prettier       | 코드 포맷팅                          |
-| ts-node-dev    | 백엔드 개발 서버                     |
+| tsx            | 백엔드 개발 서버                     |
 
 ### 공유 패키지
 
@@ -788,9 +788,10 @@ my-develops/
 │           ├── router.ts       # 루트 라우터
 │           ├── modules/        # 기능 모듈
 │           │   └── user/
-│           │       ├── routes/ # tRPC 프로시저
-│           │       ├── services/
-│           │       └── types/
+│           │       ├── routes.ts # tRPC 프로시저
+│           │       ├── controllers.ts
+│           │       ├── services.ts
+│           │       └── interfaces.ts
 │           └── db/             # 데이터베이스 레이어
 │               ├── schema/     # Drizzle 스키마
 │               ├── migrations/ # 마이그레이션 파일
@@ -821,7 +822,7 @@ my-develops/
 - **패키지**: 8개 (3개 앱 + 5개 공유 패키지)
 - **컴포넌트**: ~20개 React 컴포넌트
 - **데이터베이스 테이블**: 완전한 관계를 가진 11개
-- **tRPC 프로시저**: 4개 (signUp, login, refresh, getMe)
+- **tRPC 프로시저**: 6개 (signUp, login, refresh, logOut, changePassword, verifyToken)
 
 ### 빌드 성능
 
