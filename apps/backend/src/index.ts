@@ -1,8 +1,6 @@
 import { config } from 'dotenv';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { NextFunction } from 'express';
-import { Request, Response } from 'express';
 
 // ESM __dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -23,7 +21,7 @@ async function startServer() {
     router: appRouter,
     createContext, // 서버에 context 생성 함수 제공
     // ✅ CORS 설정 - Cookie 전달을 위해 credentials 허용
-    middleware(req: Request, res: Response, next: NextFunction) {
+    middleware(req, res, next: () => void) {
       const origin = req.headers.origin || 'http://localhost:3000';
 
       // CORS 헤더 설정

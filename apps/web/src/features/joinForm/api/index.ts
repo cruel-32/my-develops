@@ -1,7 +1,6 @@
 'use client';
 
 import { trpc } from '@/web/shared/api/index';
-import { useMutation } from '@tanstack/react-query';
 import type { JoinFormType } from '../model/schema';
 
 /**
@@ -9,11 +8,7 @@ import type { JoinFormType } from '../model/schema';
  * Handles user creation via tRPC.
  */
 export const useSignUpMutation = () => {
-  const { useTRPC } = trpc;
-  const trpcApi = useTRPC();
-
-  return useMutation({
-    ...trpcApi.user.signUp.mutationOptions(),
+  return trpc.trpc.user.signUp.useMutation({
     onSuccess: (data: unknown) => {
       console.log('SignUp successful:', data);
       // On successful sign-up, redirect to the login page.

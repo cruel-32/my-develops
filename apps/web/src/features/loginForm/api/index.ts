@@ -1,7 +1,6 @@
 'use client';
 
 import { trpc } from '@/web/shared/api/index';
-import { useMutation } from '@tanstack/react-query';
 import type { LoginFormData } from '../model/schema';
 
 /**
@@ -12,11 +11,7 @@ import type { LoginFormData } from '../model/schema';
  * and automatically included in subsequent requests via credentials: 'include'
  */
 export const useLoginMutation = () => {
-  const { useTRPC } = trpc;
-  const trpcApi = useTRPC();
-
-  return useMutation({
-    ...trpcApi.user.logIn.mutationOptions(),
+  return trpc.trpc.user.logIn.useMutation({
     onSuccess: (data: unknown) => {
       console.log('Login successful:', data);
       // ✅ Tokens are automatically stored in HttpOnly cookies
