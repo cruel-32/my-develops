@@ -1,8 +1,8 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import { CreateHTTPContextOptions } from '@trpc/server/adapters/standalone';
 import jwt from 'jsonwebtoken';
-import * as userService from '@/api/modules/user/services';
-import { setAccessTokenCookie } from '@/api/lib/cookie';
+import * as userService from '@/api/modules/users/services';
+import { setAuthCookies } from '@/api/lib/cookie';
 
 // 환경 변수에서 시크릿 키를 가져옵니다.
 const ACCESS_TOKEN_SECRET =
@@ -58,10 +58,11 @@ async function attemptTokenRefresh(ctx: {
 
   try {
     // refreshToken으로 새 accessToken 발급
-    const { accessToken } = await userService.refresh(refreshToken);
+    const { accessToken, refreshToken: newRefreshToken } =
+      await userService.refresh(refreshToken);
 
-    // 새 accessToken을 쿠키에 설정
-    setAccessTokenCookie(ctx.res, accessToken);
+    // 새 accessToken과 refreshToken을 쿠키에 설정
+    setAuthCookies(ctx.res, accessToken, newRefreshToken);
 
     // 새 토큰으로 사용자 정보 추출
     const decoded = jwt.verify(accessToken, ACCESS_TOKEN_SECRET) as UserPayload;

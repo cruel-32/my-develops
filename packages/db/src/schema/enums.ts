@@ -7,3 +7,12 @@ export const diagramTypeEnum = pgEnum('diagram_type', [
   'class',
   'state',
 ]);
+
+export const roleTypeEnum = pgEnum('role_type', [
+  'super_admin',
+  'admin',
+  'user',
+  'prj_admin',
+  'prj_write',
+  'prj_read',
+]);

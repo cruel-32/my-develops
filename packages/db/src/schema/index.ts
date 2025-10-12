@@ -3,7 +3,6 @@ export * from './users.schema';
 export * from './roles.schema';
 export * from './operator-roles.schema';
 export * from './projects.schema';
-export * from './prj-roles.schema';
 export * from './canvases.schema';
 export * from './erd-canvases.schema';
 export * from './erd-nodes.schema';

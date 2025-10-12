@@ -2,6 +2,7 @@
 
 import { trpc } from '@/web/shared/api/index';
 import type { LoginFormData } from '../model/schema';
+import { useRouter } from 'next/navigation';
 
 /**
  * Login mutation hook
@@ -11,14 +12,15 @@ import type { LoginFormData } from '../model/schema';
  * and automatically included in subsequent requests via credentials: 'include'
  */
 export const useLoginMutation = () => {
-  return trpc.trpc.user.login.useMutation({
+  const router = useRouter();
+  return trpc.trpc.users.login.useMutation({
     onSuccess: (data) => {
       console.log('Login successful:', data);
       // ✅ Tokens are automatically stored in HttpOnly cookies
       // No manual token storage needed - cookies are handled by browser
 
       // TODO: Redirect to dashboard
-      // window.location.href = '/dashboard';
+      router.push('/dashboard');
     },
     onError: (error) => {
       console.error('Login failed:', error);

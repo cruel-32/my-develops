@@ -24,21 +24,16 @@ async function seed() {
       {
         roleName: 'super_admin',
         roleDesc:
-          '프로젝트 생성, 프로젝트 삭제, 사용자 권한 생성, 사용자 권한 삭제, 사용자 삭제, 역할주기 (super_admin은 불가)',
+          '모든 프로젝트의 생성과 삭제 권한을 가지고 있으며, 모든 사용자 권한 생성, 사용자 권한 삭제, 사용자 삭제 가능 (super_admin 권한을 생성/삭제는 불가, super_admin 사용자를 삭제하는 것도 불가)',
         enabled: true,
       },
       {
         roleName: 'admin',
         roleDesc:
-          '사용자 권한 생성, 사용자 권한 삭제, 사용자 삭제 (super_admin, admin 제외), 역할주기 (super_admin은 불가)',
+          '모든 프로젝트의 생성과 삭제 권한을 가지고 있으며, 모든 사용자 권한 생성, 사용자 권한 삭제, 사용자 삭제 가능 (super_admin 권한을 생성/삭제는 불가, super_admin 사용자를 삭제하는 것도 불가)',
         enabled: true,
       },
-      {
-        roleName: 'user',
-        roleDesc: 'User',
-        enabled: true,
-      },
-    ];
+    ] as const;
 
     const createdRoles: Record<string, number> = {};
 

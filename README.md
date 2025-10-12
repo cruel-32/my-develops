@@ -1,7 +1,8 @@
-# 현대적 아키텍처 기반 풀스택 개발 플랫폼
+# My Develops - 개발팀을 위한 협업 다이어그램 플랫폼
 
-> 고급 TypeScript 패턴, 아키텍처 설계, 확장 가능한 인프라를 보여주는 엔터프라이즈급 모노레포
+> 동시편집 가능한 ERD 및 다이어그램 에디터 | 완전 무료 오픈소스 | 로컬/내부망 설치형
 
+**핵심 특징**: 실시간 협업, 보안 걱정 없음, 비용 제로, 설치형 솔루션
 **기술 스택**: Next.js 15, tRPC, TypeScript, PostgreSQL, Docker, Turborepo
 **아키텍처**: Feature-Sliced Design (FSD), 모노레포, 타입 안전 API 레이어
 
@@ -23,22 +24,55 @@
 
 ## 🎯 프로젝트 개요
 
-### 비전
+### My Develops란?
 
-엔터프라이즈급 아키텍처 패턴, 타입 안정성, 현대적 개발 관행을 보여주는 종합적인 풀스택 개발 플랫폼입니다. 이 프로젝트는 개발자 경험과 유지보수성에 중점을 둔 확장 가능한 웹 애플리케이션 개발의 청사진 역할을 합니다.
+**개발팀을 위한 협업 다이어그램 플랫폼**으로, 팀원들이 실시간으로 함께 ERD와 다이어그램을 작성하고 관리할 수 있는 개발 어시스트 웹앱입니다.
 
-### 핵심 목표
+### 왜 My Develops인가?
 
-- **타입 안정성**: 데이터베이스부터 UI까지 엔드투엔드 타입 안정성
-- **확장성**: 수평적 성장을 지원하는 모듈형 아키텍처
-- **개발자 경험**: 빠른 피드백 루프, 포괄적인 도구
-- **코드 품질**: 일관된 패턴, 자동화된 품질 게이트
-- **프로덕션 준비**: 도커 기반 배포, 헬스 체크, 모니터링
+**완전 무료 오픈소스**
+
+- 라이선스 비용 없음, 무제한 사용자
+
+**로컬/내부망 설치형**
+
+- 클라우드 의존성 제로
+- 회사 내부망에 설치 가능
+- 외부 인터넷 연결 불필요
+
+**보안과 프라이버시**
+
+- 민감한 데이터베이스 스키마 정보가 외부로 유출될 걱정 없음
+- 완전한 데이터 주권 보장
+- 사내 보안 정책 준수 용이
+
+**비용 절감**
+
+- 클라우드 요금 없음
+- 사용자 수 제한 없음
+- 영구 무료 사용
+
+**직관적인 사용성**
+
+- Figma, Miro 같은 디자인 툴 수준의 친숙한 UI/UX
+- 드래그 앤 드롭 기반의 직관적인 인터페이스
+- 별도 학습 없이 바로 시작 가능
+- 개발자가 아니어도 쉽게 사용
+
+### 핵심 기능
+
+- **실시간 협업 ERD 에디터**: 여러 개발자가 동시에 데이터베이스 설계
+- **다이어그램 도구**: 시스템 아키텍처, 플로우차트 등 다양한 다이어그램 지원
+- **프로젝트 관리**: 프로젝트별 접근 권한 관리
+- **SQL 내보내기**: 작성한 ERD를 바로 DDL로 변환
 
 ### 현재 상태
 
 **단계**: MVP 개발 (5% 완료)
-**집중 영역**: 인증 시스템, 데이터베이스 스키마, 핵심 인프라
+
+**완료**: 인증 시스템, 데이터베이스 스키마, 프로젝트 관리 기반
+
+**진행 중**: 사용자 관리, ERD 에디터 UI, 실시간 동시편집 기능
 
 ---
 
@@ -133,9 +167,10 @@ src/
 
 ```
 packages/
-├── @repo/api          # tRPC 라우터 타입 (공유 계약)
-├── @repo/ui           # 재사용 가능한 React 컴포넌트
-├── @repo/eslint-config    # 공유 린팅 규칙
+├── @repo/api               # tRPC API 레이어 (라우터, 컨트롤러, 서비스)
+├── @repo/db                # 데이터베이스 레이어 (스키마, 마이그레이션, 시드)
+├── @repo/ui                # 재사용 가능한 React 컴포넌트
+├── @repo/eslint-config     # 공유 린팅 규칙
 ├── @repo/typescript-config # 공유 TS 설정
 └── @repo/tailwind-config   # 공유 스타일링 토큰
 ```
@@ -164,7 +199,7 @@ async function fetchWithTokenRefresh(url, options) {
 
   const refreshed = await refreshAccessToken();
   if (!refreshed) {
-    window.location.href = '/login';
+    window.location.href = '/';
     return response;
   }
 
@@ -194,12 +229,13 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 
 협업 다이어그램 플랫폼을 위한 포괄적인 데이터 모델:
 
-**테이블** (총 11개):
+**테이블** (총 10개):
 
 - **핵심**: users, roles, projects
-- **접근 제어**: operator_roles, prj_roles (다대다)
+- **접근 제어**: operator_roles (roles 테이블에 project_id 추가로 다대다 관계 구현)
 - **다이어그램**: canvases, erd_canvases, diagram_posts
 - **ERD 전용**: erd_nodes, node_fields
+- **기타**: enums (열거형 타입 정의)
 
 **특징**:
 
@@ -356,8 +392,8 @@ pnpm dev
 # → backend: http://localhost:4000
 
 # 데이터베이스 설정
-pnpm db:migrate   # 마이그레이션 실행
-pnpm db:seed      # 초기 데이터 시드
+pnpm --filter @repo/db db:migrate   # 마이그레이션 실행
+pnpm --filter @repo/db db:seed      # 초기 데이터 시드
 ```
 
 ### Docker 아키텍처
@@ -432,260 +468,71 @@ scripts/
 
 #### 1. 테스트 인프라 ⚠️
 
-**현재 격차**: 테스트 커버리지 0%
+**현재 상태**: 테스트 커버리지 0%
 
-**실행 계획**:
+**계획**:
 
-- [ ] **단위 테스트** - 비즈니스 로직, 유틸리티, 훅
-  - 목표: 80%+ 커버리지
-  - 도구: Vitest, React Testing Library
-  - 우선 영역: 인증, 폼 검증
-- [ ] **통합 테스트** - API 엔드포인트, 데이터베이스 작업
-  - 도구: 테스트 데이터베이스를 사용한 Vitest
-  - tRPC 프로시저 모킹
-- [ ] **E2E 테스트** - 주요 사용자 플로우
-  - 도구: Playwright
-  - 플로우: 회원가입 → 로그인 → 프로젝트 생성 → 다이어그램 생성
+- [ ] 단위 테스트 (Vitest, React Testing Library) - 80%+ 목표
+- [ ] 통합 테스트 (tRPC 프로시저, 데이터베이스)
+- [ ] E2E 테스트 (Playwright) - 주요 사용자 플로우
 
-**예상 소요 시간**: 2-3주
+#### 2. 에러 핸들링 및 로깅
 
-#### 2. 타입 안정성 격차 🔴
+- [ ] 구조화된 로깅 (Winston/Pino)
+- [ ] 에러 추적 통합 (Sentry)
+- [ ] 글로벌 에러 바운더리
+- [ ] tRPC 에러 정규화
 
-**문제**: `apps/web/src/shared/api/trpc.ts:7,65`
-
-**에러**:
-
-```
-TRPCProvider의 유추된 타입이
-'@trpc/server/dist/unstable-core-do-not-import'를 참조합니다
-이식성을 위해 타입 주석이 필요합니다
-```
-
-**근본 원인**:
-
-- tRPC v11 내부 타입 의존성
-- 모노레포 크로스 패키지 타입 해결
-- `createTRPCReact<AppRouter>()` 타입 추론 제한
-
-**해결 방법**:
-
-```typescript
-// 옵션 1: 명시적 타입 주석
-import type { CreateTRPCReact } from '@trpc/react-query';
-export const trpc: CreateTRPCReact<AppRouter, unknown> =
-  createTRPCReact<AppRouter>();
-
-// 옵션 2: 타입 재내보내기 패턴
-// packages/api/index.ts
-export type { TRPCProvider, TRPCClient } from './generated-types';
-
-// 옵션 3: 안정적인 tRPC API로 업데이트
-// 안정적인 타입 내보내기를 위한 tRPC v11.x 릴리스 모니터링
-```
-
-**예상 소요 시간**: 4-8시간 (연구 + 구현)
-
-#### 3. 에러 핸들링 및 로깅 📋
-
-**현재 상태**: 기본 try-catch 블록
-
-**개선사항**:
-
-- [ ] **구조화된 로깅** Winston/Pino 사용
-- [ ] **에러 추적** 통합 (Sentry)
-- [ ] **사용자 대면 에러 메시지** with i18n 지원
-- [ ] **글로벌 에러 바운더리** in Next.js
-- [ ] **API 에러 정규화** in tRPC 프로시저
-
-**예시**:
-
-```typescript
-// 백엔드: 구조화된 에러 처리
-export class AppError extends Error {
-  constructor(
-    public code: string,
-    message: string,
-    public statusCode: number = 500
-  ) {
-    super(message);
-  }
-}
-
-// tRPC 에러 포매터
-import { TRPCError } from '@trpc/server';
-throw new TRPCError({
-  code: 'UNAUTHORIZED',
-  message: '잘못된 자격 증명',
-  cause: error,
-});
-
-// 프론트엔드: 에러 바운더리
-<ErrorBoundary FallbackComponent={ErrorFallback}>
-  <App />
-</ErrorBoundary>
-```
-
-**예상 소요 시간**: 1주
-
-#### 4. 성능 최적화 🚀
+#### 3. 성능 최적화
 
 **데이터베이스**:
 
-- [ ] 빈번한 쿼리를 위한 인덱스 추가
-  ```sql
-  CREATE INDEX idx_users_email ON users(email);
-  CREATE INDEX idx_projects_owner ON projects(owner_id);
-  CREATE INDEX idx_erd_nodes_canvas ON erd_nodes(canvas_id);
-  ```
-- [ ] 쿼리 결과 캐싱 구현 (Redis)
-- [ ] 데이터베이스 커넥션 풀링 최적화
-- [ ] `WITH` 절을 사용한 N+1 쿼리 제거
+- [ ] 인덱스 최적화 (users.email, projects.owner_id 등)
+- [ ] Redis 캐싱
+- [ ] N+1 쿼리 제거
 
 **프론트엔드**:
 
-- [ ] **코드 스플리팅** - 라우트 기반 지연 로딩
-  ```typescript
-  const LoginPage = dynamic(() => import('@/pages/login'), {
-    loading: () => <LoadingSpinner />
-  });
-  ```
-- [ ] **이미지 최적화** - Next.js Image 컴포넌트
-- [ ] **번들 분석** - 큰 의존성 식별
-- [ ] **React Server Components** - 서버 렌더링 최대화
-- [ ] **프리페칭** - SSR에서 tRPC 쿼리 프리페칭
-
-**모니터링**:
-
-- [ ] Web Vitals 추적 (LCP, FID, CLS)
-- [ ] API 응답 시간 모니터링
-- [ ] 데이터베이스 쿼리 성능 로깅
-
-**예상 소요 시간**: 2주
+- [ ] 코드 스플리팅 및 지연 로딩
+- [ ] Next.js Image 최적화
+- [ ] 번들 크기 분석 및 최적화
 
 ### 중간 우선순위
 
-#### 5. 기능 개발 🎨
+#### 4. 기능 개발
 
 **ERD 다이어그램 에디터**:
 
-- [ ] 노드 생성 및 편집 인터페이스
-- [ ] @xyflow/react를 사용한 관계 시각화
-- [ ] 자동 레이아웃 알고리즘
-- [ ] SQL DDL로 내보내기
-- [ ] 협업 기능 (실시간 업데이트)
+- [ ] 노드 생성/편집 인터페이스
+- [ ] @xyflow/react 관계 시각화
+- [ ] SQL DDL 내보내기
 
 **프로젝트 관리**:
 
-- [ ] 프로젝트 생성/삭제 플로우
 - [ ] 멤버 초대 시스템
-- [ ] 역할 기반 접근 제어 (RBAC) UI
-- [ ] 통계가 있는 프로젝트 대시보드
+- [ ] RBAC UI
+- [ ] 프로젝트 대시보드
 
 **사용자 프로필**:
 
-- [ ] 아바타 업로드 (S3/CloudFront 통합)
-- [ ] 프로필 편집
-- [ ] 비밀번호 변경 플로우
-- [ ] 계정 삭제
+- [ ] 아바타 업로드 (MinIO 통합)
+- [ ] 프로필 편집 및 비밀번호 변경
 
-**예상 소요 시간**: 4-6주
+#### 5. 보안 강화
 
-#### 6. 보안 강화 🔒
-
-- [ ] **Rate limiting** - API 엔드포인트 보호
-  ```typescript
-  // tRPC 미들웨어
-  import { Ratelimit } from '@upstash/ratelimit';
-  const ratelimit = new Ratelimit({
-    redis: Redis.fromEnv(),
-    limiter: Ratelimit.slidingWindow(10, '10 s'),
-  });
-  ```
-- [ ] **CSRF 보호** - 토큰 기반 검증
-- [ ] **입력 새니타이제이션** - XSS 방지
-- [ ] **SQL 인젝션 방지** - 파라미터화된 쿼리 (이미 Drizzle 사용 중)
-- [ ] **보안 헤더** - Next.js 미들웨어
-  ```typescript
-  // middleware.ts
-  response.headers.set('X-Frame-Options', 'DENY');
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'origin-when-cross-origin');
-  ```
-- [ ] **감사 로깅** - 사용자 작업 추적
-- [ ] **2FA 지원** - TOTP 기반 인증
-
-**예상 소요 시간**: 2-3주
-
-#### 7. DevOps 및 CI/CD 🛠️
-
-**GitHub Actions 워크플로우**:
-
-```yaml
-# .github/workflows/ci.yml
-name: CI/CD Pipeline
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - name: 의존성 설치
-        run: pnpm install
-      - name: 테스트 실행
-        run: pnpm test
-      - name: 타입 체크
-        run: pnpm check-types
-      - name: 린트
-        run: pnpm lint
-
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Docker 이미지 빌드
-        run: pnpm docker:build:prod
-      - name: 레지스트리에 푸시
-        run: docker push ${{ secrets.REGISTRY }}/app
-```
-
-**추가 작업**:
-
-- [ ] 자동화된 의존성 업데이트 (Renovate/Dependabot)
-- [ ] 성능 모니터링을 위한 Lighthouse CI
-- [ ] E2E 테스트를 위한 Playwright CI
-- [ ] CI에서 자동화된 데이터베이스 마이그레이션
-- [ ] PR을 위한 프리뷰 배포 (Vercel/Netlify)
-
-**예상 소요 시간**: 1-2주
+- [ ] Rate limiting (API 보호)
+- [ ] CSRF 보호
+- [ ] XSS 방지 (입력 새니타이제이션)
+- [ ] 보안 헤더 설정
+- [ ] 2FA 지원 (TOTP)
 
 ### 낮은 우선순위
 
-#### 8. 문서화 📚
+#### 6. 접근성 및 국제화
 
-- [ ] API 문서화 (tRPC OpenAPI 통합)
-- [ ] 컴포넌트 Storybook
-- [ ] 아키텍처 결정 기록 (ADRs)
-- [ ] 신규 개발자를 위한 온보딩 가이드
-- [ ] 데이터베이스 스키마 시각화 (ERD)
-
-#### 9. 접근성 (a11y) ♿
-
-- [ ] 대화형 요소에 대한 ARIA 레이블
-- [ ] 키보드 탐색 지원
-- [ ] 스크린 리더 테스트
-- [ ] 색상 대비 준수 (WCAG AA)
-- [ ] 모달/다이얼로그의 포커스 관리
-
-#### 10. 국제화 (i18n) 🌍
-
+- [ ] WCAG AA 준수 (ARIA 레이블, 키보드 탐색)
 - [ ] next-intl 통합
-- [ ] 번역 관리
-- [ ] RTL 언어 지원
-- [ ] 로케일 기반 포맷팅 (날짜, 숫자)
-
-**총 예상 소요 시간**: 모든 개선사항에 대해 10-15주
+- [ ] 다국어 지원 및 RTL 언어
 
 ---
 
@@ -715,9 +562,9 @@ cp .env.example .env
 # 설정으로 .env 편집
 
 # 4. 데이터베이스 설정
-docker-compose up -d postgres    # PostgreSQL 시작
-pnpm db:migrate                  # 마이그레이션 실행
-pnpm db:seed                     # 초기 데이터 시드
+docker-compose up -d postgres            # PostgreSQL 시작
+pnpm --filter @repo/db db:migrate        # 마이그레이션 실행
+pnpm --filter @repo/db db:seed           # 초기 데이터 시드
 
 # 5. 개발 서버 시작
 pnpm dev
@@ -740,8 +587,10 @@ pnpm format           # Prettier로 포맷
 pnpm format:check     # 포맷팅 체크
 
 # 데이터베이스
-pnpm db:migrate       # 마이그레이션 실행
-pnpm db:seed          # 데이터 시드
+pnpm --filter @repo/db db:migrate   # 마이그레이션 실행
+pnpm --filter @repo/db db:seed      # 데이터 시드
+pnpm --filter @repo/db db:generate  # 마이그레이션 파일 생성
+pnpm --filter @repo/db db:studio    # Drizzle Studio 실행
 
 # Docker
 pnpm docker:build:prod    # 프로덕션 이미지 빌드
@@ -759,12 +608,17 @@ my-develops/
 │   ├── web/                    # Next.js 프론트엔드
 │   │   ├── app/                # Next.js App Router
 │   │   │   ├── api/trpc/       # tRPC API 라우트 핸들러
+│   │   │   ├── dashboard/      # 대시보드 페이지
+│   │   │   ├── login/          # 로그인 페이지
+│   │   │   ├── join/           # 회원가입 페이지
 │   │   │   ├── layout.tsx      # 루트 레이아웃
 │   │   │   └── page.tsx        # 홈 페이지
 │   │   └── src/                # FSD 아키텍처
 │   │       ├── app/            # 앱 초기화
 │   │       │   ├── providers/  # React Query, tRPC 프로바이더
-│   │       │   └── middleware/ # 인증 미들웨어
+│   │       │   ├── middleware/ # 인증 미들웨어
+│   │       │   ├── lib/        # 앱 레벨 유틸리티
+│   │       │   └── styles/     # 글로벌 스타일
 │   │       ├── pages/          # 페이지 레벨 컴포넌트
 │   │       │   ├── login/
 │   │       │   └── join/
@@ -777,29 +631,59 @@ my-develops/
 │   │       │   │   └── api/    # tRPC 뮤테이션
 │   │       │   └── joinForm/
 │   │       ├── entities/       # 도메인 엔티티
+│   │       │   └── project/    # 프로젝트 엔티티
 │   │       └── shared/         # 공유 유틸리티
 │   │           ├── api/        # tRPC 클라이언트 설정
-│   │           └── ui/         # 재사용 가능한 컴포넌트
+│   │           ├── ui/         # 재사용 가능한 컴포넌트
+│   │           ├── lib/        # 공유 유틸리티 함수
+│   │           ├── config/     # 설정 파일
+│   │           └── i18n/       # 국제화 설정
 │   │
 │   └── backend/                # tRPC API 서버
 │       └── src/
-│           ├── index.ts        # 서버 진입점
-│           ├── trpc.ts         # tRPC 컨텍스트, 미들웨어
-│           ├── router.ts       # 루트 라우터
-│           ├── modules/        # 기능 모듈
-│           │   └── user/
-│           │       ├── routes.ts # tRPC 프로시저
-│           │       ├── controllers.ts
-│           │       ├── services.ts
-│           │       └── interfaces.ts
-│           └── db/             # 데이터베이스 레이어
-│               ├── schema/     # Drizzle 스키마
-│               ├── migrations/ # 마이그레이션 파일
-│               ├── connection.ts
-│               └── migrate.ts
+│           └── index.ts        # 서버 진입점
 │
 ├── packages/
-│   ├── api/                    # 공유 tRPC 타입
+│   ├── api/                    # tRPC API 레이어
+│   │   └── src/
+│   │       ├── trpc.ts         # tRPC 컨텍스트, 미들웨어
+│   │       ├── router.ts       # 루트 라우터
+│   │       ├── modules/        # 도메인별 모듈
+│   │       │   ├── users/      # 사용자 인증 및 관리
+│   │       │   │   ├── routes.ts
+│   │       │   │   ├── controllers.ts
+│   │       │   │   ├── services.ts
+│   │       │   │   └── interfaces.ts
+│   │       │   ├── projects/   # 프로젝트 관리
+│   │       │   │   ├── routes.ts
+│   │       │   │   ├── controllers.ts
+│   │       │   │   ├── services.ts
+│   │       │   │   └── interfaces.ts
+│   │       │   └── operator_roles/ # 운영자 역할 관리
+│   │       │       ├── routes.ts
+│   │       │       ├── controllers.ts
+│   │       │       ├── services.ts
+│   │       │       └── interfaces.ts
+│   │       └── lib/            # 공유 유틸리티 (cookie, jwt 등)
+│   │
+│   ├── db/                     # 데이터베이스 레이어
+│   │   └── src/
+│   │       ├── schema/         # Drizzle 스키마
+│   │       │   ├── users.schema.ts
+│   │       │   ├── roles.schema.ts
+│   │       │   ├── operator-roles.schema.ts
+│   │       │   ├── projects.schema.ts
+│   │       │   ├── canvases.schema.ts
+│   │       │   ├── erd-canvases.schema.ts
+│   │       │   ├── erd-nodes.schema.ts
+│   │       │   ├── node-fields.schema.ts
+│   │       │   ├── diagram-posts.schema.ts
+│   │       │   └── enums.ts
+│   │       ├── migrations/     # 마이그레이션 파일
+│   │       ├── initialize.ts   # DB 연결 초기화
+│   │       ├── migrate.ts      # 마이그레이션 실행
+│   │       └── seed.ts         # 시드 데이터
+│   │
 │   ├── ui/                     # 공유 React 컴포넌트
 │   ├── eslint-config/          # 공유 ESLint 설정
 │   ├── typescript-config/      # 공유 TS 설정
@@ -819,10 +703,13 @@ my-develops/
 
 - **총 라인 수**: ~15,000 (node_modules 제외)
 - **TypeScript 커버리지**: 100% (src/에 .js 파일 없음)
-- **패키지**: 8개 (3개 앱 + 5개 공유 패키지)
+- **패키지**: 8개 (2개 앱 + 6개 공유 패키지)
 - **컴포넌트**: ~20개 React 컴포넌트
-- **데이터베이스 테이블**: 완전한 관계를 가진 11개
-- **tRPC 프로시저**: 6개 (signUp, login, refresh, logOut, changePassword, verifyToken)
+- **데이터베이스 테이블**: 완전한 관계를 가진 10개
+- **tRPC 프로시저**: 13개
+  - **users**: signUp, login, refresh, verifyToken, getMe, logOut, changePassword (7개)
+  - **projects**: create, delete, list (3개)
+  - **operatorRoles**: create, delete, list (3개)
 
 ### 빌드 성능
 

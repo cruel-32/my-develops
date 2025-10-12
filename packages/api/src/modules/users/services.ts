@@ -93,7 +93,7 @@ export const login = async (input: LoginInput) => {
     .set({ refresh_token: refreshToken })
     .where(eq(users.id, user.id));
 
-  return { accessToken, refreshToken };
+  return { success: true, accessToken, refreshToken };
 };
 
 export const refresh = async (refreshToken: string) => {
@@ -129,23 +129,26 @@ export const refresh = async (refreshToken: string) => {
       newAccessTokenPayload,
       ACCESS_TOKEN_SECRET,
       {
-        expiresIn: 900, // 15분
+        expiresIn: 60 * 15, // 15분
       }
     );
     const newRefreshToken = jwt.sign(
       newRefreshTokenPayload,
       REFRESH_TOKEN_SECRET,
       {
-        expiresIn: 1296000, // 15일
+        expiresIn: 60 * 60 * 24 * 15, // 15일
       }
     );
-
     await db
       .update(users)
       .set({ refresh_token: newRefreshToken })
       .where(eq(users.id, user.id));
 
-    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+    return {
+      success: true,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    };
   } catch (err) {
     throw new TRPCError({
       code: 'UNAUTHORIZED',
@@ -273,6 +276,55 @@ export const verifyToken = async (accessToken: string) => {
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
       message: 'Token verification failed.',
+    });
+  }
+};
+
+export const getMe = async (refreshToken: string) => {
+  try {
+    const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as {
+      id: number;
+    };
+    const userArr = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, decoded.id));
+    const user = userArr[0];
+
+    if (!user || user.refresh_token !== refreshToken) {
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'Invalid refresh token.',
+      });
+    }
+
+    if (!user.email || !user.name) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'User data is incomplete.',
+      });
+    }
+
+    const newAccessTokenPayload = { id: user.id, email: user.email };
+    const newAccessToken = jwt.sign(
+      newAccessTokenPayload,
+      ACCESS_TOKEN_SECRET,
+      { expiresIn: 60 * 15 }
+    );
+
+    return {
+      success: true,
+      accessToken: newAccessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    };
+  } catch (err) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'Invalid or expired refresh token.',
     });
   }
 };

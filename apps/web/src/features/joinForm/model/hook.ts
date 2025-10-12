@@ -16,10 +16,10 @@ export const useJoinForm = () => {
     },
   });
 
-  const { mutate: signUp, isPending } = useSignUpMutation();
+  const { mutate, isPending } = useSignUpMutation();
 
   const onSubmit = (data: JoinFormData) => {
-    signUp(data);
+    mutate(data);
   };
 
   return {

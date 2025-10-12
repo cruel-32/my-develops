@@ -5,13 +5,15 @@ import type { NextRequest } from 'next/server';
 const protectedRoutes = ['/dashboard', '/mypage'];
 
 /**
- * tRPC를 통해 토큰 검증
+ * tRPC를 통해 토큰 검증. 성공 시 Response 객체, 실패 시 null 반환
  */
-async function verifyTokenViaTRPC(accessToken: string): Promise<boolean> {
+async function verifyTokenViaTRPC(
+  accessToken: string
+): Promise<Response | null> {
   try {
     const backendUrl =
       process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-    const response = await fetch(`${backendUrl}/api/trpc/user.verifyToken`, {
+    const response = await fetch(`${backendUrl}/api/trpc/users.verifyToken`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -23,33 +25,35 @@ async function verifyTokenViaTRPC(accessToken: string): Promise<boolean> {
     });
 
     if (!response.ok) {
-      console.error('Token verification failed:', response.status);
-      return false;
+      console.error('Token verification fetch failed:', response.status);
+      return null;
     }
 
     const data = await response.json();
 
-    // 검증 성공 여부 확인
-    if (data?.[0]?.result?.data?.success) {
+    if (data?.result?.data?.success) {
       console.log('✅ Token verified successfully via tRPC');
-      return true;
+      return response;
     }
 
-    return false;
+    console.log('Token verification failed, tRPC error:', data?.error);
+    return null;
   } catch (error) {
     console.error('Token verification error via tRPC:', error);
-    return false;
+    return null;
   }
 }
 
 /**
- * 백엔드에서 토큰 갱신 시도
+ * 백엔드에서 토큰 갱신 시도. 성공 시 Response 객체, 실패 시 null 반환
  */
-async function refreshAccessToken(refreshToken: string): Promise<boolean> {
+async function refreshAccessToken(
+  refreshToken: string
+): Promise<Response | null> {
   try {
     const backendUrl =
       process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-    const response = await fetch(`${backendUrl}/api/trpc/user.refresh`, {
+    const response = await fetch(`${backendUrl}/api/trpc/users.refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -61,22 +65,22 @@ async function refreshAccessToken(refreshToken: string): Promise<boolean> {
     });
 
     if (!response.ok) {
-      console.error('Token refresh failed:', response.status);
-      return false;
+      console.error('Token refresh fetch failed:', response.status);
+      return null;
     }
 
     const data = await response.json();
 
-    // 갱신 성공 여부 확인
-    if (data?.[0]?.result?.data?.success) {
+    if (data?.result?.data?.success) {
       console.log('✅ Token refreshed successfully in middleware');
-      return true;
+      return response;
     }
 
-    return false;
+    console.log('Token refresh failed, tRPC error:', data?.error);
+    return null;
   } catch (error) {
     console.error('Token refresh error in middleware:', error);
-    return false;
+    return null;
   }
 }
 
@@ -88,7 +92,6 @@ function extractTokensFromCookies(cookieHeader: string | undefined): {
   refreshToken?: string;
 } {
   if (!cookieHeader) return {};
-
   const cookies = cookieHeader.split(';').reduce(
     (acc, cookie) => {
       const [key, value] = cookie.trim().split('=');
@@ -97,7 +100,6 @@ function extractTokensFromCookies(cookieHeader: string | undefined): {
     },
     {} as Record<string, string>
   );
-
   return {
     accessToken: cookies['accessToken'],
     refreshToken: cookies['refreshToken'],
@@ -106,54 +108,68 @@ function extractTokensFromCookies(cookieHeader: string | undefined): {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  // 보호 경로가 아니면 통과
+  const publicOnlyRoutes = ['/', '/login'];
+  const isPublicOnly = publicOnlyRoutes.includes(pathname);
   const isProtected = protectedRoutes.some((path) => pathname.startsWith(path));
-  if (!isProtected) return NextResponse.next();
 
-  // 1. 인증 토큰 쿠키를 확인합니다.
+  if (!isPublicOnly && !isProtected) {
+    return NextResponse.next();
+  }
+
   const { accessToken, refreshToken } = extractTokensFromCookies(
     request.headers.get('cookie') || undefined
   );
 
-  console.log('accessToken :::: ', accessToken ? 'present' : 'missing');
-  console.log('refreshToken :::: ', refreshToken ? 'present' : 'missing');
+  let authResponse: Response | null = null;
 
-  // 2. 토큰이 없으면 로그인 페이지로 리디렉션합니다.
-  if (!accessToken || !refreshToken) {
+  // 1. 유효한 accessToken이 있는지 먼저 확인
+  if (accessToken) {
+    authResponse = await verifyTokenViaTRPC(accessToken);
+  }
+
+  // 2. accessToken이 없거나 유효하지 않으면 refreshToken으로 재시도
+  if (!authResponse && refreshToken) {
+    console.log('🔄 Access token invalid or missing, attempting refresh...');
+    authResponse = await refreshAccessToken(refreshToken);
+  }
+
+  // Scenario 1: Public-only routes (e.g., /login)
+  if (isPublicOnly) {
+    if (authResponse) {
+      // User is authenticated
+      const dashboardUrl = new URL('/dashboard', request.url);
+      const response = NextResponse.redirect(dashboardUrl);
+      const setCookie = authResponse.headers.get('Set-Cookie');
+      if (setCookie) {
+        response.headers.set('Set-Cookie', setCookie);
+      }
+      return response;
+    }
+    // User is not authenticated, allow access
+    return NextResponse.next();
+  }
+
+  // Scenario 2: Protected routes (e.g., /dashboard)
+  if (isProtected) {
+    if (authResponse) {
+      // User is authenticated
+      const response = NextResponse.next();
+      const setCookie = authResponse.headers.get('Set-Cookie');
+      if (setCookie) {
+        response.headers.set('Set-Cookie', setCookie);
+      }
+      return response;
+    }
+    // User is not authenticated, redirect to login
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // 3. tRPC를 통해 AccessToken 유효성 검증
-  const isTokenValid = await verifyTokenViaTRPC(accessToken);
-
-  if (isTokenValid) {
-    // ✅ 토큰이 유효하면 요청을 그대로 진행
-    console.log('✅ Valid access token via tRPC, proceeding...');
-    return NextResponse.next();
-  }
-
-  // 4. AccessToken이 유효하지 않으면 RefreshToken으로 갱신 시도
-  console.log('🔄 Access token invalid, attempting refresh...');
-  const refreshSuccess = await refreshAccessToken(refreshToken);
-
-  if (refreshSuccess) {
-    // ✅ 토큰 갱신 성공 - 요청을 그대로 진행 (새 토큰은 쿠키에 설정됨)
-    console.log('✅ Token refreshed, proceeding with request...');
-    return NextResponse.next();
-  }
-
-  // 5. 토큰 갱신 실패 - 로그인 페이지로 리디렉션
-  console.log('❌ Token refresh failed, redirecting to login...');
-  const loginUrl = new URL('/login', request.url);
-  loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
-  return NextResponse.redirect(loginUrl);
+  return NextResponse.next();
 }
 
 // 미들웨어를 적용할 경로를 설정합니다.
 export const config = {
-  // protectedRoutes 배열에 명시된 경로에만 미들웨어를 적용합니다.
-  matcher: ['/dashboard/:path*', '/mypage/:path*'],
+  matcher: ['/', '/login', '/dashboard/:path*', '/mypage/:path*'],
 };

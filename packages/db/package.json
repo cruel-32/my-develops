@@ -13,7 +13,7 @@
     "build": "tsc && tsc-alias -p tsconfig.json",
     "db:migrate": "tsx src/migrate.ts",
     "db:seed": "tsx src/seed.ts",
-    "db:generate": "drizzle-kit generate",
+    "db:generate": "drizzle-kit generate --config drizzle.config.cjs",
     "db:studio": "drizzle-kit studio"
   },
   "devDependencies": {

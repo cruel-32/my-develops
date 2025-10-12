@@ -78,4 +78,4 @@ export {
 } from './tooltip';
 
 // Export commonly used icons from lucide-react
-export { ChevronLeft, ChevronRight, ArrowLeft, ArrowRight } from 'lucide-react';
+export * from 'lucide-react';

@@ -11,19 +11,14 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
  */
 async function handler(request: NextRequest) {
   try {
-    // Extract the tRPC path from the URL.
+    // The pathname now includes the full tRPC path, e.g., '/api/trpc/users.refresh'
     const pathname = request.nextUrl.pathname;
-    const trpcPath = pathname.split('/api/trpc/')[1];
-
-    if (!trpcPath) {
-      return NextResponse.json({ error: 'Invalid tRPC path' }, { status: 400 });
-    }
 
     // Forward cookies from the incoming request to the backend.
     const cookies = request.headers.get('cookie') || '';
 
-    // Construct the backend URL.
-    const backendUrl = `${BACKEND_URL}/${trpcPath}${request.nextUrl.search}`;
+    // Construct the backend URL by appending the original pathname.
+    const backendUrl = `${BACKEND_URL}${pathname}${request.nextUrl.search}`;
 
     // Use the incoming request's body directly.
     const body = request.method === 'POST' ? await request.blob() : undefined;

@@ -15,11 +15,11 @@ export const useLoginForm = () => {
     defaultValues: loginFormDefaultValues,
   });
 
-  const { mutate: login, isPending } = useLoginMutation();
+  const { mutate, isPending } = useLoginMutation();
 
-  const handleSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      await login(data);
+      await mutate(data);
     } catch (error) {
       console.error('Login error:', error);
     }
@@ -27,7 +27,7 @@ export const useLoginForm = () => {
 
   return {
     form,
-    handleSubmit,
+    onSubmit,
     isPending,
   };
 };

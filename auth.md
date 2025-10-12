@@ -85,7 +85,7 @@ async function fetchWithTokenRefresh(
   if (!refreshed) {
     console.error('❌ Token refresh failed, redirecting to login...');
     if (typeof window !== 'undefined') {
-      window.location.href = '/login';
+      window.location.href = '/';
     }
     return response;
   }
@@ -291,7 +291,7 @@ const isAuthed = t.middleware(({ ctx, next }) => {
 });
 ```
 
-#### 3.3 컨트롤러 (`modules/user/controllers.ts`)
+#### 3.3 컨트롤러 (`modules/users/controllers.ts`)
 
 ##### 로그인 컨트롤러
 
@@ -342,7 +342,10 @@ export const refreshController = async ({
   }
 
   if (!refreshToken) {
-    throw new Error('No refresh token provided');
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'No refresh token provided',
+    });
   }
 
   // 2. 새로운 accessToken 생성
@@ -426,9 +429,9 @@ const server = createHTTPServer({
 ```
 1. 사용자가 이메일/비밀번호 입력
    ↓
-2. Browser → Next.js (/api/trpc/user.login)
+2. Browser → Next.js (/api/trpc/users.login)
    ↓
-3. Next.js → Backend (POST /user.login)
+3. Next.js → Backend (POST /users.login)
    ↓
 4. Backend: 사용자 인증 및 JWT 토큰 생성
    - accessToken: 15분
@@ -482,10 +485,10 @@ const server = createHTTPServer({
 4. ✅ TRPCProvider의 fetchWithTokenRefresh가 401 감지
    ↓
 5. ✅ 자동으로 refresh 요청 시작
-   Browser → Next.js (/api/trpc/user.refresh)
+   Browser → Next.js (/api/trpc/users.refresh)
    Cookie: refreshToken=...
    ↓
-6. Next.js → Backend (POST /user.refresh)
+6. Next.js → Backend (POST /users.refresh)
    Cookie: refreshToken=...
    ↓
 7. Backend:
@@ -554,13 +557,13 @@ const server = createHTTPServer({
 
 ### Backend
 
-| 파일                                           | 역할            | 주요 변경사항                         |
-| ---------------------------------------------- | --------------- | ------------------------------------- |
-| `apps/backend/src/lib/cookie.ts`               | Cookie 유틸     | **신규 파일** - Cookie 설정/삭제 함수 |
-| `apps/backend/src/trpc.ts`                     | Context & Auth  | req/res 포함, Cookie 기반 인증        |
-| `apps/backend/src/modules/user/controllers.ts` | User Controller | HttpOnly Cookie 설정 로직             |
-| `apps/backend/src/modules/user/routes.ts`      | User Router     | refresh 엔드포인트 input 제거         |
-| `apps/backend/src/index.ts`                    | Server Entry    | CORS credentials 설정                 |
+| 파일                                            | 역할            | 주요 변경사항                         |
+| ----------------------------------------------- | --------------- | ------------------------------------- |
+| `apps/backend/src/lib/cookie.ts`                | Cookie 유틸     | **신규 파일** - Cookie 설정/삭제 함수 |
+| `apps/backend/src/trpc.ts`                      | Context & Auth  | req/res 포함, Cookie 기반 인증        |
+| `apps/backend/src/modules/users/controllers.ts` | User Controller | HttpOnly Cookie 설정 로직             |
+| `apps/backend/src/modules/users/routes.ts`      | User Router     | refresh 엔드포인트 input 제거         |
+| `apps/backend/src/index.ts`                     | Server Entry    | CORS credentials 설정                 |
 
 ---
 
@@ -665,7 +668,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await trpc.user.getProfile.query();
+        await trpc.users.getProfile.query();
         setIsAuthenticated(true);
       } catch {
         setIsAuthenticated(false);
@@ -692,7 +695,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/');
     }
   }, [isAuthenticated]);
 

@@ -8,11 +8,11 @@ import type { JoinFormData } from '../model/schema';
  * Handles user creation via tRPC.
  */
 export const useSignUpMutation = () => {
-  return trpc.trpc.user.signUp.useMutation({
+  return trpc.trpc.users.signUp.useMutation({
     onSuccess: (data: unknown) => {
       console.log('SignUp successful:', data);
       // On successful sign-up, redirect to the login page.
-      window.location.href = '/login';
+      window.location.href = '/';
     },
     onError: (error: unknown) => {
       console.error('SignUp failed:', error);

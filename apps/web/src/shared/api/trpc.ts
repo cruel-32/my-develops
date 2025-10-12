@@ -33,7 +33,7 @@ async function fetchWithTokenRefresh(
   // 재시도 후에도 401이면 토큰 갱신 실패로 간주
   if (retryResponse.status === 401) {
     if (typeof window !== 'undefined') {
-      window.location.href = '/login';
+      window.location.href = '/';
     }
   }
 

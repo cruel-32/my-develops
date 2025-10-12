@@ -55,7 +55,7 @@ function serializeCookie(options: typeof COOKIE_OPTIONS) {
 ### 1.2 Login Controller 수정
 
 ```typescript
-// apps/backend/src/modules/user/controllers.ts
+// apps/backend/src/modules/users/controllers.ts
 export const loginController = async ({ input, ctx }: any) => {
   const { email, password } = input;
 
@@ -190,7 +190,7 @@ const [trpcClient] = useState(() =>
 ### 4.1 Refresh Endpoint
 
 ```typescript
-// apps/backend/src/modules/user/controllers.ts
+// apps/backend/src/modules/users/controllers.ts
 export const refreshController = async ({ ctx }: any) => {
   // Cookie에서 refreshToken 추출
   const refreshToken = ctx.req.cookies.refreshToken;
@@ -224,7 +224,7 @@ import { useTRPC } from '@/app/providers/TRPCProvider';
 
 export const useTokenRefresh = () => {
   const trpc = useTRPC();
-  const refreshMutation = trpc.user.refresh.useMutation();
+  const refreshMutation = trpc.users.refresh.useMutation();
 
   useEffect(() => {
     // 14분마다 자동 갱신 (accessToken 만료 15분)
@@ -247,7 +247,7 @@ export const useTokenRefresh = () => {
 ## 5. Logout 구현
 
 ```typescript
-// apps/backend/src/modules/user/controllers.ts
+// apps/backend/src/modules/users/controllers.ts
 export const logOutController = async ({ ctx }: any) => {
   // Cookie 삭제
   ctx.res.setHeader('Set-Cookie', [
@@ -276,11 +276,11 @@ export default function DashboardPage() {
   const trpc = useTRPC();
 
   // Cookie가 있으면 자동으로 인증됨
-  const { data, error } = trpc.user.getProfile.useQuery();
+  const { data, error } = trpc.users.getProfile.useQuery();
 
   useEffect(() => {
     if (error) {
-      router.push('/login');
+      router.push('/');
     }
   }, [error]);
 

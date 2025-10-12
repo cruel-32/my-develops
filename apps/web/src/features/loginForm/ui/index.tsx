@@ -21,7 +21,7 @@ import { useLoginForm } from '../model/hook';
 
 export const LoginForm = () => {
   const router = useRouter();
-  const { form, handleSubmit, isPending } = useLoginForm();
+  const { form, onSubmit, isPending } = useLoginForm();
 
   const handleNavigate = () => {
     // '/dashboard' 경로로 사용자를 이동시킵니다.
@@ -38,10 +38,7 @@ export const LoginForm = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-4"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="email"

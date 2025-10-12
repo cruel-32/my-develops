@@ -19,23 +19,21 @@ export async function initializeDatabase() {
     if (existingRoles.length === 0) {
       console.log('🌱 Initializing default roles...');
 
-      const defaultRoles = [
+      type NewRole = typeof roles.$inferInsert;
+      const defaultRoles: NewRole[] = [
         {
           roleName: 'super_admin',
           roleDesc:
             '프로젝트 생성, 프로젝트 삭제, 사용자 권한 생성, 사용자 권한 삭제, 사용자 삭제, 역할주기 (super_admin은 불가)',
           enabled: true,
+          prjId: null,
         },
         {
           roleName: 'admin',
           roleDesc:
             '사용자 권한 생성, 사용자 권한 삭제, 사용자 삭제 (super_admin, admin 제외), 역할주기 (super_admin은 불가)',
           enabled: true,
-        },
-        {
-          roleName: 'user',
-          roleDesc: 'User',
-          enabled: true,
+          prjId: null,
         },
       ];
 

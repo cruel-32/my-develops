@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const result = await trpc.user.refresh.mutate();
+        const result = await trpc.users.refresh.mutate();
         setAccessToken(result.accessToken);
       } catch (error) {
         console.log('Not authenticated');
@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const interval = setInterval(async () => {
       try {
-        const result = await trpc.user.refresh.mutate();
+        const result = await trpc.users.refresh.mutate();
         setAccessToken(result.accessToken);
       } catch (error) {
         setAccessToken(null);
@@ -97,7 +97,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [accessToken]);
 
   const refresh = async () => {
-    const result = await trpc.user.refresh.mutate();
+    const result = await trpc.users.refresh.mutate();
     setAccessToken(result.accessToken);
   };
 
@@ -117,7 +117,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  if (!context) throw new TRPCError({ code: 'UNAUTHORIZED', message: 'useAuth must be used within AuthProvider' });
+
   return context;
 };
 ```
@@ -157,7 +158,7 @@ const [trpcClient] = useState(() =>
 ### 3. Backend Response
 
 ```typescript
-// apps/backend/src/modules/user/controllers.ts
+// apps/backend/src/modules/users/controllers.ts
 export const loginController = async ({ input, ctx }: any) => {
   const { email, password } = input;
 
@@ -210,7 +211,7 @@ export const useLoginMutation = () => {
   const trpc = useTRPC();
   const { setAccessToken } = useAuth();
 
-  return trpc.user.login.useMutation({
+  return trpc.users.login.useMutation({
     onSuccess: (data) => {
       // ✅ accessToken을 메모리(State)에 저장
       setAccessToken(data.accessToken);
@@ -241,7 +242,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push('/');
     }
   }, [isAuthenticated]);
 
@@ -269,7 +270,7 @@ useEffect(() => {
   const initAuth = async () => {
     try {
       // ✅ refreshToken (Cookie)로 accessToken 재발급
-      const result = await trpc.user.refresh.mutate();
+      const result = await trpc.users.refresh.mutate();
       setAccessToken(result.accessToken);
     } catch (error) {
       // Cookie 없거나 만료됨 → 로그아웃 상태

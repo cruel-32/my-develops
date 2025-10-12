@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server';
 import * as userService from './services';
 import type {
   SignUpInput,
@@ -22,14 +23,14 @@ export const loginController = async ({
   ctx: { req: any; res: any };
 }) => {
   // Get tokens from service
-  const { accessToken, refreshToken } = await userService.login(input);
+  const { success, accessToken, refreshToken } = await userService.login(input);
 
   // ✅ Set tokens in HttpOnly cookies
   setAuthCookies(ctx.res, accessToken, refreshToken);
 
   // ✅ Return success without exposing tokens
   return {
-    success: true,
+    success,
     message: 'Login successful',
   };
 };
@@ -53,19 +54,21 @@ export const refreshController = async ({
     );
     refreshToken = cookies['refreshToken'];
   }
-
   if (!refreshToken) {
     throw new Error('No refresh token provided');
   }
 
   // Get new tokens from service
-  const { accessToken } = await userService.refresh(refreshToken);
-
+  const {
+    success,
+    accessToken,
+    refreshToken: newRefreshToken,
+  } = await userService.refresh(refreshToken);
   // ✅ Set new access token in cookie
-  setAccessTokenCookie(ctx.res, accessToken);
+  setAuthCookies(ctx.res, accessToken, newRefreshToken);
 
   return {
-    success: true,
+    success,
     message: 'Token refreshed',
   };
 };
@@ -124,4 +127,37 @@ export const verifyTokenController = async ({
   }
 
   return await userService.verifyToken(accessToken);
+};
+
+export const getMeController = async ({
+  ctx,
+}: {
+  ctx: { req: any; res: any };
+}) => {
+  const cookieHeader = ctx.req.headers.cookie;
+  let refreshToken: string | undefined;
+  if (cookieHeader) {
+    const cookies = cookieHeader.split(';').reduce(
+      (acc: Record<string, string>, cookie: string) => {
+        const [key, value] = cookie.trim().split('=');
+        if (key && value) acc[key] = value;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+    refreshToken = cookies['refreshToken'];
+  }
+
+  if (!refreshToken) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'No refresh token provided',
+    });
+  }
+
+  const { accessToken, user } = await userService.getMe(refreshToken);
+
+  setAccessTokenCookie(ctx.res, accessToken);
+
+  return user;
 };
