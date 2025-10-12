@@ -334,24 +334,6 @@ app → pages → widgets → features → entities → shared
 - 동일 레이어 가져오기는 금지
 - `@feature-sliced/steiger-plugin`을 통해 강제
 
-**네이밍 컨벤션**:
-
-```typescript
-// 파일: kebab-case
-login-form.tsx
-use-auth.ts
-api-client.ts
-
-// 컴포넌트: PascalCase
-export const LoginForm = () => {...}
-
-// 함수: camelCase
-export const useLoginForm = () => {...}
-
-// 타입/인터페이스: PascalCase
-export interface LoginFormData {...}
-```
-
 ### 테스트 전략
 
 **커버리지 목표** (아직 미구현):
@@ -770,12 +752,6 @@ Database (Docker): ~5초 (첫 실행)
 **개발자**: 최승희
 **역할**: 프론트엔드 개발자
 **GitHub**: https://github.com/cruel-32/my-develops
-
----
-
-## 📄 라이선스
-
-이 프로젝트는 포트폴리오 데모입니다. 모든 권리 보유.
 
 ---
 
