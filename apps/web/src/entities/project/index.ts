@@ -1,4 +1,4 @@
-import { ProjectItem } from './ui';
+import { ProjectCardView } from './ui';
 import { Project } from './model/schema';
-export { ProjectItem };
+export { ProjectCardView };
 export type { Project };

@@ -11,7 +11,12 @@ export const createOperatorRoleController = async ({
   input: CreateOperatorRoleInput;
   ctx: { user: { id: number; role?: string } };
 }) => {
-  return await operatorRoleService.createOperatorRole(input, ctx.user.role);
+  try {
+    return await operatorRoleService.createOperatorRole(input, ctx.user.role);
+  } catch (error) {
+    console.error('Error in createOperatorRoleController:', error);
+    throw error;
+  }
 };
 
 export const deleteOperatorRoleController = async ({
@@ -21,9 +26,19 @@ export const deleteOperatorRoleController = async ({
   input: DeleteOperatorRoleInput;
   ctx: { user: { id: number; role?: string } };
 }) => {
-  return await operatorRoleService.deleteOperatorRole(input, ctx.user.role);
+  try {
+    return await operatorRoleService.deleteOperatorRole(input, ctx.user.role);
+  } catch (error) {
+    console.error('Error in deleteOperatorRoleController:', error);
+    throw error;
+  }
 };
 
 export const listOperatorRolesController = async () => {
-  return await operatorRoleService.listOperatorRoles();
+  try {
+    return await operatorRoleService.listOperatorRoles();
+  } catch (error) {
+    console.error('Error in listOperatorRolesController:', error);
+    throw error;
+  }
 };

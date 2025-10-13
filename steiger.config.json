@@ -1,0 +1,8 @@
+{
+  "aliases": {
+    "@/web": "apps/web/src"
+  },
+  "rules": {
+    "layer-imports": "error"
+  }
+}

@@ -27,9 +27,11 @@
     "docker:status": "./scripts/docker-deploy.sh status",
     "docker:status:dev": "./scripts/docker-deploy.sh development status",
     "docker:status:prod": "./scripts/docker-deploy.sh production status",
-    "setup": "./scripts/setup.sh"
+    "setup": "./scripts/setup.sh",
+    "steiger": "npx steiger apps/web/src"
   },
   "devDependencies": {
+    "@feature-sliced/steiger-plugin": "^0.5.7",
     "@types/node": "^24.7.2",
     "@types/react": "^19.2.2",
     "eslint": "^9.37.0",

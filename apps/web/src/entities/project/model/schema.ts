@@ -5,7 +5,7 @@ export const projectSchema = z.object({
   name: z.string(),
   public: z.boolean(),
   description: z.string(),
-  imageUrl: z.string(),
+  imgUrl: z.string(),
   ownerId: z.number(),
 });
 

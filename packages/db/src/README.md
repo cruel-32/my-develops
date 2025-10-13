@@ -123,7 +123,7 @@ pnpm db:generate
 pnpm db:push
 
 # Open Drizzle Studio
-pnpm --filter mydevelops-be db:studio
+pnpm db:studio
 ```
 
 ### Production

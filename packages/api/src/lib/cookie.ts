@@ -57,9 +57,6 @@ export function setAuthCookies(
   accessToken: string,
   refreshToken: string
 ): void {
-  console.log('setAuthCookies response :::: ', response);
-  console.log('setAuthCookies accessToken :::: ', accessToken);
-  console.log('setAuthCookies refreshToken :::: ', refreshToken);
   response.setHeader('Set-Cookie', [
     `accessToken=${accessToken}; ${serializeCookie(ACCESS_TOKEN_OPTIONS)}`,
     `refreshToken=${refreshToken}; ${serializeCookie(REFRESH_TOKEN_OPTIONS)}`,

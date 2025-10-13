@@ -1,27 +1,5 @@
 {
-  "version": "7",
+  "version": "1",
   "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1759982139608,
-      "tag": "0000_lovely_sleeper",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1760285455033,
-      "tag": "0001_gifted_northstar",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1760286473096,
-      "tag": "0002_lyrical_hedge_knight",
-      "breakpoints": true
-    }
-  ]
+  "entries": []
 }

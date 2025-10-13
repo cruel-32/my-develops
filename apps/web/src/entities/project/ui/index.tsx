@@ -1,7 +1,6 @@
 'use client';
 
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import {
   Globe,
   Lock,
@@ -12,8 +11,7 @@ import {
   CardTitle,
 } from '@/web/shared/ui';
 import { type Project } from '../model/schema';
-
-interface ProjectItemProps {
+interface ProjectCardViewProps {
   project: Project;
 }
 
@@ -23,20 +21,15 @@ const DefaultProjectImage = () => (
   </div>
 );
 
-export const ProjectItem = ({ project }: ProjectItemProps) => {
-  const { id, name, description, imageUrl, public: isPublic } = project;
-  const router = useRouter();
-
-  const handleClick = () => {
-    router.push(`/dashboard/${id}`);
-  };
+export const ProjectCardView = ({ project }: ProjectCardViewProps) => {
+  const { name, description, imgUrl, public: isPublic } = project;
 
   return (
-    <Card className="overflow-hidden cursor-pointer" onClick={handleClick}>
+    <Card className="overflow-hidden cursor-pointer">
       <CardHeader className="p-0">
-        {imageUrl ? (
+        {imgUrl ? (
           <Image
-            src={imageUrl}
+            src={imgUrl}
             alt={`${name} project image`}
             width={400}
             height={192}
