@@ -67,6 +67,7 @@ export { Popover, PopoverContent, PopoverTrigger } from './popover';
 export { Progress } from './progress';
 export { ScrollArea, ScrollBar } from './scroll-area';
 export { Separator } from './separator';
+export { Skeleton } from './skeleton';
 export { Slider } from './slider';
 export { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
 export { Toggle, toggleVariants } from './toggle';
@@ -76,6 +77,5 @@ export {
   TooltipProvider,
   TooltipTrigger,
 } from './tooltip';
-
 // Export commonly used icons from lucide-react
 export * from 'lucide-react';

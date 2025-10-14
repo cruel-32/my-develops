@@ -28,7 +28,8 @@ export const loginController = async ({
   ctx: { req: any; res: any };
 }) => {
   try {
-    const { success, accessToken, refreshToken } = await userService.login(input);
+    const { success, accessToken, refreshToken } =
+      await userService.login(input);
     setAuthCookies(ctx.res, accessToken, refreshToken);
     return {
       success,
@@ -58,12 +59,20 @@ export const refreshController = async ({
         {} as Record<string, string>
       );
       refreshToken = cookies['refreshToken'];
+      console.log('refreshToken', refreshToken);
     }
     if (!refreshToken) {
-      throw new TRPCError({ code: 'UNAUTHORIZED', message: 'No refresh token in cookie.' });
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'No refresh token in cookie.',
+      });
     }
 
-    const { success, accessToken, refreshToken: newRefreshToken } = await userService.refresh(refreshToken);
+    const {
+      success,
+      accessToken,
+      refreshToken: newRefreshToken,
+    } = await userService.refresh(refreshToken);
     setAuthCookies(ctx.res, accessToken, newRefreshToken);
 
     return {
@@ -129,7 +138,10 @@ export const verifyTokenController = async ({
       accessToken = cookies['accessToken'];
     }
     if (!accessToken) {
-      throw new TRPCError({ code: 'UNAUTHORIZED', message: 'No access token in cookie.' });
+      throw new TRPCError({
+        code: 'UNAUTHORIZED',
+        message: 'No access token in cookie.',
+      });
     }
     return await userService.verifyToken(accessToken);
   } catch (error) {

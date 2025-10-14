@@ -1,6 +1,6 @@
 'use client';
 
-import { useProjectsQuery } from '../api';
+import { useProjectsQuery } from './api';
 import { ProjectItem } from '@/web/features/projectItem';
 
 export const ProjectList = () => {

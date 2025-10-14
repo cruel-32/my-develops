@@ -18,7 +18,7 @@ import {
   CardFooter,
   ChevronLeft,
 } from '@/web/shared/ui';
-import { useJoinForm } from '../model/hook';
+import { useJoinForm } from './model/hook';
 
 export function JoinForm() {
   const router = useRouter();

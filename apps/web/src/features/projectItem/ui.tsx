@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ProjectCardView, type Project } from '@/web/entities/project';
-import { useProjectItem } from '../model/hook';
+import { useProjectItem } from './model/hook';
 import { Button, Trash2 } from '@/web/shared/ui';
 
 interface ProjectItemProps {

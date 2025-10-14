@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/web/shared/ui';
-import { type Project } from '../model/schema';
+import { type Project } from './model/schema';
 interface ProjectCardViewProps {
   project: Project;
 }

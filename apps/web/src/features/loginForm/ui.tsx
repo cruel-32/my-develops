@@ -17,7 +17,7 @@ import {
   Input,
   Separator,
 } from '@/web/shared/ui';
-import { useLoginForm } from '../model/hook';
+import { useLoginForm } from './model/hook';
 
 export const LoginForm = () => {
   const router = useRouter();
