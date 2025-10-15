@@ -4,9 +4,9 @@ import { useProjectsQuery } from './api';
 import { ProjectItem } from '@/web/features/projectItem';
 
 export const ProjectList = () => {
-  const { projects, isLoading, error } = useProjectsQuery();
+  const { projects, isPending, error } = useProjectsQuery();
 
-  if (isLoading) {
+  if (isPending) {
     // TODO: Replace with a proper skeleton loader
     return <div>Loading projects...</div>;
   }
