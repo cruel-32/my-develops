@@ -1,11 +1,11 @@
 'use client';
 
-import { trpc } from '@/web/shared/api';
+import { clientTrpc } from '@/web/shared/api';
 
 export const useDeleteProjectMutation = () => {
-  const utils = trpc.useUtils();
+  const utils = clientTrpc.useUtils();
 
-  return trpc.projects.delete.useMutation({
+  return clientTrpc.projects.delete.useMutation({
     onSuccess: () => {
       // On successful deletion, invalidate the projects list to refetch
       utils.projects.list.invalidate();

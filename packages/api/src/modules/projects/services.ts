@@ -11,7 +11,7 @@ export const createProject = async (
     // Create the project
     const newProjectArr = await tx
       .insert(projects)
-      .values({ ...input, ownerId })
+      .values({ name: input.name, description: input.description, public: input.public, ownerId, imgUrl: input.imageUrl })
       .returning();
 
     const newProject = newProjectArr[0];

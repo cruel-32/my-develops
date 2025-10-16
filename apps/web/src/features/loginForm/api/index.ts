@@ -1,6 +1,6 @@
 'use client';
 
-import { trpc } from '@/web/shared/api/index';
+import { clientTrpc } from '@/web/shared/api/index';
 import type { LoginFormData } from '../model/schema';
 import { useRouter } from 'next/navigation';
 
@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
  */
 export const useLoginMutation = () => {
   const router = useRouter();
-  return trpc.trpc.users.login.useMutation({
+  return clientTrpc.users.login.useMutation({
     onSuccess: (data) => {
       console.log('Login successful:', data);
       // ✅ Tokens are automatically stored in HttpOnly cookies

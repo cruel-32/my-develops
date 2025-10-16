@@ -29,16 +29,20 @@ export const LoginForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>
-          Enter your credentials to access your account
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+    <Form {...form}>
+      <form
+        id="login-form"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="w-full max-w-md"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Login</CardTitle>
+            <CardDescription>
+              Enter your credentials to access your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <FormField
               control={form.control}
               name="email"
@@ -80,26 +84,27 @@ export const LoginForm = () => {
             <Button type="submit" className="w-full" disabled={isPending}>
               {isPending ? 'Logging in...' : 'Login'}
             </Button>
-          </form>
-        </Form>
-      </CardContent>
+          </CardContent>
 
-      <Separator />
+          <Separator />
 
-      <CardFooter className="flex flex-col gap-4 pt-6">
-        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <span>Don&apos;t have an account?</span>
-          <Button
-            type="button"
-            variant="link"
-            className="p-0 h-auto font-semibold"
-            onClick={handleNavigate}
-            disabled={isPending}
-          >
-            Sign up
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+          <CardFooter className="flex flex-col gap-4 pt-6">
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <span>Don&apos;t have an account?</span>
+              <Button
+                type="button"
+                variant="link"
+                className="p-0 h-auto font-semibold cursor-pointer"
+                onClick={handleNavigate}
+                disabled={isPending}
+                form="login-form"
+              >
+                Sign up
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
+      </form>
+    </Form>
   );
 };

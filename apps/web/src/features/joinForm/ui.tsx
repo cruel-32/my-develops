@@ -14,7 +14,6 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  Separator,
   CardFooter,
   ChevronLeft,
 } from '@/web/shared/ui';
@@ -29,17 +28,21 @@ export function JoinForm() {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Join</CardTitle>
-        <CardDescription>
-          After completing account registration, administrator approval is
-          required.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+    <Form {...form}>
+      <form
+        id="join-form"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="w-full max-w-md"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Join</CardTitle>
+            <CardDescription>
+              After completing account registration, administrator approval is
+              required.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <FormField
               control={form.control}
               name="email"
@@ -92,28 +95,31 @@ export function JoinForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isPending}>
+          </CardContent>
+
+          <CardFooter className="flex justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleBack}
+              disabled={isPending}
+              className="cursor-pointer hover:bg-gray-100"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Back
+            </Button>
+
+            <Button
+              type="submit"
+              form="join-form"
+              disabled={isPending}
+              className="cursor-pointer"
+            >
               {isPending ? 'Submitting...' : 'Submit'}
             </Button>
-          </form>
-        </Form>
-      </CardContent>
-      <Separator />
-
-      <CardFooter className="flex flex-col gap-4 pt-6">
-        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-          <Button
-            type="button"
-            variant="link"
-            className="p-0 h-auto font-semibold"
-            onClick={handleBack}
-            disabled={isPending}
-          >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+          </CardFooter>
+        </Card>
+      </form>
+    </Form>
   );
 }

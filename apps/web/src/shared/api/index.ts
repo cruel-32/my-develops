@@ -1,5 +1,3 @@
-import * as trpc from './trpc';
-import * as server from './server';
+import { trpcClient, clientTrpc } from './trpc';
 
-export { server };
-export { trpc };
+export { trpcClient, clientTrpc };

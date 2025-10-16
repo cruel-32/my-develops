@@ -1,4 +1,4 @@
-import TRPCProviderApp from './TRPCProvider';
+import ClientTRPCProvider from './ClientTRPCProvider';
 
 export default function WithProviders({
   children,
@@ -7,7 +7,7 @@ export default function WithProviders({
 }) {
   return (
     <>
-      <TRPCProviderApp>{children}</TRPCProviderApp>
+      <ClientTRPCProvider>{children}</ClientTRPCProvider>
     </>
   );
 }

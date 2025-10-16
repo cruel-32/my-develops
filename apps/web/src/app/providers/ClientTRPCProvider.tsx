@@ -2,14 +2,9 @@
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import { trpc } from '@/web/shared/api/index'; // Import from shared
+import { trpcClient, clientTrpc } from '@/web/shared/api/index'; // Import from shared
 
-const {
-  trpc: { Provider },
-  trpcClient,
-} = trpc;
-
-export default function TRPCProviderApp({
+export default function ClientTRPCProvider({
   children,
 }: {
   children: React.ReactNode;
@@ -20,9 +15,9 @@ export default function TRPCProviderApp({
   return (
     <QueryClientProvider client={queryClient}>
       {process.env.NODE_ENV === 'development' && <ReactQueryDevtools />}
-      <Provider client={trpcClient} queryClient={queryClient}>
+      <clientTrpc.Provider client={trpcClient} queryClient={queryClient}>
         {children}
-      </Provider>
+      </clientTrpc.Provider>
     </QueryClientProvider>
   );
 }

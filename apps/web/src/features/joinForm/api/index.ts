@@ -1,6 +1,6 @@
 'use client';
 
-import { trpc } from '@/web/shared/api/index';
+import { clientTrpc } from '@/web/shared/api/index';
 import type { JoinFormData } from '../model/schema';
 
 /**
@@ -8,7 +8,7 @@ import type { JoinFormData } from '../model/schema';
  * Handles user creation via tRPC.
  */
 export const useSignUpMutation = () => {
-  return trpc.trpc.users.signUp.useMutation({
+  return clientTrpc.users.signUp.useMutation({
     onSuccess: (data: unknown) => {
       console.log('SignUp successful:', data);
       // On successful sign-up, redirect to the login page.

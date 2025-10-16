@@ -15,8 +15,17 @@ interface ProjectCardViewProps {
   project: Project;
 }
 
-const DefaultProjectImage = () => (
-  <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+const DefaultProjectImage = ({
+  width,
+  height,
+}: {
+  width: number;
+  height: number;
+}) => (
+  <div
+    className="w-full h-48 bg-gray-200 flex items-center justify-center"
+    style={{ width, height }}
+  >
     <span className="text-gray-500">No Image</span>
   </div>
 );
@@ -31,12 +40,12 @@ export const ProjectCardView = ({ project }: ProjectCardViewProps) => {
           <Image
             src={imgUrl}
             alt={`${name} project image`}
-            width={400}
-            height={192}
+            width={300}
+            height={200}
             className="w-full h-48 object-cover"
           />
         ) : (
-          <DefaultProjectImage />
+          <DefaultProjectImage width={300} height={200} />
         )}
       </CardHeader>
       <CardContent className="p-4">

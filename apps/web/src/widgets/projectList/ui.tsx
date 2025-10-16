@@ -2,6 +2,7 @@
 
 import { useProjectsQuery } from './api';
 import { ProjectItem } from '@/web/features/projectItem';
+import { CreateProjectButton } from '@/web/features/createProjectButton';
 
 export const ProjectList = () => {
   const { projects, isPending, error } = useProjectsQuery();
@@ -15,15 +16,13 @@ export const ProjectList = () => {
     return <div>Error loading projects: {error.message}</div>;
   }
 
-  if (!projects || projects.length === 0) {
-    return <div>No projects found.</div>;
-  }
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      {projects.map((project) => (
-        <ProjectItem key={project.id} project={project} />
-      ))}
+    <div className="flex flex-wrap justify-center items-center gap-6">
+      <CreateProjectButton />
+      {projects &&
+        projects.map((project) => (
+          <ProjectItem key={project.id} project={project} />
+        ))}
     </div>
   );
 };

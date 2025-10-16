@@ -3,7 +3,7 @@ import { createTRPCReact } from '@trpc/react-query';
 import { httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '@repo/api';
 
-export const trpc = createTRPCReact<AppRouter>();
+export const clientTrpc = createTRPCReact<AppRouter>();
 
 function getBaseUrl() {
   if (typeof window !== 'undefined') return '';
@@ -41,7 +41,7 @@ async function fetchWithTokenRefresh(
 }
 
 // Create and export the pre-configured tRPC client
-export const trpcClient = trpc.createClient({
+export const trpcClient = clientTrpc.createClient({
   links: [
     httpBatchLink({
       url: `${getBaseUrl()}/api/trpc`,

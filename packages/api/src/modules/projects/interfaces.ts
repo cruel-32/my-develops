@@ -3,7 +3,8 @@ import { z } from 'zod';
 export const createProjectSchema = z.object({
   name: z.string().min(1, 'Project name is required'),
   description: z.string(),
-  public: z.boolean().default(false),
+  public: z.boolean(),
+  imageUrl: z.string(),
 });
 
 export const deleteProjectSchema = z.object({
