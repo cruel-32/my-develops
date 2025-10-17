@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCreateProjectForm } from './model';
 import {
@@ -9,9 +10,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@repo/ui/components/ui/card';
-import { Button } from '@repo/ui/components/ui/button';
-import {
+  Button,
+  AspectRatio,
   Form,
   FormControl,
   FormDescription,
@@ -19,13 +19,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@repo/ui/components/ui/form';
-import { Input } from '@repo/ui/components/ui/input';
-import { Checkbox } from '@repo/ui/components/ui/checkbox';
+  Input,
+  Checkbox,
+  TrashIcon,
+} from '@/web/shared/ui';
 
 export const CreateProjectForm = () => {
   const router = useRouter();
-  const { form, onSubmit, isPending } = useCreateProjectForm();
+  const { form, onSubmit, handleImageUpload, isPending } =
+    useCreateProjectForm();
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const handleBack = () => {
     router.back();
@@ -84,10 +87,12 @@ export const CreateProjectForm = () => {
                     <Checkbox
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      className="cursor-pointer"
+                      disabled={isPending}
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>Public</FormLabel>
+                    <FormLabel className="cursor-pointer">Public</FormLabel>
                     <FormDescription>
                       Make this project public so anyone can view it.
                     </FormDescription>
@@ -97,7 +102,7 @@ export const CreateProjectForm = () => {
             />
             <FormField
               control={form.control}
-              name="imageUrl"
+              name="imageId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Image</FormLabel>
@@ -106,12 +111,15 @@ export const CreateProjectForm = () => {
                       type="file"
                       accept="image/*"
                       placeholder="Upload a project image"
+                      className="cursor-pointer"
+                      disabled={isPending}
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
+                          handleImageUpload(file);
                           const reader = new FileReader();
                           reader.onloadend = () => {
-                            field.onChange(reader.result as string);
+                            setImagePreview(reader.result as string);
                           };
                           reader.readAsDataURL(file);
                         }
@@ -119,12 +127,31 @@ export const CreateProjectForm = () => {
                     />
                   </FormControl>
                   <FormMessage />
-                  {field.value && (
-                    <img
-                      src={field.value}
-                      alt="Project Image"
-                      className="w-full h-auto"
-                    />
+                  {imagePreview && (
+                    <AspectRatio
+                      // 이미지 가운데 정렬
+                      ratio={16 / 9}
+                      className="flex justify-center items-center"
+                    >
+                      <img
+                        src={imagePreview}
+                        alt="Project Image"
+                        className="h-auto"
+                        width={150}
+                        height={100}
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="absolute top-2 right-2 cursor-pointer"
+                        onClick={() => {
+                          form.setValue('imageId', undefined);
+                          setImagePreview(null);
+                        }}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </Button>
+                    </AspectRatio>
                   )}
                 </FormItem>
               )}
@@ -136,6 +163,7 @@ export const CreateProjectForm = () => {
               variant="outline"
               onClick={handleBack}
               disabled={isPending}
+              className="cursor-pointer"
             >
               Back
             </Button>

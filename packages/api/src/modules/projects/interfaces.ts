@@ -4,7 +4,7 @@ export const createProjectSchema = z.object({
   name: z.string().min(1, 'Project name is required'),
   description: z.string(),
   public: z.boolean(),
-  imageUrl: z.string(),
+  imageId: z.string().uuid().optional(),
 });
 
 export const deleteProjectSchema = z.object({

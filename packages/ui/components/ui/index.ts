@@ -5,6 +5,7 @@ export {
   AccordionItem,
   AccordionTrigger,
 } from './accordion';
+export { AspectRatio } from './aspect-ratio';
 export {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +17,14 @@ export {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from './alert-dialog';
+export {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  BreadcrumbEllipsis,
+} from './breadcrumb';
 export {
   Card,
   CardContent,

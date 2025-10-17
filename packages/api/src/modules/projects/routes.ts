@@ -1,5 +1,8 @@
 import { protectedProcedure, router } from '@/api/trpc';
-import { createProjectSchema, deleteProjectSchema } from './interfaces';
+import {
+  createProjectSchema,
+  deleteProjectSchema,
+} from './interfaces';
 import {
   createProjectController,
   deleteProjectController,

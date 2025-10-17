@@ -8,54 +8,87 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   # Backend API
-  backend:
-    build:
-      context: .
-      dockerfile: apps/backend/Dockerfile
-    container_name: my-develops-backend
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/mydevelops
-    ports:
-      - '4000:4000'
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - app-network
-    restart: unless-stopped
+  # backend:
+  #   build:
+  #     context: .
+  #     dockerfile: apps/backend/Dockerfile
+  #   container_name: my-develops-backend
+  #   environment:
+  #     - NODE_ENV=production
+  #     - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/mydevelops
+  #   ports:
+  #     - "4000:4000"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   networks:
+  #     - app-network
+  #   restart: unless-stopped
 
-  # Frontend Web App
-  web:
-    build:
-      context: .
-      dockerfile: apps/web/Dockerfile
-    container_name: my-develops-web
+  # # Frontend Web App
+  # web:
+  #   build:
+  #     context: .
+  #     dockerfile: apps/web/Dockerfile
+  #   container_name: my-develops-web
+  #   environment:
+  #     - NODE_ENV=production
+  #     - NEXT_PUBLIC_API_URL=http://localhost:4000
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - app-network
+  #   restart: unless-stopped
+
+  minio:
+    image: minio/minio
+    container_name: my-develops-minio
     environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://localhost:4000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     ports:
-      - '3000:3000'
-    depends_on:
-      - backend
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
     networks:
       - app-network
-    restart: unless-stopped
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    volumes:
+      - ./cors.json:/data/cors.json
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; 
+      /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME} --ignore-existing; 
+      /usr/bin/mc policy set public myminio/${MINIO_BUCKET_NAME}; 
+      /usr/bin/mc policy set-json /data/cors.json myminio/${MINIO_BUCKET_NAME}; 
+      exit 0; 
+      "
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+  minio_data:
 
 networks:
   app-network:

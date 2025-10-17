@@ -1,5 +1,13 @@
 {
   "version": "1",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1760662484687,
+      "tag": "0000_puzzling_sentinels",
+      "breakpoints": true
+    }
+  ]
 }

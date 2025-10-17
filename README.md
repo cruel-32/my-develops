@@ -358,7 +358,7 @@ app → pages → widgets → features → entities → shared
 
 ```bash
 Node.js >= 22
-pnpm >= 10.18.2
+pnpm >= 10.18.3
 Docker & Docker Compose (데이터베이스용)
 ```
 
@@ -525,7 +525,7 @@ scripts/
 ```bash
 # 버전 확인
 node --version   # >= 22여야 함
-pnpm --version   # >= 10.18.2여야 함
+pnpm --version   # >= 10.18.3여야 함
 docker --version # 데이터베이스용
 ```
 

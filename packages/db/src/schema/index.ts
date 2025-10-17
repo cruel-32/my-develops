@@ -8,3 +8,4 @@ export * from './erd-canvases.schema';
 export * from './erd-nodes.schema';
 export * from './node-fields.schema';
 export * from './diagram-posts.schema';
+export * from './images.schema';

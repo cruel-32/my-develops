@@ -1,7 +1,7 @@
 // Footer Component
 const Footer = () => (
-  <footer className="bg-gray-100 p-4 text-center text-sm text-gray-500">
-    <p>&copy; 2025 My Dashboard</p>
+  <footer className="p-2 text-center text-xs text-gray-500 border-t border-gray-800">
+    <p>&copy; 2025 My Develops</p>
   </footer>
 );
 

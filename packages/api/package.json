@@ -20,6 +20,8 @@
     "tsc-alias": "^1.8.16"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.911.0",
+    "@aws-sdk/s3-presigned-post": "^3.911.0",
     "@repo/db": "workspace:*",
     "@trpc/server": "^11.6.0",
     "bcrypt": "^6.0.0",

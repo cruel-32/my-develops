@@ -12,7 +12,6 @@ export const projects = pgTable('projects', {
   name: varchar('name', { length: 50 }).notNull(),
   description: varchar('description', { length: 255 }).notNull(),
   public: boolean('public').default(true).notNull(),
-  imgUrl: varchar('img_url', { length: 255 }).default('').notNull(),
   ownerId: bigint('owner_id', { mode: 'number' })
     .references(() => users.id, {
       onDelete: 'cascade',
