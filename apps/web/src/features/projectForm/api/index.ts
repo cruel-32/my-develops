@@ -19,7 +19,8 @@ export const useCreateProjectMutation = () => {
 };
 
 export const useCreatePresignedUrlMutation = () => {
-  return clientTrpc.projects.createPresignedUrl.useMutation({
+  return clientTrpc.images.upload.useMutation({
+    onSuccess: () => {},
     onError: (error) => {
       console.error('Failed to create presigned url:', error);
       alert(`Failed to create presigned url: ${error.message}`);
@@ -27,11 +28,26 @@ export const useCreatePresignedUrlMutation = () => {
   });
 };
 
-export const useUploadImageMutation = () => {
-  return clientTrpc.images.upload.useMutation({
+export const useDeleteImageMutation = () => {
+  return clientTrpc.images.delete.useMutation({
     onError: (error) => {
-      console.error('Failed to upload image:', error);
-      alert(`Failed to upload image: ${error.message}`);
+      console.error('Failed to delete image:', error);
+      alert(`Failed to delete image: ${error.message}`);
+    },
+  });
+};
+
+export const useUpdateProjectMutation = () => {
+  const utils = clientTrpc.useUtils();
+
+  return clientTrpc.projects.update.useMutation({
+    onSuccess: () => {
+      utils.projects.list.invalidate();
+      alert('Project updated successfully!');
+    },
+    onError: (error) => {
+      console.error('Failed to update project:', error);
+      alert(`Failed to update project: ${error.message}`);
     },
   });
 };

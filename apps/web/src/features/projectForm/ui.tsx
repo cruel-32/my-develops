@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCreateProjectForm } from './model';
+import { useProjectForm } from './model';
+import { type Project } from '@/web/entities/project';
 import {
   Card,
   CardContent,
@@ -24,11 +25,19 @@ import {
   TrashIcon,
 } from '@/web/shared/ui';
 
-export const CreateProjectForm = () => {
+interface ProjectFormProps {
+  initialData?: Project;
+}
+
+export const ProjectForm = ({ initialData }: ProjectFormProps) => {
   const router = useRouter();
-  const { form, onSubmit, handleImageUpload, isPending } =
-    useCreateProjectForm();
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { form, onSubmit, handleImageUpload, handleImageDelete, isPending } =
+    useProjectForm(initialData);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    initialData?.imgUrl || null
+  );
+
+  const isEditMode = !!initialData;
 
   const handleBack = () => {
     router.back();
@@ -37,15 +46,19 @@ export const CreateProjectForm = () => {
   return (
     <Form {...form}>
       <form
-        id="create-project-form"
+        id="project-form"
         onSubmit={form.handleSubmit(onSubmit)}
         className="w-full max-w-md"
       >
         <Card>
           <CardHeader>
-            <CardTitle>Create Project</CardTitle>
+            <CardTitle>
+              {isEditMode ? 'Update Project' : 'Create Project'}
+            </CardTitle>
             <CardDescription>
-              Fill out the form to create a new project.
+              {isEditMode
+                ? 'Update the details of your project.'
+                : 'Fill out the form to create a new project.'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -102,7 +115,7 @@ export const CreateProjectForm = () => {
             />
             <FormField
               control={form.control}
-              name="imageId"
+              name="imgId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Image</FormLabel>
@@ -116,7 +129,8 @@ export const CreateProjectForm = () => {
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
-                          handleImageUpload(file);
+                          const currentImgId = form.getValues('imgId');
+                          handleImageUpload(file, currentImgId);
                           const reader = new FileReader();
                           reader.onloadend = () => {
                             setImagePreview(reader.result as string);
@@ -129,7 +143,6 @@ export const CreateProjectForm = () => {
                   <FormMessage />
                   {imagePreview && (
                     <AspectRatio
-                      // 이미지 가운데 정렬
                       ratio={16 / 9}
                       className="flex justify-center items-center"
                     >
@@ -141,11 +154,16 @@ export const CreateProjectForm = () => {
                         height={100}
                       />
                       <Button
+                        type="button"
                         variant="outline"
                         size="icon"
                         className="absolute top-2 right-2 cursor-pointer"
-                        onClick={() => {
-                          form.setValue('imageId', undefined);
+                        aria-label="Delete Image"
+                        onClick={async () => {
+                          const currentImgId = form.getValues('imgId');
+                          if (currentImgId) {
+                            await handleImageDelete(currentImgId);
+                          }
                           setImagePreview(null);
                         }}
                       >
@@ -171,9 +189,15 @@ export const CreateProjectForm = () => {
               type="submit"
               disabled={isPending}
               className="cursor-pointer"
-              form="create-project-form"
+              form="project-form"
             >
-              {isPending ? 'Creating...' : 'Create Project'}
+              {isPending
+                ? isEditMode
+                  ? 'Updating...'
+                  : 'Creating...'
+                : isEditMode
+                  ? 'Update Project'
+                  : 'Create Project'}
             </Button>
           </CardFooter>
         </Card>

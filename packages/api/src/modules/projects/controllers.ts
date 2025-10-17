@@ -1,5 +1,5 @@
 import * as projectService from './services';
-import type { CreateProjectInput, DeleteProjectInput } from './interfaces';
+import type { CreateProjectInput, DeleteProjectInput, UpdateProjectInput } from './interfaces';
 
 export const createProjectController = async ({
   input,
@@ -16,6 +16,21 @@ export const createProjectController = async ({
   }
 };
 
+export const updateProjectController = async ({
+  input,
+  ctx,
+}: {
+  input: UpdateProjectInput;
+  ctx: { user: { id: number; role?: string } };
+}) => {
+  try {
+    return await projectService.updateProject(input, ctx.user);
+  } catch (error) {
+    console.error('Error in updateProjectController:', error);
+    throw error;
+  }
+};
+
 export const deleteProjectController = async ({
   input,
   ctx,
@@ -27,6 +42,19 @@ export const deleteProjectController = async ({
     return await projectService.deleteProject(input.id, ctx.user);
   } catch (error) {
     console.error('Error in deleteProjectController:', error);
+    throw error;
+  }
+};
+
+export const getProjectController = async ({
+  input,
+}: {
+  input: { id: number };
+}) => {
+  try {
+    return await projectService.getProject(input.id);
+  } catch (error) {
+    console.error('Error in getProjectController:', error);
     throw error;
   }
 };

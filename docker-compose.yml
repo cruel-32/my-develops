@@ -68,20 +68,34 @@ services:
     command: server /data --console-address ":9001"
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   createbuckets:
     image: minio/mc
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
     volumes:
       - ./cors.json:/data/cors.json
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; 
-      /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME} --ignore-existing; 
-      /usr/bin/mc policy set public myminio/${MINIO_BUCKET_NAME}; 
-      /usr/bin/mc policy set-json /data/cors.json myminio/${MINIO_BUCKET_NAME}; 
-      exit 0; 
+      echo 'Waiting for MinIO to be ready...';
+      sleep 2;
+      echo 'Setting up MinIO alias...';
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      echo 'Creating bucket...';
+      /usr/bin/mc mb myminio/${MINIO_BUCKET_NAME} --ignore-existing;
+      echo 'Setting bucket policy from cors.json...';
+      /usr/bin/mc anonymous set-json /data/cors.json myminio/${MINIO_BUCKET_NAME};
+      echo 'Setting anonymous download policy...';
+      /usr/bin/mc anonymous set download myminio/${MINIO_BUCKET_NAME};
+      echo 'Bucket setup completed successfully!';
+      exit 0;
       "
     networks:
       - app-network

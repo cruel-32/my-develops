@@ -34,7 +34,7 @@ export const ProjectCardView = ({ project }: ProjectCardViewProps) => {
   const { name, description, imgUrl, public: isPublic } = project;
 
   return (
-    <Card className="overflow-hidden cursor-pointer">
+    <Card className="min-w-[300px] min-h-[288px] overflow-hidden cursor-pointer">
       <CardHeader className="p-0">
         {imgUrl ? (
           <Image

@@ -28,12 +28,12 @@ export const createProject = async (
       });
     }
 
-    // 2. If an imageId is provided, associate it with the new project
-    if (input.imageId) {
+    // 2. If an imgId is provided, associate it with the new project
+    if (input.imgId) {
       await tx
         .update(images)
         .set({ prjId: newProject.id })
-        .where(eq(images.id, input.imageId));
+        .where(eq(images.id, input.imgId));
     }
 
     // 3. Create default roles for the project
@@ -89,14 +89,21 @@ export const deleteProject = async (
     });
   }
 
+  // Delete associated images from S3 and DB
   const imageArr = await db.select().from(images).where(eq(images.prjId, id));
 
   const image = imageArr[0];
 
   if (image && image.imgUrl) {
     try {
-      const key = image.imgUrl.split('/').pop();
-      if (key) {
+      // Extract S3 key from imgUrl
+      // imgUrl format: http://localhost:9000/my-develops/projects/filename.jpg
+      const urlParts = image.imgUrl.split('/');
+      const bucketIndex = urlParts.findIndex((part) => part === process.env.S3_BUCKET_NAME);
+
+      if (bucketIndex !== -1 && bucketIndex < urlParts.length - 1) {
+        const key = urlParts.slice(bucketIndex + 1).join('/');
+
         await s3.send(
           new DeleteObjectCommand({
             Bucket: process.env.S3_BUCKET_NAME!,
@@ -106,12 +113,13 @@ export const deleteProject = async (
       }
     } catch (error) {
       console.error(
-        `Failed to delete image from MinIO: ${image.imgUrl}`,
+        `Failed to delete image from S3: ${image.imgUrl}`,
         error
       );
     }
   }
 
+  // Delete project (cascades will delete roles and images from DB)
   await db.delete(projects).where(eq(projects.id, id));
 
   return { success: true };
@@ -159,4 +167,123 @@ export const listProjects = async (user: { id: number; role?: string }) => {
   return await query.where(
     or(eq(projects.ownerId, user.id), inArray(projects.id, projectIds))
   );
+};
+
+export const getProject = async (id: number) => {
+  const projectArr = await db
+    .select({
+      id: projects.id,
+      name: projects.name,
+      description: projects.description,
+      public: projects.public,
+      ownerId: projects.ownerId,
+      imgId: images.id,
+      imgUrl: images.imgUrl,
+    })
+    .from(projects)
+    .leftJoin(images, eq(projects.id, images.prjId))
+    .where(eq(projects.id, id));
+
+  return projectArr[0];
+};
+
+export const updateProject = async (
+  input: CreateProjectInput & { id: number },
+  user: { id: number; role?: string }
+) => {
+  return await db.transaction(async (tx) => {
+    // 1. Verify ownership/permissions
+    const projectArr = await tx
+      .select()
+      .from(projects)
+      .where(eq(projects.id, input.id));
+
+    const project = projectArr[0];
+
+    if (!project) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Project not found.',
+      });
+    }
+
+    if (user.role !== 'super_admin' && project.ownerId !== user.id) {
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'You do not have permission to update this project.',
+      });
+    }
+
+    // 2. Handle image changes
+    // Get current image associated with this project
+    const currentImageArr = await tx
+      .select()
+      .from(images)
+      .where(eq(images.prjId, input.id))
+      .limit(1);
+
+    const currentImage = currentImageArr[0];
+
+    // If imgId is provided and it's different from current image, or if imgId is null (removing image)
+    if (currentImage && (!input.imgId || currentImage.id !== input.imgId)) {
+      // Delete old image from S3
+      if (currentImage.imgUrl) {
+        try {
+          const urlParts = currentImage.imgUrl.split('/');
+          const bucketIndex = urlParts.findIndex(
+            (part) => part === process.env.S3_BUCKET_NAME
+          );
+
+          if (bucketIndex !== -1 && bucketIndex < urlParts.length - 1) {
+            const key = urlParts.slice(bucketIndex + 1).join('/');
+
+            await s3.send(
+              new DeleteObjectCommand({
+                Bucket: process.env.S3_BUCKET_NAME!,
+                Key: key,
+              })
+            );
+          }
+        } catch (error) {
+          console.error(
+            `Failed to delete old image from S3: ${currentImage.imgUrl}`,
+            error
+          );
+        }
+      }
+
+      // Delete old image from DB
+      await tx.delete(images).where(eq(images.id, currentImage.id));
+    }
+
+    // 3. Update the project details
+    const updatedProjectArr = await tx
+      .update(projects)
+      .set({
+        name: input.name,
+        description: input.description,
+        public: input.public,
+      })
+      .where(eq(projects.id, input.id))
+      .returning();
+
+    const updatedProject = updatedProjectArr[0];
+
+    if (!updatedProject) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to update project.',
+      });
+    }
+
+    // 4. Associate new image if provided
+    if (input.imgId) {
+      await tx
+        .update(images)
+        .set({ prjId: input.id })
+        .where(eq(images.id, input.imgId));
+    }
+
+    return updatedProject;
+  });
 };

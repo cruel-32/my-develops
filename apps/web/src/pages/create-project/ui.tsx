@@ -1,11 +1,11 @@
 'use client';
 
-import { CreateProjectForm } from '@/web/features/createProjectForm';
+import { ProjectForm } from '@/web/features/projectForm';
 
 export const CreateProjectPage = () => {
   return (
     <>
-      <CreateProjectForm />
+      <ProjectForm />
     </>
   );
 };
