@@ -10,6 +10,7 @@ import {
 } from '@repo/api/modules/projects/interfaces';
 import { useRouter } from 'next/navigation';
 import { type Project } from '@/web/entities/project';
+import { toast } from '@/web/shared/ui';
 import {
   useCreateProjectMutation,
   useUpdateProjectMutation,
@@ -72,7 +73,7 @@ export const useProjectForm = (initialData?: Project) => {
       form.setValue('imgId', imgId);
     } catch (error) {
       console.error('Image upload failed:', error);
-      alert('Image upload failed.');
+      toast.error('Image upload failed.');
     }
   };
 
@@ -82,7 +83,7 @@ export const useProjectForm = (initialData?: Project) => {
       form.setValue('imgId', undefined);
     } catch (error) {
       console.error('Failed to delete image:', error);
-      alert('Failed to delete image.');
+      toast.error('Failed to delete image.');
     }
   };
 

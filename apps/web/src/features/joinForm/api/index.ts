@@ -1,6 +1,7 @@
 'use client';
 
 import { clientTrpc } from '@/web/shared/api/index';
+import { toast } from '@/web/shared/ui';
 import type { JoinFormData } from '../model/schema';
 
 /**
@@ -16,8 +17,7 @@ export const useSignUpMutation = () => {
     },
     onError: (error: unknown) => {
       console.error('SignUp failed:', error);
-      // TODO: Show error notification to user
-      alert('회원가입에 실패했습니다. 이메일이 이미 사용 중일 수 있습니다.');
+      toast.error('회원가입에 실패했습니다. 이메일이 이미 사용 중일 수 있습니다.');
     },
   });
 };

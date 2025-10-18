@@ -1,6 +1,7 @@
 'use client';
 
 import { clientTrpc } from '@/web/shared/api';
+import { toast } from '@/web/shared/ui';
 
 export const useDeleteProjectMutation = () => {
   const utils = clientTrpc.useUtils();
@@ -12,8 +13,7 @@ export const useDeleteProjectMutation = () => {
     },
     onError: (error) => {
       console.error('Failed to delete project:', error);
-      // TODO: Implement user-facing error notification
-      alert('Failed to delete project.');
+      toast.error('Failed to delete project.');
     },
   });
 };

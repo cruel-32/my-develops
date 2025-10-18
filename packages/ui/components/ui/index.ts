@@ -80,6 +80,7 @@ export { Skeleton } from './skeleton';
 export { Slider } from './slider';
 export { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
 export { Toggle, toggleVariants } from './toggle';
+export { Toaster } from './sonner';
 export {
   Tooltip,
   TooltipContent,
@@ -88,3 +89,4 @@ export {
 } from './tooltip';
 // Export commonly used icons from lucide-react
 export * from 'lucide-react';
+export { toast } from 'sonner';

@@ -1,4 +1,5 @@
 import ClientTRPCProvider from './ClientTRPCProvider';
+import ToastProvider from './ToastProvider';
 
 export default function WithProviders({
   children,
@@ -8,6 +9,7 @@ export default function WithProviders({
   return (
     <>
       <ClientTRPCProvider>{children}</ClientTRPCProvider>
+      <ToastProvider />
     </>
   );
 }

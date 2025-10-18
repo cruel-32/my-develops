@@ -1,6 +1,7 @@
 'use client';
 
 import { clientTrpc } from '@/web/shared/api';
+import { toast } from '@/web/shared/ui';
 
 export const useCreateProjectMutation = () => {
   const utils = clientTrpc.useUtils();
@@ -9,11 +10,11 @@ export const useCreateProjectMutation = () => {
     onSuccess: () => {
       // On successful creation, invalidate the projects list to refetch
       utils.projects.list.invalidate();
-      alert('Project created successfully!');
+      toast.success('Project created successfully!');
     },
     onError: (error) => {
       console.error('Failed to create project:', error);
-      alert(`Failed to create project: ${error.message}`);
+      toast.error(`Failed to create project: ${error.message}`);
     },
   });
 };
@@ -23,7 +24,7 @@ export const useCreatePresignedUrlMutation = () => {
     onSuccess: () => {},
     onError: (error) => {
       console.error('Failed to create presigned url:', error);
-      alert(`Failed to create presigned url: ${error.message}`);
+      toast.error(`Failed to create presigned url: ${error.message}`);
     },
   });
 };
@@ -32,7 +33,7 @@ export const useDeleteImageMutation = () => {
   return clientTrpc.images.delete.useMutation({
     onError: (error) => {
       console.error('Failed to delete image:', error);
-      alert(`Failed to delete image: ${error.message}`);
+      toast.error(`Failed to delete image: ${error.message}`);
     },
   });
 };
@@ -43,11 +44,11 @@ export const useUpdateProjectMutation = () => {
   return clientTrpc.projects.update.useMutation({
     onSuccess: () => {
       utils.projects.list.invalidate();
-      alert('Project updated successfully!');
+      toast.success('Project updated successfully!');
     },
     onError: (error) => {
       console.error('Failed to update project:', error);
-      alert(`Failed to update project: ${error.message}`);
+      toast.error(`Failed to update project: ${error.message}`);
     },
   });
 };

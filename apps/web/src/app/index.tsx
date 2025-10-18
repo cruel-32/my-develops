@@ -4,6 +4,7 @@ import { Nanum_Gothic } from 'next/font/google';
 
 import WithProviders from './providers/index';
 import { NextProgress } from './lib/NextProgress';
+import { Toaster } from '@/web/shared/ui';
 
 import type { Metadata } from 'next';
 
@@ -24,6 +25,7 @@ export default function App({ children }: { children: React.ReactNode }) {
         <WithProviders>
           <NextProgress />
           {children}
+          <Toaster />
         </WithProviders>
       </body>
     </html>
