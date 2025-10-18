@@ -4,7 +4,6 @@ import { Nanum_Gothic } from 'next/font/google';
 
 import WithProviders from './providers/index';
 import { NextProgress } from './lib/NextProgress';
-import { Toaster } from '@/web/shared/ui';
 
 import type { Metadata } from 'next';
 
@@ -20,12 +19,11 @@ export const metadata: Metadata = {
 
 export default function App({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
+    <html lang="ko" className="dark" style={{ colorScheme: 'dark' }}>
       <body className={nanumGothic.className}>
         <WithProviders>
           <NextProgress />
           {children}
-          <Toaster />
         </WithProviders>
       </body>
     </html>

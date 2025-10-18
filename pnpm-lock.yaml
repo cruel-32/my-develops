@@ -264,6 +264,10 @@ importers:
         version: 8.46.0(eslint@9.37.0(jiti@2.6.1))(typescript@5.9.3)
 
   packages/tailwind-config:
+    dependencies:
+      tw-animate-css:
+        specifier: ^1.4.0
+        version: 1.4.0
     devDependencies:
       postcss:
         specifier: ^8.5.6
