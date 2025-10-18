@@ -1,3 +1,4 @@
+import reactHooks from 'eslint-plugin-react-hooks';
 import js from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import tseslint from 'typescript-eslint';
@@ -19,6 +20,7 @@ export const nextJsConfig = [
   eslintConfigPrettier,
   ...tseslint.configs.recommended,
   pluginJsxA11y.configs.recommended,
+  reactHooks.configs.flat.recommended,
   {
     ...pluginReact.configs.flat.recommended,
     languageOptions: {

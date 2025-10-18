@@ -1,12 +1,17 @@
-import type { NextConfig } from 'next';
+/** @type {import('next').NextConfig} */
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   transpilePackages: ['@repo/api', '@repo/db'],
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  // ✅ React Compiler 활성화 (전체 모드)
+  experimental: {
+    // react compiler는 1.0 정식 버전인데 experimental?
+    reactCompiler: true,
   },
   output: 'standalone',
   images: {
