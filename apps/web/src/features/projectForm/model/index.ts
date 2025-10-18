@@ -90,13 +90,13 @@ export const useProjectForm = (initialData?: Project) => {
   const onSubmit = (data: CreateProjectInput | UpdateProjectInput) => {
     if (isEditMode) {
       updateProject(data as UpdateProjectInput, {
-        onSuccess: () => {
+        onSuccess: async () => {
           router.push('/dashboard');
         },
       });
     } else {
       createProject(data as CreateProjectInput, {
-        onSuccess: () => {
+        onSuccess: async () => {
           router.push('/dashboard');
         },
       });

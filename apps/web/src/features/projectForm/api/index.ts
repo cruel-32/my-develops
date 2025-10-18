@@ -3,6 +3,7 @@
 import { clientTrpc } from '@/web/shared/api';
 import { toast } from '@/web/shared/ui';
 
+// Server Actions
 export const useCreateProjectMutation = () => {
   const utils = clientTrpc.useUtils();
 

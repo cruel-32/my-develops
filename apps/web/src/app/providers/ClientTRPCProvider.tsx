@@ -2,7 +2,7 @@
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useState } from 'react';
-import { trpcClient, clientTrpc } from '@/web/shared/api/index'; // Import from shared
+import { trpcClient, clientTrpc } from '@/web/shared/api'; // Import from shared
 
 export default function ClientTRPCProvider({
   children,
