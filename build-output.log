@@ -1,0 +1,48 @@
+
+> web@1.0.0 build /Users/seungheechoi/develop/my-develops/apps/web
+> next build
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/seungheechoi/develop/pnpm-lock.yaml as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /Users/seungheechoi/develop/my-develops/pnpm-lock.yaml
+
+   ▲ Next.js 15.5.4
+   - Experiments (use with caution):
+     ✓ reactCompiler
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 3.9s
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/9) ...
+   Generating static pages (2/9) 
+   Generating static pages (4/9) 
+   Generating static pages (6/9) 
+ ✓ Generating static pages (9/9)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                      167 B         163 kB
+├ ○ /_not-found                            995 B         102 kB
+├ ƒ /api/trpc/[trpc]                       123 B         102 kB
+├ ○ /dashboard                           20.7 kB         166 kB
+├ ƒ /dashboard/[projectId]/edit            521 B         181 kB
+├ ○ /dashboard/create                      352 B         181 kB
+├ ○ /join                                3.83 kB         176 kB
+└ ○ /login                               2.12 kB         166 kB
++ First Load JS shared by all             101 kB
+  ├ chunks/801-cf394983f7029768.js       45.3 kB
+  ├ chunks/faefc561-ebd796f0435ecd3c.js  54.2 kB
+  └ other shared chunks (total)          1.95 kB
+
+
+ƒ Middleware                             34.2 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

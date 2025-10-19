@@ -3,7 +3,7 @@
 > 동시편집 가능한 ERD 및 다이어그램 에디터 | 완전 무료 오픈소스 | 로컬/내부망 설치형
 
 **핵심 특징**: 실시간 협업, 보안 걱정 없음, 비용 제로, 설치형 솔루션
-**기술 스택**: Next.js 15, tRPC, TypeScript, PostgreSQL, Docker, Turborepo
+**기술 스택**: Next.js 15, React 19, React Compiler 1.0, tRPC, TypeScript, PostgreSQL, Docker, Turborepo
 **아키텍처**: Feature-Sliced Design (FSD), 모노레포, 타입 안전 API 레이어
 
 ---
@@ -78,7 +78,35 @@
 
 ## 🏆 기술적 성과
 
-### 1. 고급 타입 시스템 구현
+### 1. React Compiler 1.0 정식 버전 적용
+
+**자동 최적화 시스템**:
+
+- 컴파일 타임 자동 메모이제이션으로 불필요한 리렌더링 제거
+- `useMemo`, `useCallback`, `memo` 수동 작성 불필요
+- React 19와 완벽한 통합으로 성능 최적화 자동화
+- 빌드 시 컴포넌트 최적화 자동 적용
+
+**적용 효과**:
+
+```typescript
+// Before: Manual optimization required
+const expensiveValue = useMemo(() => computeValue(data), [data]);
+const handleClick = useCallback(() => doSomething(), []);
+
+// After: Compiler handles it automatically
+const expensiveValue = computeValue(data); // Automatically memoized
+const handleClick = () => doSomething();   // Automatically memoized
+```
+
+**설정** (next.config.ts:14):
+```typescript
+experimental: {
+  reactCompiler: true, // 전체 프로젝트 자동 최적화
+}
+```
+
+### 2. 고급 타입 시스템 구현
 
 **특징**:
 
@@ -87,7 +115,7 @@
 - 컴파일 타임 검증을 통한 런타임 타입 에러 제거
 - Zod 스키마 검증과 TypeScript 타입 추론 통합
 
-### 2. Feature-Sliced Design 아키텍처
+### 3. Feature-Sliced Design 아키텍처
 
 대규모 애플리케이션을 위한 업계 선도적인 아키텍처 패턴 구현:
 
@@ -108,7 +136,7 @@ src/
 - 기능 간 낮은 결합도
 - 아키텍처 부채 없이 100개 이상의 기능으로 확장 가능
 
-### 3. 모노레포 최적화
+### 4. 모노레포 최적화
 
 **빌드 성능**:
 
@@ -131,6 +159,7 @@ src/
 | --------------- | ------ | ----------------- | --------------------------------- |
 | Next.js         | 15.5.4 | React 프레임워크  | App Router, RSC, 엣지 런타임 지원 |
 | React           | 19.2.0 | UI 라이브러리     | 최신 기능, 동시성 렌더링          |
+| React Compiler  | 1.0.0  | 자동 최적화       | 자동 메모이제이션, 성능 향상      |
 | TypeScript      | 5.9.3  | 타입 안정성       | Strict 모드, 고급 타입 추론       |
 | TailwindCSS     | 4.1.14 | 스타일링          | 유틸리티 우선, v4 CSS 엔진        |
 | React Query     | 5.90.2 | 서버 상태 관리    | 캐싱, 낙관적 업데이트             |
@@ -755,6 +784,6 @@ Database (Docker): ~5초 (첫 실행)
 
 ---
 
-**최종 업데이트**: 2025년 10월
+**최종 업데이트**: 2025년 10월 19일
 **버전**: 1.0.0-beta
 **상태**: 활발한 개발 중
