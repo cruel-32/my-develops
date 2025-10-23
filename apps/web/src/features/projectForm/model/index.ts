@@ -1,5 +1,6 @@
 'use client';
 
+import { useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -8,22 +9,19 @@ import {
   updateProjectSchema,
   UpdateProjectInput,
 } from '@repo/api/modules/projects/interfaces';
-import { useRouter } from 'next/navigation';
 import { type Project } from '@/web/entities/project';
 import { toast } from '@/web/shared/ui';
 import {
-  useCreateProjectMutation,
-  useUpdateProjectMutation,
   useCreatePresignedUrlMutation,
   useDeleteImageMutation,
-} from '../api';
+} from '@/web/entities/image';
+import {
+  updateProject,
+  createProject,
+} from '@/web/entities/project/api/server';
 
 export const useProjectForm = (initialData?: Project) => {
-  const router = useRouter();
-  const { mutate: createProject, isPending: isCreating } =
-    useCreateProjectMutation();
-  const { mutate: updateProject, isPending: isUpdating } =
-    useUpdateProjectMutation();
+  const [isPending, startTransition] = useTransition();
   const { mutateAsync: uploadImage } = useCreatePresignedUrlMutation();
   const { mutateAsync: deleteImage } = useDeleteImageMutation();
 
@@ -87,20 +85,37 @@ export const useProjectForm = (initialData?: Project) => {
     }
   };
 
-  const onSubmit = (data: CreateProjectInput | UpdateProjectInput) => {
-    if (isEditMode) {
-      updateProject(data as UpdateProjectInput, {
-        onSuccess: async () => {
-          router.push('/dashboard');
-        },
-      });
-    } else {
-      createProject(data as CreateProjectInput, {
-        onSuccess: async () => {
-          router.push('/dashboard');
-        },
-      });
-    }
+  const onSubmit = async (data: CreateProjectInput | UpdateProjectInput) => {
+    startTransition(async () => {
+      try {
+        if (isEditMode) {
+          // 서버 액션 호출 (업데이트)
+          const result = await updateProject({
+            id: initialData!.id,
+            ...data,
+          });
+          if (result.id) {
+            toast.success('Project updated successfully!');
+          }
+        } else {
+          // 서버 액션 호출 (생성)
+          const result = await createProject(data);
+          if (result) {
+            toast.success('Project created successfully!');
+          }
+          toast.success('Project created successfully!');
+        }
+      } catch (error) {
+        // redirect는 특수한 에러 타입으로 throw되므로 여기서 처리 안 함
+        if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
+          return;
+        }
+        console.error('Error:', error);
+        toast.error(
+          error instanceof Error ? error.message : 'An error occurred'
+        );
+      }
+    });
   };
 
   return {
@@ -108,6 +123,6 @@ export const useProjectForm = (initialData?: Project) => {
     onSubmit,
     handleImageUpload,
     handleImageDelete,
-    isPending: isCreating || isUpdating,
+    isPending,
   };
 };

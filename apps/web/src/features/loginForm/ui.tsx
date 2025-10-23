@@ -1,5 +1,5 @@
 'use client';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
   Button,
   Card,
@@ -20,13 +20,7 @@ import {
 import { useLoginForm } from './model/hook';
 
 export const LoginForm = () => {
-  const router = useRouter();
   const { form, onSubmit, isPending } = useLoginForm();
-
-  const handleNavigate = () => {
-    // '/dashboard' 경로로 사용자를 이동시킵니다.
-    router.push('/join');
-  };
 
   return (
     <Form {...form}>
@@ -95,11 +89,10 @@ export const LoginForm = () => {
                 type="button"
                 variant="link"
                 className="p-0 h-auto font-semibold cursor-pointer"
-                onClick={handleNavigate}
                 disabled={isPending}
                 form="login-form"
               >
-                Sign up
+                <Link href="/join">Sign up</Link>
               </Button>
             </div>
           </CardFooter>

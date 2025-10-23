@@ -7,7 +7,7 @@ import {
   loginFormSchema,
   type LoginFormData,
 } from './schema';
-import { useLoginMutation } from '../api';
+import { useLoginMutation } from '@/web/entities/user';
 
 export const useLoginForm = () => {
   const form = useForm<LoginFormData>({

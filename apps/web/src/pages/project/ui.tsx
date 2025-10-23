@@ -1,18 +1,21 @@
-import { ProjectForm } from '@/web/features/projectForm';
 import { Header } from '@/web/widgets/header';
 import { Footer } from '@/web/widgets/footer';
+import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import { getProjectById } from '@/web/entities/project/api/server';
-import { notFound } from 'next/navigation';
 
-type UpdateProjectPageProps = {
+type ProjectPageProps = {
   params: Promise<{ projectId: string }>;
 };
 
-export const UpdateProjectPage = async ({ params }: UpdateProjectPageProps) => {
+export const ProjectPage = async ({ params }: ProjectPageProps) => {
   const { projectId } = await params;
   const id = Number(projectId);
-  const project = await getProjectById(id);
+  const project = await getProjectById(id, {
+    tags: [`project-${id}`],
+    revalidate: 60 * 5,
+  });
+
   if (!project) {
     return notFound();
   }
@@ -21,7 +24,7 @@ export const UpdateProjectPage = async ({ params }: UpdateProjectPageProps) => {
       <Header />
       <main className="flex flex-col items-center justify-center p-8">
         <Suspense fallback={<div>Loading project...</div>}>
-          <ProjectForm initialData={project} />
+          {project.name}
         </Suspense>
       </main>
       <Footer />

@@ -43,6 +43,7 @@ export const ProjectCardView = ({ project }: ProjectCardViewProps) => {
             width={300}
             height={200}
             className="w-full h-48 object-cover"
+            priority
           />
         ) : (
           <DefaultProjectImage width={300} height={200} />

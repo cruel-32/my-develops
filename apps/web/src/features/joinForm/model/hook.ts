@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { joinFormSchema, JoinFormData } from './schema';
-import { useSignUpMutation } from '../api';
+import { useSignUpMutation } from '@/web/entities/user';
 
 export const useJoinForm = () => {
   const form = useForm<JoinFormData>({
