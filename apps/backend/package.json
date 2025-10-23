@@ -4,7 +4,7 @@
   "description": "",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts ../../packages/api/src ../../packages/db/src",
+    "dev": "tsx src/swagger.ts && tsx watch src/index.ts",
     "build": "tsc && tsc-alias -p tsconfig.json",
     "start": "node dist/index.js",
     "check-types": "tsc --noEmit",
@@ -14,20 +14,32 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@repo/api": "workspace:*",
-    "@repo/db": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/http-errors": "^2.0.5",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/pg": "^8.15.5",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
+    "drizzle-kit": "^0.31.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "tsx": "^4.20.6"
   },
   "dependencies": {
-    "@repo/api": "workspace:*",
-    "@repo/db": "workspace:*",
-    "@trpc/server": "^11.6.0",
+    "@aws-sdk/client-s3": "^3.911.0",
+    "@aws-sdk/s3-presigned-post": "^3.911.0",
+    "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
-    "express": "5.0.0-beta.1"
+    "drizzle-orm": "^0.44.6",
+    "express": "5.0.0-beta.1",
+    "express-zod-safe": "^3.1.0",
+    "http-errors": "^2.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3"
   }
 }

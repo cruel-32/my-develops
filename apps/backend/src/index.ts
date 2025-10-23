@@ -3,9 +3,12 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
 import cors from 'cors';
-import { createExpressMiddleware } from '@trpc/server/adapters/express';
-import { appRouter, createContext } from '@repo/api';
-import { initializeDatabase } from '@repo/db';
+import swaggerUi from 'swagger-ui-express';
+import swaggerDocument from './swagger-output.json';
+
+import { appRouter } from '@/be/router';
+import { initializeDatabase } from '@/be/db/initialize';
+import { errorHandler } from '@/be/middlewares/errorHandler';
 
 // ESM __dirname equivalent
 const __filename = fileURLToPath(import.meta.url);
@@ -20,6 +23,10 @@ async function startServer() {
 
   const app = express();
 
+  // JSON 파싱 미들웨어
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+
   // CORS 설정
   app.use(
     cors({
@@ -28,14 +35,19 @@ async function startServer() {
     })
   );
 
-  // tRPC 미들웨어 설정
-  app.use(
-    '/api/trpc',
-    createExpressMiddleware({
-      router: appRouter,
-      createContext,
-    })
-  );
+  app.use('/api', appRouter);
+
+  // development 환경에서만 swagger 문서를 생성하고 표시
+  if (process.env.NODE_ENV === 'development') {
+    app.use(
+      '/docs',
+      swaggerUi.serve,
+      swaggerUi.setup(swaggerDocument, { explorer: true })
+    );
+  }
+
+  // 에러 핸들러는 모든 라우트 이후에 추가
+  app.use(errorHandler);
 
   const port = process.env.PORT || 4000;
   app.listen(port, () => {

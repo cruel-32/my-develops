@@ -1,12 +1,15 @@
 {
   "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
+    "strict": true,
+    "skipLibCheck": true,
     "composite": true,
     "incremental": true,
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "rootDir": "src",
+    "resolveJsonModule": true,
     "outDir": "dist",
+    "rootDir": ".",
     "baseUrl": ".",
     "paths": {
       "@/be/*": ["./src/*"],
@@ -14,6 +17,6 @@
       "@/db/*": ["../../packages/db/src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "src/**/*.json"],
   "exclude": ["dist", "node_modules"]
 }
