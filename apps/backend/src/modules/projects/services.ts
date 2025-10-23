@@ -1,8 +1,12 @@
 import { db, projects, roles, operatorRoles, images } from '@/be/db';
 import { eq, and, inArray, or, isNotNull } from 'drizzle-orm';
-import { TRPCError } from '@trpc/server';
 import type { CreateProjectInput } from './interfaces';
 import { s3 } from './s3';
+import {
+  AuthorizationError,
+  InternalServerError,
+  NotFoundError,
+} from '@/be/lib/errors';
 
 export const createProject = async (
   input: CreateProjectInput,
@@ -22,10 +26,7 @@ export const createProject = async (
 
     const newProject = newProjectArr[0];
     if (!newProject) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to create project.',
-      });
+      throw new InternalServerError('Failed to create project.');
     }
 
     // 2. If an imgId is provided, associate it with the new project
@@ -76,17 +77,11 @@ export const deleteProject = async (
   const project = projectArr[0];
 
   if (!project) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-      message: 'Project not found.',
-    });
+    throw new NotFoundError('Project not found.');
   }
 
   if (user.role !== 'super_admin' && project.ownerId !== user.id) {
-    throw new TRPCError({
-      code: 'FORBIDDEN',
-      message: 'You do not have permission to delete this project.',
-    });
+    throw new AuthorizationError('Permission denied.');
   }
 
   // Delete associated images from S3 and DB
@@ -124,48 +119,65 @@ export const deleteProject = async (
   return { success: true };
 };
 
-export const listProjects = async (user: { id: number; role?: string }) => {
-  const query = db
+export const listProjects = async (user: {
+  id: number;
+  email: string;
+  name: string;
+}) => {
+  const userRoles = await db
     .select({
-      id: projects.id,
-      name: projects.name,
-      description: projects.description,
-      public: projects.public,
-      ownerId: projects.ownerId,
-      // ... any other fields from projects you need
-      imgUrl: images.imgUrl,
+      userId: operatorRoles.userId,
+      roleId: operatorRoles.roleId,
+      roleName: roles.roleName,
+      prjId: roles.prjId,
     })
-    .from(projects)
-    .leftJoin(images, eq(projects.id, images.prjId));
+    .from(operatorRoles)
+    .where(eq(operatorRoles.userId, user.id))
+    .leftJoin(roles, eq(operatorRoles.roleId, roles.id));
 
-  if (user.role === 'super_admin' || user.role === 'admin') {
+  if (!userRoles) {
+    throw new AuthorizationError('Permission denied.');
+  }
+
+  if (
+    userRoles.some(
+      (role) => role.roleName === 'super_admin' || role.roleName === 'admin'
+    )
+  ) {
+    const query = db
+      .select({
+        id: projects.id,
+        name: projects.name,
+        description: projects.description,
+        public: projects.public,
+        ownerId: projects.ownerId,
+        // ... any other fields from projects you need
+        imgUrl: images.imgUrl,
+      })
+      .from(projects)
+      .leftJoin(images, eq(projects.id, images.prjId));
+    return await query;
+  } else {
+    // userRoles에 prjId가 있는 것들을 조회
+    const query = db
+      .select({
+        id: projects.id,
+        name: projects.name,
+        description: projects.description,
+        public: projects.public,
+      })
+      .from(projects)
+      .leftJoin(images, eq(projects.id, images.prjId))
+      .where(
+        inArray(
+          projects.id,
+          userRoles
+            .filter((userRole) => userRole.prjId)
+            .map((userRole) => userRole.prjId as number)
+        )
+      );
     return await query;
   }
-
-  // For regular users, get projects they own or have a role in.
-  const userRoleIds = await db
-    .select({ roleId: operatorRoles.roleId })
-    .from(operatorRoles)
-    .where(eq(operatorRoles.userId, user.id));
-
-  const roleIds = userRoleIds
-    .map((r) => r.roleId)
-    .filter((id): id is number => id !== null && id !== undefined);
-
-  if (roleIds.length === 0) {
-    return await query.where(eq(projects.ownerId, user.id));
-  }
-
-  const projectIdsFromRoles = await db
-    .select({ projectId: roles.prjId })
-    .from(roles)
-    .where(and(inArray(roles.id, roleIds), isNotNull(roles.prjId)));
-
-  const projectIds = projectIdsFromRoles.map((p) => p.projectId as number);
-
-  return await query.where(
-    or(eq(projects.ownerId, user.id), inArray(projects.id, projectIds))
-  );
 };
 
 export const getProject = async (id: number) => {
@@ -200,17 +212,11 @@ export const updateProject = async (
     const project = projectArr[0];
 
     if (!project) {
-      throw new TRPCError({
-        code: 'NOT_FOUND',
-        message: 'Project not found.',
-      });
+      throw new NotFoundError('Project not found.');
     }
 
     if (user.role !== 'super_admin' && project.ownerId !== user.id) {
-      throw new TRPCError({
-        code: 'FORBIDDEN',
-        message: 'You do not have permission to update this project.',
-      });
+      throw new AuthorizationError('Permission denied.');
     }
 
     // 2. Handle image changes
@@ -269,10 +275,7 @@ export const updateProject = async (
     const updatedProject = updatedProjectArr[0];
 
     if (!updatedProject) {
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to update project.',
-      });
+      throw new InternalServerError('Failed to update project.');
     }
 
     // 4. Associate new image if provided

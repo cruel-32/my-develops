@@ -34,6 +34,9 @@
   },
   "devDependencies": {
     "@feature-sliced/steiger-plugin": "^0.5.7",
+    "@kubb/cli": "^4.2.2",
+    "@kubb/core": "^4.2.2",
+    "@kubb/fs": "^3.10.6",
     "@playwright/test": "^1.56.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
