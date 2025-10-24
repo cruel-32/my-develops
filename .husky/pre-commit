@@ -1,9 +1,10 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
+. "$(dirname -- "$0")/_/husky.sh"
 
 # Check if swagger-output.json has changed
 if git diff --cached --name-only | grep -q "apps/backend/src/swagger-output.json"; then
   echo "📝 Swagger spec changed, regenerating API client..."
   pnpm api:generate
-  git add packages/api/src/generated/
+  # Note: packages/api/src/generated/ is in .gitignore and auto-generated
+  # It will be regenerated on CI/CD or when developers run: pnpm api:generate
 fi

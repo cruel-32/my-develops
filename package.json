@@ -42,6 +42,7 @@
     "@kubb/fs": "^3.10.6",
     "@kubb/oas": "^4.3.0",
     "@kubb/plugin-client": "^4.3.0",
+    "@kubb/plugin-mcp": "^4.3.0",
     "@kubb/plugin-oas": "^4.3.0",
     "@kubb/plugin-react-query": "^4.3.0",
     "@kubb/plugin-ts": "^4.3.0",

@@ -51,6 +51,9 @@ importers:
       '@kubb/plugin-client':
         specifier: ^4.3.0
         version: 4.3.0(@kubb/react@4.3.0)(ajv@8.17.1)(axios@1.12.2)
+      '@kubb/plugin-mcp':
+        specifier: ^4.3.0
+        version: 4.3.0(@kubb/react@4.3.0)(ajv@8.17.1)(axios@1.12.2)
       '@kubb/plugin-oas':
         specifier: ^4.3.0
         version: 4.3.0(@kubb/react@4.3.0)(ajv@8.17.1)
@@ -1591,6 +1594,12 @@ packages:
     peerDependenciesMeta:
       axios:
         optional: true
+
+  '@kubb/plugin-mcp@4.3.0':
+    resolution: {integrity: sha512-cpns7xhw6iXGMzm0A/UN7dUGRfOM86SezgqmXBntbMOVtsbWYH9QIxXoPI1p3OlAqKBzO4uKxP6QYjgwKG7DBA==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      '@kubb/react': ^4.0.0
 
   '@kubb/plugin-oas@4.3.0':
     resolution: {integrity: sha512-JzIrr2y2tqGoZyYUwmcxVYltBH1KyCu5TXmaEoLSFmXc9PxIIWaq3Z+doX5FcoeVzYVQ5gyd/nCJ5yMlvIarsg==}
@@ -8313,6 +8322,23 @@ snapshots:
       axios: 1.12.2
     transitivePeerDependencies:
       - ajv
+      - babel-plugin-macros
+      - bufferutil
+      - encoding
+      - utf-8-validate
+
+  '@kubb/plugin-mcp@4.3.0(@kubb/react@4.3.0)(ajv@8.17.1)(axios@1.12.2)':
+    dependencies:
+      '@kubb/core': 4.3.0(@kubb/react@4.3.0)
+      '@kubb/oas': 4.3.0(ajv@8.17.1)
+      '@kubb/plugin-client': 4.3.0(@kubb/react@4.3.0)(ajv@8.17.1)(axios@1.12.2)
+      '@kubb/plugin-oas': 4.3.0(@kubb/react@4.3.0)(ajv@8.17.1)
+      '@kubb/plugin-ts': 4.3.0(@kubb/react@4.3.0)(ajv@8.17.1)
+      '@kubb/plugin-zod': 4.3.0(@kubb/react@4.3.0)(ajv@8.17.1)
+      '@kubb/react': 4.3.0
+    transitivePeerDependencies:
+      - ajv
+      - axios
       - babel-plugin-macros
       - bufferutil
       - encoding
