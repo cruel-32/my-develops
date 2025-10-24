@@ -31,8 +31,7 @@ const router: Router = Router();
  *         name: id
  *         required: true
  *         schema:
- *           type: string
- *           format: uuid
+ *           type: integer
  *         description: 프로젝트 ID
  *     responses:
  *       200:
@@ -43,8 +42,7 @@ const router: Router = Router();
  *               type: object
  *               properties:
  *                 id:
- *                   type: string
- *                   format: uuid
+ *                   type: integer
  *                 name:
  *                   type: string
  *                 description:
@@ -53,7 +51,6 @@ const router: Router = Router();
  *                   type: boolean
  *                 imgId:
  *                   type: string
- *                   format: uuid
  *                 createdAt:
  *                   type: string
  *                   format: date-time
@@ -109,8 +106,7 @@ export type GetProjectRequest = ValidatedRequest<{
  *               type: object
  *               properties:
  *                 id:
- *                   type: string
- *                   format: uuid
+ *                   type: integer
  *                 name:
  *                   type: string
  *                 description:
@@ -119,7 +115,6 @@ export type GetProjectRequest = ValidatedRequest<{
  *                   type: boolean
  *                 imgId:
  *                   type: string
- *                   format: uuid
  *                 createdAt:
  *                   type: string
  *                   format: date-time
@@ -134,25 +129,27 @@ export type CreateProjectRequest = ValidatedRequest<{
 
 /**
  * @swagger
- * /api/projects/update:
+ * /api/projects/{id}:
  *   put:
  *     tags: [Projects]
  *     summary: 프로젝트 수정
  *     description: 기존 프로젝트의 정보를 수정합니다
  *     security:
  *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 프로젝트 ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [id]
  *             properties:
- *               id:
- *                 type: string
- *                 format: uuid
- *                 description: 프로젝트 ID
  *               name:
  *                 type: string
  *                 description: 프로젝트 이름
@@ -175,8 +172,7 @@ export type CreateProjectRequest = ValidatedRequest<{
  *               type: object
  *               properties:
  *                 id:
- *                   type: string
- *                   format: uuid
+ *                   type: integer
  *                 name:
  *                   type: string
  *                 description:
@@ -185,7 +181,6 @@ export type CreateProjectRequest = ValidatedRequest<{
  *                   type: boolean
  *                 imgId:
  *                   type: string
- *                   format: uuid
  *                 updatedAt:
  *                   type: string
  *                   format: date-time
@@ -197,30 +192,26 @@ export type CreateProjectRequest = ValidatedRequest<{
  *         description: 인증 실패
  */
 export type UpdateProjectRequest = ValidatedRequest<{
-  body: typeof updateProjectSchema;
+  params: typeof getProjectSchema;
+  body: Omit<typeof updateProjectSchema, 'id'>;
 }>;
 
 /**
  * @swagger
- * /api/projects/delete:
+ * /api/projects/{id}:
  *   delete:
  *     tags: [Projects]
  *     summary: 프로젝트 삭제
  *     description: 프로젝트를 삭제합니다
  *     security:
  *       - BearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [id]
- *             properties:
- *               id:
- *                 type: string
- *                 format: uuid
- *                 description: 프로젝트 ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 프로젝트 ID
  *     responses:
  *       200:
  *         description: 프로젝트 삭제 성공
@@ -232,7 +223,7 @@ export type UpdateProjectRequest = ValidatedRequest<{
  *         description: 권한 없음
  */
 export type DeleteProjectRequest = ValidatedRequest<{
-  body: typeof deleteProjectSchema;
+  params: typeof deleteProjectSchema;
 }>;
 
 /**
@@ -302,9 +293,9 @@ router.put(
 );
 
 router.delete(
-  '/delete',
+  '/:id',
   authenticate,
-  validate({ body: deleteProjectSchema }),
+  validate({ params: deleteProjectSchema }),
   deleteProjectController
 );
 

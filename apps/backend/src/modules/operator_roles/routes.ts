@@ -68,27 +68,26 @@ export type CreateOperatorRoleRequest = ValidatedRequest<{
 
 /**
  * @swagger
- * /api/operator-roles/delete:
+ * /api/operator-roles/{userId}/{roleId}:
  *   delete:
  *     tags: [Operator Roles]
  *     summary: 운영자 역할 삭제
  *     description: 사용자로부터 특정 역할을 제거합니다
  *     security:
  *       - BearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [userId, roleId]
- *             properties:
- *               userId:
- *                 type: number
- *                 description: 사용자 ID
- *               roleId:
- *                 type: number
- *                 description: 역할 ID
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 사용자 ID
+ *       - in: path
+ *         name: roleId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 역할 ID
  *     responses:
  *       200:
  *         description: 운영자 역할 삭제 성공
@@ -100,7 +99,7 @@ export type CreateOperatorRoleRequest = ValidatedRequest<{
  *         description: 권한 없음
  */
 export type DeleteOperatorRoleRequest = ValidatedRequest<{
-  body: typeof deleteOperatorRoleSchema;
+  params: typeof deleteOperatorRoleSchema;
 }>;
 
 /**
@@ -166,9 +165,9 @@ router.post(
 );
 
 router.delete(
-  '/delete',
+  '/:userId/:roleId',
   authenticate,
-  validate({ body: deleteOperatorRoleSchema }),
+  validate({ params: deleteOperatorRoleSchema }),
   deleteOperatorRoleController
 );
 

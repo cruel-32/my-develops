@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
 export const createOperatorRoleSchema = z.object({
-  userId: z.number(),
-  roleId: z.number(),
+  userId: z.string().transform(Number),
+  roleId: z.string().transform(Number),
 });
 
 export const deleteOperatorRoleSchema = z.object({
-  userId: z.number(),
-  roleId: z.number(),
+  userId: z.string().transform(Number),
+  roleId: z.string().transform(Number),
 });
 
 export type CreateOperatorRoleInput = z.infer<typeof createOperatorRoleSchema>;

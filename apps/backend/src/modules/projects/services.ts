@@ -1,6 +1,6 @@
 import { db, projects, roles, operatorRoles, images } from '@/be/db';
 import { eq, and, inArray, or, isNotNull } from 'drizzle-orm';
-import type { CreateProjectInput } from './interfaces';
+import type { CreateProjectInput, UpdateProjectInput } from './interfaces';
 import { s3 } from './s3';
 import {
   AuthorizationError,
@@ -199,7 +199,7 @@ export const getProject = async (id: number) => {
 };
 
 export const updateProject = async (
-  input: CreateProjectInput & { id: number },
+  input: UpdateProjectInput & { id: number },
   user: { id: number; role?: string }
 ) => {
   return await db.transaction(async (tx) => {

@@ -10,6 +10,7 @@ import type {
   CreateOperatorRoleRequest,
   DeleteOperatorRoleRequest,
 } from './routes';
+import type { DeleteOperatorRoleInput } from './interfaces';
 
 export const createOperatorRole = async (req: CreateOperatorRoleRequest) => {
   const { userId, roleId } = req.body;
@@ -87,10 +88,13 @@ export const createOperatorRole = async (req: CreateOperatorRoleRequest) => {
   return { success: true, data: newOperatorRole };
 };
 
-export const deleteOperatorRole = async (req: DeleteOperatorRoleRequest) => {
-  const { userId, roleId } = req.body;
+export const deleteOperatorRole = async (
+  params: DeleteOperatorRoleInput,
+  user: { id: number; role?: string }
+) => {
+  const { userId, roleId } = params;
 
-  if (!req.user) {
+  if (!user) {
     throw new NotFoundError('User not found.');
   }
 
@@ -100,7 +104,7 @@ export const deleteOperatorRole = async (req: DeleteOperatorRoleRequest) => {
       roleName: roles.roleName,
     })
     .from(operatorRoles)
-    .where(eq(operatorRoles.userId, req.user.id))
+    .where(eq(operatorRoles.userId, user.id))
     .leftJoin(roles, eq(operatorRoles.roleId, roles.id));
 
   if (operatorRolesArr.length === 0) {

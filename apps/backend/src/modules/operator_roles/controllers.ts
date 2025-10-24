@@ -23,7 +23,10 @@ export const deleteOperatorRoleController = async (
   res: Response
 ) => {
   try {
-    const result = await operatorRoleService.deleteOperatorRole(req);
+    const result = await operatorRoleService.deleteOperatorRole(
+      req.params,
+      req.user!
+    );
     res.json(result);
   } catch (error) {
     console.error('Error in deleteOperatorRoleController:', error);

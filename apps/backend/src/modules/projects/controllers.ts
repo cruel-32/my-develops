@@ -25,7 +25,10 @@ export const updateProjectController = async (
   res: Response
 ) => {
   try {
-    const result = await projectService.updateProject(req.body, req.user!);
+    const result = await projectService.updateProject(
+      { ...req.body, id: req.params.id },
+      req.user!
+    );
     res.json(result);
   } catch (error) {
     console.error('Error in updateProjectController:', error);
@@ -38,7 +41,7 @@ export const deleteProjectController = async (
   res: Response
 ) => {
   try {
-    const result = await projectService.deleteProject(req.body.id, req.user!);
+    const result = await projectService.deleteProject(req.params.id, req.user!);
     res.json(result);
   } catch (error) {
     console.error('Error in deleteProjectController:', error);

@@ -10,7 +10,7 @@ This package provides:
 - **TypeScript Types** - Complete type definitions for requests and responses
 - **Zod Schemas** - Runtime validation schemas for all API data structures
 
-Generated from `apps/backend/src/swagger-output.json` using [Kubb](https://kubb.dev).
+All three are **automatically generated** from `apps/backend/src/swagger-output.json` using [Kubb](https://kubb.dev).
 
 ## Installation
 
@@ -216,6 +216,44 @@ Kubb configuration is in `kubb.config.ts` at the monorepo root:
 ```
 
 ## Advanced Usage
+
+### Runtime Validation with Zod Schemas
+
+Validate data at runtime using the auto-generated Zod schemas:
+
+```typescript
+import { postApiAuthLoginMutationRequestSchema, postApiAuthLoginMutationResponseSchema } from '@repo/api';
+import { usePostApiAuthLogin } from '@repo/api';
+
+// Validate request data
+const loginData = { email: 'user@example.com', password: 'password' };
+const validatedRequest = postApiAuthLoginMutationRequestSchema.parse(loginData);
+
+// Validate API response
+const { mutate } = usePostApiAuthLogin({
+  onSuccess: (data) => {
+    // Parse response with schema
+    const validatedResponse = postApiAuthLoginMutationResponseSchema.parse(data);
+    console.log('Token:', validatedResponse.accessToken);
+  },
+});
+```
+
+### Safe Parsing (No Errors)
+
+```typescript
+import { postApiAuthLoginMutationRequestSchema } from '@repo/api';
+
+const result = postApiAuthLoginMutationRequestSchema.safeParse(userInput);
+
+if (!result.success) {
+  // Handle validation errors
+  console.error('Validation failed:', result.error.flatten());
+} else {
+  // Use validated data safely
+  mutate(result.data);
+}
+```
 
 ### Custom Query Options
 

@@ -667,7 +667,7 @@
         }
       }
     },
-    "/api/operator-roles/delete": {
+    "/api/operator-roles/{userId}/{roleId}": {
       "delete": {
         "tags": [
           "Operator Roles"
@@ -679,30 +679,26 @@
             "BearerAuth": []
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "userId",
-                  "roleId"
-                ],
-                "properties": {
-                  "userId": {
-                    "type": "number",
-                    "description": "사용자 ID"
-                  },
-                  "roleId": {
-                    "type": "number",
-                    "description": "역할 ID"
-                  }
-                }
-              }
-            }
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "사용자 ID"
+          },
+          {
+            "in": "path",
+            "name": "roleId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "역할 ID"
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "운영자 역할 삭제 성공"
@@ -817,8 +813,7 @@
             "name": "id",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "integer"
             },
             "description": "프로젝트 ID"
           }
@@ -832,8 +827,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "format": "uuid"
+                      "type": "integer"
                     },
                     "name": {
                       "type": "string"
@@ -845,8 +839,7 @@
                       "type": "boolean"
                     },
                     "imgId": {
-                      "type": "string",
-                      "format": "uuid"
+                      "type": "string"
                     },
                     "createdAt": {
                       "type": "string",
@@ -863,6 +856,137 @@
           },
           "401": {
             "description": "인증 실패"
+          },
+          "404": {
+            "description": "프로젝트를 찾을 수 없음"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "프로젝트 수정",
+        "description": "기존 프로젝트의 정보를 수정합니다",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "프로젝트 ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "프로젝트 이름"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "프로젝트 설명"
+                  },
+                  "public": {
+                    "type": "boolean",
+                    "description": "프로젝트 공개 여부"
+                  },
+                  "imgId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "이미지 ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "프로젝트 수정 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "public": {
+                      "type": "boolean"
+                    },
+                    "imgId": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "잘못된 요청"
+          },
+          "401": {
+            "description": "인증 실패"
+          },
+          "404": {
+            "description": "프로젝트를 찾을 수 없음"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Projects"
+        ],
+        "summary": "프로젝트 삭제",
+        "description": "프로젝트를 삭제합니다",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "프로젝트 ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "프로젝트 삭제 성공"
+          },
+          "401": {
+            "description": "인증 실패"
+          },
+          "403": {
+            "description": "권한 없음"
           },
           "404": {
             "description": "프로젝트를 찾을 수 없음"
@@ -924,8 +1048,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "format": "uuid"
+                      "type": "integer"
                     },
                     "name": {
                       "type": "string"
@@ -937,8 +1060,7 @@
                       "type": "boolean"
                     },
                     "imgId": {
-                      "type": "string",
-                      "format": "uuid"
+                      "type": "string"
                     },
                     "createdAt": {
                       "type": "string",
@@ -954,149 +1076,6 @@
           },
           "401": {
             "description": "인증 실패"
-          }
-        }
-      }
-    },
-    "/api/projects/update": {
-      "put": {
-        "tags": [
-          "Projects"
-        ],
-        "summary": "프로젝트 수정",
-        "description": "기존 프로젝트의 정보를 수정합니다",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "id"
-                ],
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "프로젝트 ID"
-                  },
-                  "name": {
-                    "type": "string",
-                    "description": "프로젝트 이름"
-                  },
-                  "description": {
-                    "type": "string",
-                    "description": "프로젝트 설명"
-                  },
-                  "public": {
-                    "type": "boolean",
-                    "description": "프로젝트 공개 여부"
-                  },
-                  "imgId": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "이미지 ID"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "프로젝트 수정 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    },
-                    "public": {
-                      "type": "boolean"
-                    },
-                    "imgId": {
-                      "type": "string",
-                      "format": "uuid"
-                    },
-                    "updatedAt": {
-                      "type": "string",
-                      "format": "date-time"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "잘못된 요청"
-          },
-          "401": {
-            "description": "인증 실패"
-          },
-          "404": {
-            "description": "프로젝트를 찾을 수 없음"
-          }
-        }
-      }
-    },
-    "/api/projects/delete": {
-      "delete": {
-        "tags": [
-          "Projects"
-        ],
-        "summary": "프로젝트 삭제",
-        "description": "프로젝트를 삭제합니다",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "id"
-                ],
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "프로젝트 ID"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "프로젝트 삭제 성공"
-          },
-          "401": {
-            "description": "인증 실패"
-          },
-          "403": {
-            "description": "권한 없음"
-          },
-          "404": {
-            "description": "프로젝트를 찾을 수 없음"
           }
         }
       }
@@ -1223,8 +1202,7 @@
             "name": "id",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "integer"
             },
             "description": "사용자 ID"
           }
@@ -1238,8 +1216,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "format": "uuid"
+                      "type": "integer"
                     },
                     "email": {
                       "type": "string"
@@ -1267,18 +1244,27 @@
             "description": "사용자를 찾을 수 없음"
           }
         }
-      }
-    },
-    "/api/users/update": {
+      },
       "put": {
         "tags": [
           "Users"
         ],
         "summary": "사용자 수정",
-        "description": "현재 사용자의 정보를 수정합니다",
+        "description": "특정 사용자의 정보를 수정합니다",
         "security": [
           {
             "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "사용자 ID"
           }
         ],
         "requestBody": {
@@ -1292,10 +1278,9 @@
                     "type": "string",
                     "description": "사용자 이름"
                   },
-                  "email": {
+                  "picture": {
                     "type": "string",
-                    "format": "email",
-                    "description": "사용자 이메일"
+                    "description": "사용자 프로필 사진"
                   }
                 }
               }
@@ -1311,8 +1296,7 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string",
-                      "format": "uuid"
+                      "type": "integer"
                     },
                     "email": {
                       "type": "string"
@@ -1335,44 +1319,33 @@
           "401": {
             "description": "인증 실패"
           },
-          "409": {
-            "description": "이미 존재하는 이메일"
+          "404": {
+            "description": "사용자를 찾을 수 없음"
           }
         }
-      }
-    },
-    "/api/users/delete": {
+      },
       "delete": {
         "tags": [
           "Users"
         ],
         "summary": "사용자 삭제",
-        "description": "현재 사용자 계정을 삭제합니다",
+        "description": "특정 사용자 계정을 삭제합니다",
         "security": [
           {
             "BearerAuth": []
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "id"
-                ],
-                "properties": {
-                  "id": {
-                    "type": "string",
-                    "format": "uuid",
-                    "description": "사용자 ID"
-                  }
-                }
-              }
-            }
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "사용자 ID"
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "사용자 삭제 성공"

@@ -3,6 +3,7 @@ import { pluginOas } from '@kubb/plugin-oas';
 import { pluginReactQuery } from '@kubb/plugin-react-query';
 import { pluginTs } from '@kubb/plugin-ts';
 import { pluginClient } from '@kubb/plugin-client';
+import { pluginZod } from '@kubb/plugin-zod';
 
 export default defineConfig({
   input: {
@@ -17,6 +18,7 @@ export default defineConfig({
       validate: false,
     }),
     pluginTs(),
+    pluginZod(),
     pluginClient({
       client: 'fetch',
     }),

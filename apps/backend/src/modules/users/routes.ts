@@ -57,8 +57,7 @@ const router: Router = Router();
  *         name: id
  *         required: true
  *         schema:
- *           type: string
- *           format: uuid
+ *           type: integer
  *         description: 사용자 ID
  *     responses:
  *       200:
@@ -69,8 +68,7 @@ const router: Router = Router();
  *               type: object
  *               properties:
  *                 id:
- *                   type: string
- *                   format: uuid
+ *                   type: integer
  *                 email:
  *                   type: string
  *                 name:
@@ -92,13 +90,20 @@ export type GetUserRequest = ValidatedRequest<{
 
 /**
  * @swagger
- * /api/users/update:
+ * /api/users/{id}:
  *   put:
  *     tags: [Users]
  *     summary: 사용자 수정
- *     description: 현재 사용자의 정보를 수정합니다
+ *     description: 특정 사용자의 정보를 수정합니다
  *     security:
  *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 사용자 ID
  *     requestBody:
  *       required: true
  *       content:
@@ -109,10 +114,9 @@ export type GetUserRequest = ValidatedRequest<{
  *               name:
  *                 type: string
  *                 description: 사용자 이름
- *               email:
+ *               picture:
  *                 type: string
- *                 format: email
- *                 description: 사용자 이메일
+ *                 description: 사용자 프로필 사진
  *     responses:
  *       200:
  *         description: 사용자 수정 성공
@@ -122,8 +126,7 @@ export type GetUserRequest = ValidatedRequest<{
  *               type: object
  *               properties:
  *                 id:
- *                   type: string
- *                   format: uuid
+ *                   type: integer
  *                 email:
  *                   type: string
  *                 name:
@@ -135,34 +138,30 @@ export type GetUserRequest = ValidatedRequest<{
  *         description: 잘못된 요청
  *       401:
  *         description: 인증 실패
- *       409:
- *         description: 이미 존재하는 이메일
+ *       404:
+ *         description: 사용자를 찾을 수 없음
  */
 export type UpdateUserRequest = ValidatedRequest<{
-  body: typeof updateUserSchema;
+  params: typeof getUserSchema;
+  body: Omit<typeof updateUserSchema, 'id'>;
 }>;
 
 /**
  * @swagger
- * /api/users/delete:
+ * /api/users/{id}:
  *   delete:
  *     tags: [Users]
  *     summary: 사용자 삭제
- *     description: 현재 사용자 계정을 삭제합니다
+ *     description: 특정 사용자 계정을 삭제합니다
  *     security:
  *       - BearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [id]
- *             properties:
- *               id:
- *                 type: string
- *                 format: uuid
- *                 description: 사용자 ID
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: 사용자 ID
  *     responses:
  *       200:
  *         description: 사용자 삭제 성공
@@ -174,7 +173,7 @@ export type UpdateUserRequest = ValidatedRequest<{
  *         description: 권한 없음
  */
 export type DeleteUserRequest = ValidatedRequest<{
-  body: typeof deleteUserSchema;
+  params: typeof deleteUserSchema;
 }>;
 
 /**
@@ -200,8 +199,7 @@ export type DeleteUserRequest = ValidatedRequest<{
  *                     type: object
  *                     properties:
  *                       id:
- *                         type: string
- *                         format: uuid
+ *                         type: integer
  *                       email:
  *                         type: string
  *                       name:
@@ -228,16 +226,19 @@ router.get(
 );
 
 router.put(
-  '/update',
+  '/:id',
   authenticate,
-  validate({ body: updateUserSchema }),
+  validate({
+    params: getUserSchema,
+    body: updateUserSchema.omit({ id: true }),
+  }),
   updateUserController
 );
 
 router.delete(
-  '/delete',
+  '/:id',
   authenticate,
-  validate({ body: deleteUserSchema }),
+  validate({ params: deleteUserSchema }),
   deleteUserController
 );
 
