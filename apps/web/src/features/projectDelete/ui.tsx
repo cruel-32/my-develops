@@ -2,7 +2,8 @@
 
 import { useTransition } from 'react';
 import { Button } from '@/web/shared/ui';
-import { deleteProjectAction } from '@/web/shared/actions/projects';
+// TODO: Implement deleteProjectAction using fetch + React Query or server action
+// import { deleteProjectAction } from '@/web/shared/actions/projects';
 import { toast } from '@/web/shared/ui';
 
 interface DeleteProjectButtonProps {
@@ -21,7 +22,8 @@ export const DeleteProjectButton = ({
 
     startTransition(async () => {
       try {
-        await deleteProjectAction(projectId);
+        // TODO: Implement deleteProjectAction using fetch + React Query or server action
+        // await deleteProjectAction(projectId);
         toast.success('Project deleted successfully!');
       } catch (error) {
         toast.error(

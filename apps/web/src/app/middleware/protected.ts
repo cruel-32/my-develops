@@ -5,19 +5,20 @@ import type { NextRequest } from 'next/server';
 const protectedRoutes = ['/dashboard', '/mypage'];
 
 /**
- * tRPC를 통해 토큰 검증. 성공 시 Response 객체, 실패 시 null 반환
+ * TODO: tRPC를 REST API로 변경. 현재는 tRPC 엔드포인트 사용
+ * 토큰 검증 API 호출. 성공 시 Response 객체, 실패 시 null 반환
  */
-async function verifyTokenViaTRPC(
+async function verifyToken(
   accessToken: string
 ): Promise<Response | null> {
   try {
     const backendUrl =
       process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    // TODO: Change to REST API endpoint (e.g., GET /api/users/verify)
     const response = await fetch(`${backendUrl}/api/trpc/users.verifyToken`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-trpc-source': 'middleware',
         Cookie: `accessToken=${accessToken}`,
       },
       credentials: 'include',
@@ -32,19 +33,20 @@ async function verifyTokenViaTRPC(
     const data = await response.json();
 
     if (data?.result?.data?.success) {
-      console.log('✅ Token verified successfully via tRPC');
+      console.log('✅ Token verified successfully');
       return response;
     }
 
-    console.log('Token verification failed, tRPC error:', data?.error);
+    console.log('Token verification failed, error:', data?.error);
     return null;
   } catch (error) {
-    console.error('Token verification error via tRPC:', error);
+    console.error('Token verification error:', error);
     return null;
   }
 }
 
 /**
+ * TODO: tRPC를 REST API로 변경. 현재는 tRPC 엔드포인트 사용
  * 백엔드에서 토큰 갱신 시도. 성공 시 Response 객체, 실패 시 null 반환
  */
 async function refreshAccessToken(
@@ -53,11 +55,11 @@ async function refreshAccessToken(
   try {
     const backendUrl =
       process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    // TODO: Change to REST API endpoint (e.g., POST /api/users/refresh)
     const response = await fetch(`${backendUrl}/api/trpc/users.refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-trpc-source': 'middleware',
         Cookie: `refreshToken=${refreshToken}`,
       },
       credentials: 'include',
@@ -76,7 +78,7 @@ async function refreshAccessToken(
       return response;
     }
 
-    console.log('Token refresh failed, tRPC error:', data?.error);
+    console.log('Token refresh failed, error:', data?.error);
     return null;
   } catch (error) {
     console.error('Token refresh error in middleware:', error);
@@ -124,7 +126,7 @@ export async function middleware(request: NextRequest) {
 
   // 1. 유효한 accessToken이 있는지 먼저 확인
   if (accessToken) {
-    authResponse = await verifyTokenViaTRPC(accessToken);
+    authResponse = await verifyToken(accessToken);
   }
 
   // 2. accessToken이 없거나 유효하지 않으면 refreshToken으로 재시도

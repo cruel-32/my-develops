@@ -3,7 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { joinFormSchema, JoinFormData } from './schema';
-import { useSignUpMutation } from '@/web/entities/user';
+// TODO: Implement useSignUpMutation using fetch + React Query
+// import { useSignUpMutation } from '@/web/entities/user';
 
 export const useJoinForm = () => {
   const form = useForm<JoinFormData>({
@@ -16,7 +17,10 @@ export const useJoinForm = () => {
     },
   });
 
-  const { mutate, isPending } = useSignUpMutation();
+  // TODO: Replace with fetch + React Query mutation
+  // const { mutate, isPending } = useSignUpMutation();
+  const mutate = (data: any) => {};
+  const isPending = false;
 
   const onSubmit = (data: JoinFormData) => {
     mutate(data);

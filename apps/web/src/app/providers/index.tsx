@@ -1,4 +1,4 @@
-import ClientTRPCProvider from './ClientTRPCProvider';
+import ClientQueryProvider from './ClientQueryProvider';
 import ToastProvider from './ToastProvider';
 import ThemeProvider from './ThemeProvider';
 
@@ -15,7 +15,7 @@ export default function WithProviders({
         enableSystem
         disableTransitionOnChange
       >
-        <ClientTRPCProvider>{children}</ClientTRPCProvider>
+        <ClientQueryProvider>{children}</ClientQueryProvider>
         <ToastProvider />
       </ThemeProvider>
     </>

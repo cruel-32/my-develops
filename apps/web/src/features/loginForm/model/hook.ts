@@ -7,7 +7,8 @@ import {
   loginFormSchema,
   type LoginFormData,
 } from './schema';
-import { useLoginMutation } from '@/web/entities/user';
+// TODO: Implement useLoginMutation using fetch + React Query
+// import { useLoginMutation } from '@/web/entities/user';
 
 export const useLoginForm = () => {
   const form = useForm<LoginFormData>({
@@ -15,11 +16,14 @@ export const useLoginForm = () => {
     defaultValues: loginFormDefaultValues,
   });
 
-  const { mutate, isPending } = useLoginMutation();
+  // TODO: Replace with fetch + React Query mutation
+  // const { mutate, isPending } = useLoginMutation();
+  const mutate = (data: any) => {};
+  const isPending = false;
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await mutate(data);
+      mutate(data);
     } catch (error) {
       console.error('Login error:', error);
     }

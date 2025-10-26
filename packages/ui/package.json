@@ -24,7 +24,7 @@
     "lint": "eslint src --max-warnings 0"
   },
   "peerDependencies": {
-    "react": "^19"
+    "react": "^19.2.0"
   },
   "devDependencies": {
     "@radix-ui/react-accordion": "^1.2.12",
