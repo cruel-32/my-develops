@@ -13,9 +13,24 @@ import {
   updateProjectController,
   getProjectController,
 } from './controllers';
-import { authenticate } from '@/be/middlewares/auth';
+import { authenticate } from '@/be/middlewares';
 
 const router: Router = Router();
+
+/**
+ * @description 모든 API 응답 형식
+ *
+ * Success Response (2xx):
+ * {
+ *   ... 각 엔드포인트의 데이터
+ * }
+ *
+ * Error Response (4xx, 5xx):
+ * {
+ *   "error": "에러 메시지",
+ *   "statusCode": HTTP 상태 코드
+ * }
+ */
 
 /**
  * @swagger
@@ -40,6 +55,7 @@ const router: Router = Router();
  *           application/json:
  *             schema:
  *               type: object
+ *               required: [id, name]
  *               properties:
  *                 id:
  *                   type: integer
@@ -49,14 +65,16 @@ const router: Router = Router();
  *                   type: string
  *                 public:
  *                   type: boolean
+ *                 ownerId:
+ *                   type: integer
+ *                   description: 프로젝트 소유자 ID
  *                 imgId:
  *                   type: string
- *                 createdAt:
+ *                   format: uuid
+ *                   description: 연관된 이미지 ID
+ *                 imgUrl:
  *                   type: string
- *                   format: date-time
- *                 updatedAt:
- *                   type: string
- *                   format: date-time
+ *                   description: S3 이미지 URL
  *       404:
  *         description: 프로젝트를 찾을 수 없음
  *       401:
@@ -104,6 +122,7 @@ export type GetProjectRequest = ValidatedRequest<{
  *           application/json:
  *             schema:
  *               type: object
+ *               required: [id, name]
  *               properties:
  *                 id:
  *                   type: integer
@@ -113,11 +132,13 @@ export type GetProjectRequest = ValidatedRequest<{
  *                   type: string
  *                 public:
  *                   type: boolean
+ *                 ownerId:
+ *                   type: integer
+ *                   description: 프로젝트 소유자 ID
  *                 imgId:
  *                   type: string
- *                 createdAt:
- *                   type: string
- *                   format: date-time
+ *                   format: uuid
+ *                   description: 연관된 이미지 ID
  *       400:
  *         description: 잘못된 요청
  *       401:
@@ -170,6 +191,7 @@ export type CreateProjectRequest = ValidatedRequest<{
  *           application/json:
  *             schema:
  *               type: object
+ *               required: [id, name]
  *               properties:
  *                 id:
  *                   type: integer
@@ -179,11 +201,13 @@ export type CreateProjectRequest = ValidatedRequest<{
  *                   type: string
  *                 public:
  *                   type: boolean
+ *                 ownerId:
+ *                   type: integer
+ *                   description: 프로젝트 소유자 ID
  *                 imgId:
  *                   type: string
- *                 updatedAt:
- *                   type: string
- *                   format: date-time
+ *                   format: uuid
+ *                   description: 연관된 이미지 ID
  *       404:
  *         description: 프로젝트를 찾을 수 없음
  *       400:
@@ -215,6 +239,14 @@ export type UpdateProjectRequest = ValidatedRequest<{
  *     responses:
  *       200:
  *         description: 프로젝트 삭제 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 deletedProjectId:
+ *                   type: integer
+ *                   description: 삭제된 프로젝트 ID
  *       404:
  *         description: 프로젝트를 찾을 수 없음
  *       401:
@@ -228,7 +260,7 @@ export type DeleteProjectRequest = ValidatedRequest<{
 
 /**
  * @swagger
- * /api/projects/list:
+ * /api/projects:
  *   get:
  *     tags: [Projects]
  *     summary: 프로젝트 목록 조회
@@ -242,30 +274,29 @@ export type DeleteProjectRequest = ValidatedRequest<{
  *           application/json:
  *             schema:
  *               type: object
+ *               required: [projects]
  *               properties:
  *                 projects:
  *                   type: array
  *                   items:
  *                     type: object
+ *                     required: [id, name, description, public, ownerId]
  *                     properties:
  *                       id:
- *                         type: string
- *                         format: uuid
+ *                         type: integer
  *                       name:
  *                         type: string
  *                       description:
  *                         type: string
  *                       public:
  *                         type: boolean
- *                       imgId:
+ *                       ownerId:
+ *                         type: integer
+ *                         description: 프로젝트 소유자 ID
+ *                       imgUrl:
  *                         type: string
- *                         format: uuid
- *                       createdAt:
- *                         type: string
- *                         format: date-time
- *                       updatedAt:
- *                         type: string
- *                         format: date-time
+ *                         nullable: true
+ *                         description: S3 이미지 URL
  *       401:
  *         description: 인증 실패
  */
@@ -299,6 +330,6 @@ router.delete(
   deleteProjectController
 );
 
-router.get('/list', authenticate, listProjectsController);
+router.get('/', authenticate, listProjectsController);
 
 export { router as projectsRouter };

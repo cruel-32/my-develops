@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useProjectForm } from './model';
+import { useProjectForm } from './api';
 import { type Project } from '@/web/entities/project';
 import {
   Card,

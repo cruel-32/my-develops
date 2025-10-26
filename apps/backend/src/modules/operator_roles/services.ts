@@ -85,7 +85,7 @@ export const createOperatorRole = async (req: CreateOperatorRoleRequest) => {
     throw new InternalServerError('Failed to create operator role.');
   }
 
-  return { success: true, data: newOperatorRole };
+  return { data: newOperatorRole };
 };
 
 export const deleteOperatorRole = async (
@@ -146,19 +146,23 @@ export const deleteOperatorRole = async (
     throw new InternalServerError('Failed to delete operator role.');
   }
 
-  return { success: true, data: deleted };
+  return { data: deleted };
 };
 
 export const listOperatorRoles = async () => {
   // Join with users and roles to provide more context
-  return await db
+  const operatorRolesList = await db
     .select({
       userId: operatorRoles.userId,
       roleId: operatorRoles.roleId,
-      userName: users.name, // Assuming 'users' schema has a 'name' field
-      roleName: roles.roleName, // Assuming 'roles' schema has a 'roleName' field
+      userName: users.name,
+      roleName: roles.roleName,
     })
     .from(operatorRoles)
     .leftJoin(users, eq(operatorRoles.userId, users.id))
     .leftJoin(roles, eq(operatorRoles.roleId, roles.id));
+
+  return {
+    operatorRoles: operatorRolesList,
+  };
 };

@@ -59,7 +59,13 @@ export const createProject = async (
 
     await tx.insert(roles).values(defaultRoles);
 
-    return newProject;
+    return {
+      id: newProject.id,
+      name: newProject.name,
+      description: newProject.description,
+      public: newProject.public,
+      ownerId: newProject.ownerId,
+    };
   });
 };
 
@@ -116,7 +122,7 @@ export const deleteProject = async (
   // Delete project (cascades will delete roles and images from DB)
   await db.delete(projects).where(eq(projects.id, id));
 
-  return { success: true };
+  return { deletedProjectId: id };
 };
 
 export const listProjects = async (user: {
@@ -135,9 +141,11 @@ export const listProjects = async (user: {
     .where(eq(operatorRoles.userId, user.id))
     .leftJoin(roles, eq(operatorRoles.roleId, roles.id));
 
-  if (!userRoles) {
+  if (!userRoles || userRoles.length === 0) {
     throw new AuthorizationError('Permission denied.');
   }
+
+  let projectList;
 
   if (
     userRoles.some(
@@ -151,20 +159,21 @@ export const listProjects = async (user: {
         description: projects.description,
         public: projects.public,
         ownerId: projects.ownerId,
-        // ... any other fields from projects you need
         imgUrl: images.imgUrl,
       })
       .from(projects)
       .leftJoin(images, eq(projects.id, images.prjId));
-    return await query;
+    projectList = await query;
   } else {
-    // userRoles에 prjId가 있는 것들을 조회
+    // Only list projects where user has a role assignment
     const query = db
       .select({
         id: projects.id,
         name: projects.name,
         description: projects.description,
         public: projects.public,
+        ownerId: projects.ownerId,
+        imgUrl: images.imgUrl,
       })
       .from(projects)
       .leftJoin(images, eq(projects.id, images.prjId))
@@ -176,8 +185,12 @@ export const listProjects = async (user: {
             .map((userRole) => userRole.prjId as number)
         )
       );
-    return await query;
+    projectList = await query;
   }
+
+  return {
+    projects: projectList,
+  };
 };
 
 export const getProject = async (id: number) => {
@@ -195,7 +208,21 @@ export const getProject = async (id: number) => {
     .leftJoin(images, eq(projects.id, images.prjId))
     .where(eq(projects.id, id));
 
-  return projectArr[0];
+  const project = projectArr[0];
+
+  if (!project) {
+    throw new NotFoundError('Project not found.');
+  }
+
+  return {
+    id: project.id,
+    name: project.name,
+    description: project.description,
+    public: project.public,
+    ownerId: project.ownerId,
+    imgId: project.imgId,
+    imgUrl: project.imgUrl,
+  };
 };
 
 export const updateProject = async (
@@ -286,6 +313,12 @@ export const updateProject = async (
         .where(eq(images.id, input.imgId));
     }
 
-    return updatedProject;
+    return {
+      id: updatedProject.id,
+      name: updatedProject.name,
+      description: updatedProject.description,
+      public: updatedProject.public,
+      ownerId: updatedProject.ownerId,
+    };
   });
 };

@@ -1,3 +1,3 @@
 export { LoginForm } from './ui';
-export { useLoginForm } from './model/hook';
-export { type LoginFormData } from './model/schema';
+export { useLoginForm } from './api';
+export { type LoginFormData } from './model';

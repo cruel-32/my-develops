@@ -4,7 +4,7 @@ import Link from 'next/link';
 const navItems = [
   {
     label: 'Projects',
-    href: '/dashboard',
+    href: '/project',
   },
   {
     label: 'My Page',

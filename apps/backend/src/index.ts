@@ -6,6 +6,9 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './swagger-output.json';
 
+import { setGlobalErrorHandler } from 'express-zod-safe';
+import { formatValidationErrors } from '@/be/lib/errorFormatter';
+
 import { appRouter } from '@/be/router';
 import { initializeDatabase } from '@/be/db/initialize';
 import { errorHandler } from '@/be/middlewares/errorHandler';
@@ -45,6 +48,12 @@ async function startServer() {
       swaggerUi.setup(swaggerDocument, { explorer: true })
     );
   }
+
+  setGlobalErrorHandler((errors, req, res) => {
+    // Your error handling here
+    const formattedError = formatValidationErrors(errors);
+    res.status(formattedError.statusCode).json(formattedError);
+  });
 
   // 에러 핸들러는 모든 라우트 이후에 추가
   app.use(errorHandler);

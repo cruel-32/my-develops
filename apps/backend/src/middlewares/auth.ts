@@ -21,30 +21,15 @@ export const authenticate: WeakRequestHandler = async (req, res, next) => {
         const decoded = jwt.verify(accessToken, ACCESS_TOKEN_SECRET) as {
           id: number;
           email: string;
+          name: string;
         };
 
-        // 사용자 정보 조회
-        const userArr = await db
-          .select({
-            id: users.id,
-            email: users.email,
-            name: users.name,
-            is_verified: users.is_verified,
-          })
-          .from(users)
-          .where(eq(users.id, decoded.id));
-
-        const user = userArr[0];
-
-        if (user) {
-          // accessToken이 유효하고 사용자가 존재하면 req에 user 정보 추가
-          req.user = {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          };
-          return next();
-        }
+        req.user = {
+          id: decoded.id,
+          email: decoded.email,
+          name: decoded.name,
+        };
+        return next();
       } catch {
         // accessToken이 만료되었거나 유효하지 않은 경우
         console.log(
@@ -87,7 +72,11 @@ export const authenticate: WeakRequestHandler = async (req, res, next) => {
       }
 
       // 3. 새로운 accessToken 생성
-      const newAccessTokenPayload = { id: user.id, email: user.email };
+      const newAccessTokenPayload = {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      };
       const newRefreshTokenPayload = { id: user.id };
 
       const newAccessToken = jwt.sign(

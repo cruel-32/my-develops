@@ -9,40 +9,25 @@ export const createOperatorRoleController = async (
   req: CreateOperatorRoleRequest,
   res: Response
 ) => {
-  try {
-    const result = await operatorRoleService.createOperatorRole(req);
-    res.json(result);
-  } catch (error) {
-    console.error('Error in createOperatorRoleController:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const result = await operatorRoleService.createOperatorRole(req);
+  res.status(201).json(result);
 };
 
 export const deleteOperatorRoleController = async (
   req: DeleteOperatorRoleRequest,
   res: Response
 ) => {
-  try {
-    const result = await operatorRoleService.deleteOperatorRole(
-      req.params,
-      req.user!
-    );
-    res.json(result);
-  } catch (error) {
-    console.error('Error in deleteOperatorRoleController:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const result = await operatorRoleService.deleteOperatorRole(
+    req.params,
+    req.user!
+  );
+  res.json(result);
 };
 
 export const listOperatorRolesController = async (
   req: Request,
   res: Response
 ) => {
-  try {
-    const result = await operatorRoleService.listOperatorRoles();
-    res.json(result);
-  } catch (error) {
-    console.error('Error in listOperatorRolesController:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const result = await operatorRoleService.listOperatorRoles();
+  res.json(result);
 };

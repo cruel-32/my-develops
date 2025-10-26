@@ -49,7 +49,30 @@ export const signUp = async (input: SignUpInput) => {
   if (!newUser) {
     throw new InternalServerError('Failed to create user.');
   }
-  return newUser;
+
+  // Access Token과 Refresh Token 생성
+  const accessTokenPayload = { id: newUser.id, email: newUser.email };
+  const refreshTokenPayload = { id: newUser.id };
+
+  const accessToken = jwt.sign(accessTokenPayload, ACCESS_TOKEN_SECRET, {
+    expiresIn: 60 * 15, // 15분
+  });
+  const refreshToken = jwt.sign(refreshTokenPayload, REFRESH_TOKEN_SECRET, {
+    expiresIn: 60 * 60 * 24 * 15, // 15일
+  });
+
+  // refresh_token을 데이터베이스에 저장
+  await db
+    .update(users)
+    .set({ refresh_token: refreshToken })
+    .where(eq(users.id, newUser.id));
+
+  return {
+    user: newUser,
+    accessToken,
+    refreshToken,
+    message: '회원가입되었습니다',
+  };
 };
 
 export const login = async (input: LoginInput) => {
@@ -91,59 +114,7 @@ export const login = async (input: LoginInput) => {
     .set({ refresh_token: refreshToken })
     .where(eq(users.id, user.id));
 
-  return { success: true, accessToken, refreshToken };
-};
-
-export const refresh = async (refreshToken: string) => {
-  try {
-    const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as {
-      id: number;
-    };
-    const userArr = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, decoded.id));
-    const user = userArr[0];
-
-    if (!user || user.refresh_token !== refreshToken) {
-      throw new AuthenticationError('Invalid refresh token.');
-    }
-
-    if (!user.email) {
-      throw new ValidationError('User data is incomplete.');
-    }
-
-    const newAccessTokenPayload = { id: user.id, email: user.email };
-    const newRefreshTokenPayload = { id: user.id };
-
-    // 새로운 토큰 쌍 발급 (expiresIn을 초 단위 숫자로 변경)
-    const newAccessToken = jwt.sign(
-      newAccessTokenPayload,
-      ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: 60 * 15, // 15분
-      }
-    );
-    const newRefreshToken = jwt.sign(
-      newRefreshTokenPayload,
-      REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: 60 * 60 * 24 * 15, // 15일
-      }
-    );
-    await db
-      .update(users)
-      .set({ refresh_token: newRefreshToken })
-      .where(eq(users.id, user.id));
-
-    return {
-      success: true,
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
-    };
-  } catch {
-    throw new AuthenticationError('Invalid refresh token.');
-  }
+  return { accessToken, refreshToken };
 };
 
 export const logOut = async (userId: number) => {
@@ -217,7 +188,7 @@ export const changePassword = async (
     })
     .where(eq(users.id, input.userId));
 
-  return { success: true, message: 'Password changed successfully.' };
+  return { message: 'Password changed successfully.' };
 };
 
 export const verifyToken = async (accessToken: string) => {
@@ -241,7 +212,6 @@ export const verifyToken = async (accessToken: string) => {
     }
 
     return {
-      success: true,
       user: {
         id: user.id,
         email: user.email,

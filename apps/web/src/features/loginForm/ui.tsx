@@ -17,16 +17,16 @@ import {
   Input,
   Separator,
 } from '@/web/shared/ui';
-import { useLoginForm } from './model/hook';
+import { useLoginForm } from './api';
 
 export const LoginForm = () => {
-  const { form, onSubmit, isPending } = useLoginForm();
+  const { form, onSubmit, onInvalid, isPending } = useLoginForm();
 
   return (
     <Form {...form}>
       <form
         id="login-form"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, onInvalid)}
         className="w-full max-w-md"
       >
         <Card>
@@ -75,7 +75,11 @@ export const LoginForm = () => {
               )}
             />
 
-            <Button type="submit" className="w-full" disabled={isPending}>
+            <Button
+              type="submit"
+              className="w-full cursor-pointer"
+              disabled={isPending}
+            >
               {isPending ? 'Logging in...' : 'Login'}
             </Button>
           </CardContent>

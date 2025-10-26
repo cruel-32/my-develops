@@ -9,9 +9,24 @@ import {
   deleteOperatorRoleController,
   listOperatorRolesController,
 } from './controllers';
-import { authenticate } from '@/be/middlewares/auth';
+import { authenticate } from '@/be/middlewares';
 
 const router: Router = Router();
+
+/**
+ * @description 모든 API 응답 형식
+ *
+ * Success Response (2xx):
+ * {
+ *   ... 각 엔드포인트의 데이터
+ * }
+ *
+ * Error Response (4xx, 5xx):
+ * {
+ *   "error": "에러 메시지",
+ *   "statusCode": HTTP 상태 코드
+ * }
+ */
 
 /**
  * @swagger

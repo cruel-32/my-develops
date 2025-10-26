@@ -35,7 +35,9 @@ export const getUser = async (input: GetUserInput) => {
     throw new NotFoundError('User not found.');
   }
 
-  return user;
+  return {
+    user,
+  };
 };
 
 export const updateUser = async (input: UpdateUserInput) => {
@@ -69,7 +71,9 @@ export const updateUser = async (input: UpdateUserInput) => {
     throw new InternalServerError('User not found or update failed.');
   }
 
-  return updatedUser;
+  return {
+    user: updatedUser,
+  };
 };
 
 export const deleteUser = async (input: DeleteUserInput) => {
@@ -87,7 +91,7 @@ export const deleteUser = async (input: DeleteUserInput) => {
     throw new InternalServerError('User not found or deletion failed.');
   }
 
-  return { success: true, message: 'User deleted successfully.' };
+  return { deletedUserId: input.id };
 };
 
 export const getMe = async (refreshToken: string) => {
@@ -135,7 +139,6 @@ export const getMe = async (refreshToken: string) => {
     );
 
     return {
-      success: true,
       accessToken: newAccessToken,
       user: {
         id: user.id,
@@ -165,5 +168,7 @@ export const listUsers = async () => {
     })
     .from(users);
 
-  return usersList;
+  return {
+    users: usersList,
+  };
 };

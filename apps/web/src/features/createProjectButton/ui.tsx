@@ -7,7 +7,7 @@ export const CreateProjectButton = () => {
   const router = useRouter();
   const handleClick = () => {
     // TODO: Implement navigation to create project page or open a modal
-    router.push('/dashboard/create');
+    router.push('/project/create');
   };
 
   return (

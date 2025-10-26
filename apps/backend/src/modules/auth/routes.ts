@@ -4,37 +4,14 @@ import { signUpSchema, loginSchema, changePasswordSchema } from './interfaces';
 import {
   signUpController,
   loginController,
-  refreshController,
   logOutController,
   changePasswordController,
   verifyTokenController,
 } from './controllers';
-import { authenticate } from '@/be/middlewares/auth';
+import { authenticate } from '@/be/middlewares';
 
 const router: Router = Router();
 
-/**
- * @swagger
- * /api/auth/refresh:
- *   post:
- *     tags: [Authentication]
- *     summary: 토큰 갱신
- *     description: 리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다
- *     responses:
- *       200:
- *         description: 토큰 갱신 성공
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 accessToken:
- *                   type: string
- *                 refreshToken:
- *                   type: string
- *       401:
- *         description: 인증 실패
- */
 export type RefreshRequest = ValidatedRequest<{}>;
 
 /**
@@ -58,7 +35,8 @@ export type RefreshRequest = ValidatedRequest<{}>;
  *                 description: 사용자 이메일
  *               password:
  *                 type: string
- *                 description: 사용자 비밀번호
+ *                 minLength: 8
+ *                 description: 사용자 비밀번호 (최소 8자)
  *     responses:
  *       200:
  *         description: 로그인 성공
@@ -66,10 +44,11 @@ export type RefreshRequest = ValidatedRequest<{}>;
  *           application/json:
  *             schema:
  *               type: object
+ *               required: [accessToken, message]
  *               properties:
  *                 accessToken:
  *                   type: string
- *                 refreshToken:
+ *                 message:
  *                   type: string
  *                 user:
  *                   type: object
@@ -80,10 +59,48 @@ export type RefreshRequest = ValidatedRequest<{}>;
  *                       type: string
  *                     name:
  *                       type: string
- *       401:
- *         description: 인증 실패
  *       400:
- *         description: 잘못된 요청
+ *         description: 사용자 데이터 검증 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'User data is incomplete.'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 400
+ *       401:
+ *         description: 인증 실패 (비밀번호 불일치)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'Invalid password.'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 401
+ *       404:
+ *         description: 사용자 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'User not found.'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 404
  */
 export type LoginRequest = ValidatedRequest<{
   body: typeof loginSchema;
@@ -121,10 +138,11 @@ export type LoginRequest = ValidatedRequest<{
  *           application/json:
  *             schema:
  *               type: object
+ *               required: [accessToken, message]
  *               properties:
  *                 accessToken:
  *                   type: string
- *                 refreshToken:
+ *                 message:
  *                   type: string
  *                 user:
  *                   type: object
@@ -135,10 +153,34 @@ export type LoginRequest = ValidatedRequest<{
  *                       type: string
  *                     name:
  *                       type: string
- *       400:
- *         description: 잘못된 요청 또는 이미 존재하는 이메일
  *       409:
- *         description: 이미 존재하는 사용자
+ *         description: 이미 존재하는 이메일
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'User with this email already exists.'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 409
+ *       500:
+ *         description: 사용자 생성 실패 (서버 오류)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'Failed to create user.'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 500
  */
 export type SignUpRequest = ValidatedRequest<{
   body: typeof signUpSchema;
@@ -159,18 +201,84 @@ export type SignUpRequest = ValidatedRequest<{
  *         application/json:
  *           schema:
  *             type: object
- *             required: [newPassword]
+ *             required: [userId, currentPassword, newPassword]
  *             properties:
+ *               userId:
+ *                 type: number
+ *                 description: 대상 사용자 ID
+ *               currentPassword:
+ *                 type: string
+ *                 description: 현재 비밀번호
  *               newPassword:
  *                 type: string
  *                 description: 새로운 비밀번호
  *     responses:
  *       200:
  *         description: 비밀번호 변경 성공
- *       401:
- *         description: 인증 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [message]
+ *               properties:
+ *                 message:
+ *                   type: string
  *       400:
- *         description: 잘못된 요청
+ *         description: 사용자 비밀번호 데이터 검증 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'User password data is incomplete.'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 400
+ *       401:
+ *         description: 현재 비밀번호 불일치
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'Current password is incorrect.'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 401
+ *       403:
+ *         description: 권한 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'Permission denied.'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 403
+ *       404:
+ *         description: 사용자 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'User not found.'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 404
  */
 export type ChangePasswordRequest = ValidatedRequest<{
   body: typeof changePasswordSchema;
@@ -192,9 +300,8 @@ export type ChangePasswordRequest = ValidatedRequest<{
  *           application/json:
  *             schema:
  *               type: object
+ *               required: [user]
  *               properties:
- *                 valid:
- *                   type: boolean
  *                 user:
  *                   type: object
  *                   properties:
@@ -205,7 +312,33 @@ export type ChangePasswordRequest = ValidatedRequest<{
  *                     name:
  *                       type: string
  *       401:
- *         description: 토큰이 유효하지 않음
+ *         description: 토큰이 유효하지 않음 또는 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'Invalid or expired token.'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 401
+ *       404:
+ *         description: 사용자 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'User not found.'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 404
  */
 
 /**
@@ -220,11 +353,45 @@ export type ChangePasswordRequest = ValidatedRequest<{
  *     responses:
  *       200:
  *         description: 로그아웃 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [success]
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
  *       401:
- *         description: 인증 실패
+ *         description: 토큰이 없음 또는 유효하지 않음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'No valid tokens provided'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 401
+ *       500:
+ *         description: 서버 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required: [error, statusCode]
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: 'Internal server error'
+ *                 statusCode:
+ *                   type: number
+ *                   example: 500
  */
 
-router.post('/refresh', refreshController);
 router.post('/verify-token', verifyTokenController);
 router.post('/logout', authenticate, logOutController);
 

@@ -1,12 +1,6 @@
 import { z } from 'zod';
+import { getApiProjectsQueryResponseSchema } from '@repo/api/zod';
 
-export const projectSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  public: z.boolean(),
-  description: z.string(),
-  imgUrl: z.string().nullable(),
-  ownerId: z.number(),
-});
+export const projectListSchema = getApiProjectsQueryResponseSchema;
 
-export type Project = z.infer<typeof projectSchema>;
+export type ProjectList = z.infer<typeof projectListSchema>;

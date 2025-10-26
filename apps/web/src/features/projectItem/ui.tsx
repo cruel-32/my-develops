@@ -29,7 +29,7 @@ export const ProjectItem = ({ project }: ProjectItemProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleUpdate = () => {
-    router.push(`/dashboard/${project.id}/edit`);
+    router.push(`/project/${project.id}/edit`);
   };
 
   const confirmDelete = () => {
@@ -39,7 +39,7 @@ export const ProjectItem = ({ project }: ProjectItemProps) => {
 
   return (
     <div className="relative group">
-      <Link href={`/dashboard/${project.id}`}>
+      <Link href={`/project/${project.id}`}>
         <ProjectCardView project={project} />
       </Link>
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">

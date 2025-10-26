@@ -5,6 +5,7 @@
     "rootDir": ".",
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
+    "skipLibCheck": true,
     "noEmit": true,
     "paths": {
       "@/*": ["./*"]

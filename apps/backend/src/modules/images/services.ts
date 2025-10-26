@@ -90,5 +90,5 @@ export const deleteImage = async (imgId: string) => {
   // 4. Delete record from DB
   await db.delete(images).where(eq(images.id, imgId));
 
-  return { success: true };
+  return { deletedImageId: imgId };
 };

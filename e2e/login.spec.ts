@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Login Flow', () => {
-  test('should allow a user to log in and be redirected to the dashboard', async ({
+  test('should allow a user to log in and be redirected to the project', async ({
     page,
   }) => {
     // 1. Navigate to the login page
@@ -26,11 +26,11 @@ test.describe('Login Flow', () => {
     await loginButton.click();
 
     // 6. Wait for navigation and assert the new URL
-    // The tRPC call will happen, and on success, the router pushes to '/dashboard'.
-    await page.waitForURL('/dashboard');
-    await expect(page).toHaveURL('/dashboard');
+    // The tRPC call will happen, and on success, the router pushes to '/project'.
+    await page.waitForURL('/project');
+    await expect(page).toHaveURL('/project');
 
-    // 7. Optional: Check for an element on the dashboard page to confirm successful login
+    // 7. Optional: Check for an element on the project page to confirm successful login
     const projectListHeading = page.getByText('Loading projects...'); // Or a more specific element
     await expect(projectListHeading).toBeVisible();
   });

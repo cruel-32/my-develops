@@ -43,38 +43,6 @@
     }
   },
   "paths": {
-    "/api/auth/refresh": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "summary": "토큰 갱신",
-        "description": "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급받습니다",
-        "responses": {
-          "200": {
-            "description": "토큰 갱신 성공",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "accessToken": {
-                      "type": "string"
-                    },
-                    "refreshToken": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "인증 실패"
-          }
-        }
-      }
-    },
     "/api/auth/login": {
       "post": {
         "tags": [
@@ -100,7 +68,8 @@
                   },
                   "password": {
                     "type": "string",
-                    "description": "사용자 비밀번호"
+                    "minLength": 8,
+                    "description": "사용자 비밀번호 (최소 8자)"
                   }
                 }
               }
@@ -114,11 +83,15 @@
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "required": [
+                    "accessToken",
+                    "message"
+                  ],
                   "properties": {
                     "accessToken": {
                       "type": "string"
                     },
-                    "refreshToken": {
+                    "message": {
                       "type": "string"
                     },
                     "user": {
@@ -141,10 +114,76 @@
             }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "사용자 데이터 검증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User data is incomplete."
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 400
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패 (비밀번호 불일치)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid password."
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "사용자 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User not found."
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -193,11 +232,15 @@
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "required": [
+                    "accessToken",
+                    "message"
+                  ],
                   "properties": {
                     "accessToken": {
                       "type": "string"
                     },
-                    "refreshToken": {
+                    "message": {
                       "type": "string"
                     },
                     "user": {
@@ -219,11 +262,53 @@
               }
             }
           },
-          "400": {
-            "description": "잘못된 요청 또는 이미 존재하는 이메일"
-          },
           "409": {
-            "description": "이미 존재하는 사용자"
+            "description": "이미 존재하는 이메일",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User with this email already exists."
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 409
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "사용자 생성 실패 (서버 오류)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to create user."
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 500
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -247,9 +332,19 @@
               "schema": {
                 "type": "object",
                 "required": [
+                  "userId",
+                  "currentPassword",
                   "newPassword"
                 ],
                 "properties": {
+                  "userId": {
+                    "type": "number",
+                    "description": "대상 사용자 ID"
+                  },
+                  "currentPassword": {
+                    "type": "string",
+                    "description": "현재 비밀번호"
+                  },
                   "newPassword": {
                     "type": "string",
                     "description": "새로운 비밀번호"
@@ -261,13 +356,118 @@
         },
         "responses": {
           "200": {
-            "description": "비밀번호 변경 성공"
+            "description": "비밀번호 변경 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "message"
+                  ],
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "잘못된 요청"
+            "description": "사용자 비밀번호 데이터 검증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User password data is incomplete."
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 400
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "현재 비밀번호 불일치",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Current password is incorrect."
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "권한 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Permission denied."
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 403
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "사용자 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User not found."
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -291,10 +491,10 @@
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "required": [
+                    "user"
+                  ],
                   "properties": {
-                    "valid": {
-                      "type": "boolean"
-                    },
                     "user": {
                       "type": "object",
                       "properties": {
@@ -315,7 +515,52 @@
             }
           },
           "401": {
-            "description": "토큰이 유효하지 않음"
+            "description": "토큰이 유효하지 않음 또는 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid or expired token."
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "사용자 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "User not found."
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 404
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -334,10 +579,71 @@
         ],
         "responses": {
           "200": {
-            "description": "로그아웃 성공"
+            "description": "로그아웃 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "success"
+                  ],
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "토큰이 없음 또는 유효하지 않음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "No valid tokens provided"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "서버 오류",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Internal server error"
+                    },
+                    "statusCode": {
+                      "type": "number",
+                      "example": 500
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -347,8 +653,8 @@
         "tags": [
           "Images"
         ],
-        "summary": "이미지 업로드",
-        "description": "새로운 이미지를 업로드합니다",
+        "summary": "S3 Presigned URL 생성",
+        "description": "클라이언트가 S3에 이미지를 직접 업로드할 수 있는 Presigned URL을 생성하고 이미지 레코드를 저장합니다",
         "security": [
           {
             "BearerAuth": []
@@ -357,25 +663,26 @@
         "requestBody": {
           "required": true,
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
                 "type": "object",
                 "required": [
-                  "file"
+                  "fileName",
+                  "filePath",
+                  "fileType"
                 ],
                 "properties": {
-                  "file": {
-                    "type": "string",
-                    "format": "binary",
-                    "description": "업로드할 이미지 파일"
-                  },
                   "fileName": {
                     "type": "string",
                     "description": "파일 이름"
                   },
+                  "filePath": {
+                    "type": "string",
+                    "description": "S3 폴더 경로"
+                  },
                   "fileType": {
                     "type": "string",
-                    "description": "파일 타입"
+                    "description": "MIME type"
                   }
                 }
               }
@@ -384,31 +691,45 @@
         },
         "responses": {
           "201": {
-            "description": "이미지 업로드 성공",
+            "description": "Presigned URL 생성 및 이미지 레코드 저장 성공",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "required": [
+                    "presignedUrl",
+                    "imgId"
+                  ],
                   "properties": {
-                    "id": {
+                    "presignedUrl": {
+                      "type": "object",
+                      "required": [
+                        "url",
+                        "fields"
+                      ],
+                      "properties": {
+                        "url": {
+                          "type": "string",
+                          "description": "S3 Presigned URL"
+                        },
+                        "fields": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "type": "string"
+                          },
+                          "description": "POST form에 포함할 필드 (key, policy, signature 등)",
+                          "example": {
+                            "key": "projects/example.jpg",
+                            "policy": "eyJleXBpcmF0aW9uIjoiMjAyNS0wMS0wMVQwMDowMDowMFoiLCJjb25kaXRpb25zIjpbWyJjb250ZW50LWxlbmd0aC1yYW5nZSIsMCwxMDQ4NTc2MF1dfQ==",
+                            "signature": "wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY"
+                          }
+                        }
+                      }
+                    },
+                    "imgId": {
                       "type": "string",
-                      "format": "uuid"
-                    },
-                    "fileName": {
-                      "type": "string"
-                    },
-                    "filePath": {
-                      "type": "string"
-                    },
-                    "fileType": {
-                      "type": "string"
-                    },
-                    "fileSize": {
-                      "type": "number"
-                    },
-                    "createdAt": {
-                      "type": "string",
-                      "format": "date-time"
+                      "format": "uuid",
+                      "description": "생성된 이미지 레코드 ID"
                     }
                   }
                 }
@@ -416,13 +737,70 @@
             }
           },
           "400": {
-            "description": "잘못된 요청 또는 지원하지 않는 파일 형식"
+            "description": "사용자 데이터 검증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
           },
-          "413": {
-            "description": "파일 크기 초과"
+          "500": {
+            "description": "이미지 레코드 생성 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -433,7 +811,7 @@
           "Images"
         ],
         "summary": "이미지 삭제",
-        "description": "특정 이미지를 삭제합니다",
+        "description": "S3에서 이미지 파일을 삭제하고 데이터베이스의 이미지 레코드를 삭제합니다",
         "security": [
           {
             "BearerAuth": []
@@ -453,16 +831,87 @@
         ],
         "responses": {
           "200": {
-            "description": "이미지 삭제 성공"
+            "description": "이미지 삭제 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deletedImageId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "description": "삭제된 이미지 ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "검증 실패 (이미지 URL 손상 등)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
-            "description": "인증 실패"
-          },
-          "403": {
-            "description": "권한 없음"
+            "description": "인증 실패",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
           },
           "404": {
-            "description": "이미지를 찾을 수 없음"
+            "description": "이미지를 찾을 수 없음",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "error",
+                    "statusCode"
+                  ],
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "statusCode": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },
@@ -825,6 +1274,10 @@
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "required": [
+                    "id",
+                    "name"
+                  ],
                   "properties": {
                     "id": {
                       "type": "integer"
@@ -838,16 +1291,18 @@
                     "public": {
                       "type": "boolean"
                     },
+                    "ownerId": {
+                      "type": "integer",
+                      "description": "프로젝트 소유자 ID"
+                    },
                     "imgId": {
-                      "type": "string"
-                    },
-                    "createdAt": {
                       "type": "string",
-                      "format": "date-time"
+                      "format": "uuid",
+                      "description": "연관된 이미지 ID"
                     },
-                    "updatedAt": {
+                    "imgUrl": {
                       "type": "string",
-                      "format": "date-time"
+                      "description": "S3 이미지 URL"
                     }
                   }
                 }
@@ -920,6 +1375,10 @@
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "required": [
+                    "id",
+                    "name"
+                  ],
                   "properties": {
                     "id": {
                       "type": "integer"
@@ -933,12 +1392,14 @@
                     "public": {
                       "type": "boolean"
                     },
-                    "imgId": {
-                      "type": "string"
+                    "ownerId": {
+                      "type": "integer",
+                      "description": "프로젝트 소유자 ID"
                     },
-                    "updatedAt": {
+                    "imgId": {
                       "type": "string",
-                      "format": "date-time"
+                      "format": "uuid",
+                      "description": "연관된 이미지 ID"
                     }
                   }
                 }
@@ -980,7 +1441,20 @@
         ],
         "responses": {
           "200": {
-            "description": "프로젝트 삭제 성공"
+            "description": "프로젝트 삭제 성공",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deletedProjectId": {
+                      "type": "integer",
+                      "description": "삭제된 프로젝트 ID"
+                    }
+                  }
+                }
+              }
+            }
           },
           "401": {
             "description": "인증 실패"
@@ -1046,6 +1520,10 @@
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "required": [
+                    "id",
+                    "name"
+                  ],
                   "properties": {
                     "id": {
                       "type": "integer"
@@ -1059,12 +1537,14 @@
                     "public": {
                       "type": "boolean"
                     },
-                    "imgId": {
-                      "type": "string"
+                    "ownerId": {
+                      "type": "integer",
+                      "description": "프로젝트 소유자 ID"
                     },
-                    "createdAt": {
+                    "imgId": {
                       "type": "string",
-                      "format": "date-time"
+                      "format": "uuid",
+                      "description": "연관된 이미지 ID"
                     }
                   }
                 }
@@ -1080,7 +1560,7 @@
         }
       }
     },
-    "/api/projects/list": {
+    "/api/projects": {
       "get": {
         "tags": [
           "Projects"
@@ -1099,15 +1579,24 @@
               "application/json": {
                 "schema": {
                   "type": "object",
+                  "required": [
+                    "projects"
+                  ],
                   "properties": {
                     "projects": {
                       "type": "array",
                       "items": {
                         "type": "object",
+                        "required": [
+                          "id",
+                          "name",
+                          "description",
+                          "public",
+                          "ownerId"
+                        ],
                         "properties": {
                           "id": {
-                            "type": "string",
-                            "format": "uuid"
+                            "type": "integer"
                           },
                           "name": {
                             "type": "string"
@@ -1118,17 +1607,14 @@
                           "public": {
                             "type": "boolean"
                           },
-                          "imgId": {
-                            "type": "string",
-                            "format": "uuid"
+                          "ownerId": {
+                            "type": "integer",
+                            "description": "프로젝트 소유자 ID"
                           },
-                          "createdAt": {
+                          "imgUrl": {
                             "type": "string",
-                            "format": "date-time"
-                          },
-                          "updatedAt": {
-                            "type": "string",
-                            "format": "date-time"
+                            "nullable": true,
+                            "description": "S3 이미지 URL"
                           }
                         }
                       }

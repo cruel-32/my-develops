@@ -1,2 +1,4 @@
-export { ProjectPage } from './ui';
-export { metadata } from './model';
+import { ProjectPage } from './ui';
+import { metadata } from './model';
+
+export { ProjectPage, metadata };
