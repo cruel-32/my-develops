@@ -12,6 +12,7 @@ function makeQueryClient() {
     defaultOptions: {
       queries: {
         retry: 0, // 재시도 비활성화
+        staleTime: 60 * 1000, // 1분간 데이터 유지 (SSR/Hydration 시 즉시 재요청 방지)
       },
     },
   });

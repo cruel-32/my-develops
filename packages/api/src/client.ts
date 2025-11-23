@@ -45,12 +45,8 @@ const createFetchClient = () => {
   >(
     config: RequestConfig<TVariables> = {}
   ): Promise<TData> => {
-    // CSR 전용: SSR에서 호출되면 에러 발생
-    if (typeof window === 'undefined') {
-      throw new Error(
-        'API client must be used in browser environment (CSR only)'
-      );
-    }
+    // Environment check removed to support SSR/RSC
+    // if (typeof window === 'undefined') { ... }
 
     const mergedConfig = {
       ...globalConfig,
@@ -104,10 +100,19 @@ const createFetchClient = () => {
 
     // Fetch 옵션 구성
     const fetchOptions: RequestInit = {
+      ...mergedConfig, // Pass through all other options (next, cache, etc.)
       method: method.toUpperCase(),
       headers,
       credentials: (credentials as RequestCredentials) || 'include',
     };
+
+    // Enforce no-cache for mutation methods (POST, PUT, DELETE, etc.)
+    // User Request: "get만 캐싱을 사용하고 post, put, delete는 캐싱을 사용할 필요가 없을 것 같아"
+    const isReadMethod =
+      fetchOptions.method === 'GET' || fetchOptions.method === 'HEAD';
+    if (!isReadMethod && !fetchOptions.cache) {
+      fetchOptions.cache = 'no-store';
+    }
 
     // Body 추가
     if (
