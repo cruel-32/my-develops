@@ -2,7 +2,7 @@ import type { WeakRequestHandler } from 'express-zod-safe';
 import jwt from 'jsonwebtoken';
 import { db, users } from '@/be/db';
 import { eq } from 'drizzle-orm';
-import { setRefreshTokenCookie, extractTokenFromCookie } from '@/be/lib/cookie';
+import { extractTokenFromCookie } from '@/be/lib/cookie';
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'access-secret';
 const REFRESH_TOKEN_SECRET =
@@ -10,12 +10,13 @@ const REFRESH_TOKEN_SECRET =
 
 export const authenticate: WeakRequestHandler = async (req, res, next) => {
   try {
-    // 1. Authorization 헤더에서 Bearer Token 확인
-    const authHeader = req.headers.authorization;
+    // 1. 쿠키에서 accessToken 확인
+    const accessToken = extractTokenFromCookie(
+      req.headers.cookie,
+      'accessToken'
+    );
 
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const accessToken = authHeader.substring(7); // 'Bearer ' 제거
-
+    if (accessToken) {
       try {
         // accessToken이 유효한지 확인
         const decoded = jwt.verify(accessToken, ACCESS_TOKEN_SECRET) as {
@@ -77,7 +78,6 @@ export const authenticate: WeakRequestHandler = async (req, res, next) => {
         email: user.email,
         name: user.name,
       };
-      const newRefreshTokenPayload = { id: user.id };
 
       const newAccessToken = jwt.sign(
         newAccessTokenPayload,
@@ -85,23 +85,14 @@ export const authenticate: WeakRequestHandler = async (req, res, next) => {
         { expiresIn: 60 * 15 } // 15분
       );
 
-      const newRefreshToken = jwt.sign(
-        newRefreshTokenPayload,
-        REFRESH_TOKEN_SECRET,
-        { expiresIn: 60 * 60 * 24 * 15 } // 15일
-      );
-
-      // DB에 새로운 refreshToken 저장
-      await db
-        .update(users)
-        .set({ refresh_token: newRefreshToken })
-        .where(eq(users.id, user.id));
-
-      // 새로운 refreshToken을 쿠키에 설정
-      setRefreshTokenCookie(res, newRefreshToken);
-
-      // 새로운 accessToken을 응답 헤더에 포함 (클라이언트가 사용할 수 있도록)
-      res.setHeader('X-New-Access-Token', newAccessToken);
+      // 새로운 accessToken을 httpOnly 쿠키로 설정
+      res.cookie('accessToken', newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 1000 * 60 * 15, // 15분
+        path: '/',
+      });
 
       // req에 user 정보 추가
       req.user = {

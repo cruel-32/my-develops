@@ -4,13 +4,11 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { usePostApiAuthSignup } from '@repo/api';
-import { useAuth } from '@/web/shared/auth/AuthContext';
 import { toast } from '@/web/shared/ui';
 import { joinFormSchema, JoinFormData } from './schema';
 
 export const useJoinForm = () => {
   const router = useRouter();
-  const { setAccessToken } = useAuth();
 
   const form = useForm<JoinFormData>({
     resolver: zodResolver(joinFormSchema),
@@ -24,13 +22,9 @@ export const useJoinForm = () => {
 
   const { mutate, isPending } = usePostApiAuthSignup({
     mutation: {
-      onSuccess: (data: any) => {
-        // accessToken을 context에 저장
-        if (data.accessToken) {
-          setAccessToken(data.accessToken);
-          toast.success('회원가입되었습니다');
-          router.push('/project');
-        }
+      onSuccess: () => {
+        toast.success('회원가입되었습니다');
+        router.push('/project');
       },
       onError: (error: any) => {
         console.error('Signup error:', error);

@@ -4,6 +4,7 @@ import { Nanum_Gothic } from 'next/font/google';
 
 import WithProviders from './providers/index';
 import { NextProgress } from './lib/NextProgress';
+import { AuthInitializer } from '@/web/app/middleware/auth-initializer';
 
 import type { Metadata } from 'next';
 
@@ -18,10 +19,12 @@ export const metadata: Metadata = {
 };
 
 export default function App({ children }: { children: React.ReactNode }) {
+  console.log('App ::::::: ');
   return (
     <html lang="ko" className="dark" style={{ colorScheme: 'dark' }}>
       <body className={nanumGothic.className}>
         <WithProviders>
+          <AuthInitializer />
           <NextProgress />
           {children}
         </WithProviders>

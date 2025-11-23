@@ -2,6 +2,7 @@
 import { Toaster } from '@/web/shared/ui';
 
 export default function ToastProvider() {
+  console.log('ToastProvider ::::::: ');
   return (
     <Toaster
       position="top-center"

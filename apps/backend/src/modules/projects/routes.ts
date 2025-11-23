@@ -34,6 +34,45 @@ const router: Router = Router();
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     Project:
+ *       type: object
+ *       required:
+ *         - id
+ *         - name
+ *         - description
+ *         - public
+ *         - ownerId
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: 프로젝트 ID
+ *         name:
+ *           type: string
+ *           description: 프로젝트 이름
+ *         description:
+ *           type: string
+ *           description: 프로젝트 설명
+ *         public:
+ *           type: boolean
+ *           description: 프로젝트 공개 여부
+ *         ownerId:
+ *           type: integer
+ *           description: 프로젝트 소유자 ID
+ *         imgId:
+ *           type: string
+ *           format: uuid
+ *           nullable: true
+ *           description: 연관된 이미지 ID
+ *         imgUrl:
+ *           type: string
+ *           nullable: true
+ *           description: S3 이미지 URL
+ */
+
+/**
+ * @swagger
  * /api/projects/{id}:
  *   get:
  *     tags: [Projects]
@@ -54,27 +93,7 @@ const router: Router = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               required: [id, name]
- *               properties:
- *                 id:
- *                   type: integer
- *                 name:
- *                   type: string
- *                 description:
- *                   type: string
- *                 public:
- *                   type: boolean
- *                 ownerId:
- *                   type: integer
- *                   description: 프로젝트 소유자 ID
- *                 imgId:
- *                   type: string
- *                   format: uuid
- *                   description: 연관된 이미지 ID
- *                 imgUrl:
- *                   type: string
- *                   description: S3 이미지 URL
+ *               $ref: '#/components/schemas/Project'
  *       404:
  *         description: 프로젝트를 찾을 수 없음
  *       401:
@@ -121,24 +140,7 @@ export type GetProjectRequest = ValidatedRequest<{
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               required: [id, name]
- *               properties:
- *                 id:
- *                   type: integer
- *                 name:
- *                   type: string
- *                 description:
- *                   type: string
- *                 public:
- *                   type: boolean
- *                 ownerId:
- *                   type: integer
- *                   description: 프로젝트 소유자 ID
- *                 imgId:
- *                   type: string
- *                   format: uuid
- *                   description: 연관된 이미지 ID
+ *               $ref: '#/components/schemas/Project'
  *       400:
  *         description: 잘못된 요청
  *       401:
@@ -190,24 +192,7 @@ export type CreateProjectRequest = ValidatedRequest<{
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               required: [id, name]
- *               properties:
- *                 id:
- *                   type: integer
- *                 name:
- *                   type: string
- *                 description:
- *                   type: string
- *                 public:
- *                   type: boolean
- *                 ownerId:
- *                   type: integer
- *                   description: 프로젝트 소유자 ID
- *                 imgId:
- *                   type: string
- *                   format: uuid
- *                   description: 연관된 이미지 ID
+ *               $ref: '#/components/schemas/Project'
  *       404:
  *         description: 프로젝트를 찾을 수 없음
  *       400:
@@ -279,24 +264,7 @@ export type DeleteProjectRequest = ValidatedRequest<{
  *                 projects:
  *                   type: array
  *                   items:
- *                     type: object
- *                     required: [id, name, description, public, ownerId]
- *                     properties:
- *                       id:
- *                         type: integer
- *                       name:
- *                         type: string
- *                       description:
- *                         type: string
- *                       public:
- *                         type: boolean
- *                       ownerId:
- *                         type: integer
- *                         description: 프로젝트 소유자 ID
- *                       imgUrl:
- *                         type: string
- *                         nullable: true
- *                         description: S3 이미지 URL
+ *                     $ref: '#/components/schemas/Project'
  *       401:
  *         description: 인증 실패
  */

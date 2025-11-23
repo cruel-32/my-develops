@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+  reactStrictMode: false, // 두번 렌더링 막기
   // transpilePackages: ['@repo/api', '@repo/db'],
   typescript: {
     ignoreBuildErrors: true,
@@ -20,6 +21,14 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_S3_ENDPOINT: process.env.NEXT_PUBLIC_S3_ENDPOINT,
     NEXT_PUBLIC_S3_BUCKET_NAME: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/:path*`,
+      },
+    ];
   },
 };
 

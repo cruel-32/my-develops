@@ -3,14 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useAuth } from '@/web/shared/auth/AuthContext';
 import { toast } from '@/web/shared/ui';
 import { usePostApiAuthLogin } from '@/web/shared/api';
 import { loginFormSchema, LoginFormData } from './model';
 
 export const useLoginForm = () => {
   const router = useRouter();
-  const { setAccessToken } = useAuth();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
@@ -22,22 +20,16 @@ export const useLoginForm = () => {
 
   const { mutate, isPending } = usePostApiAuthLogin({
     mutation: {
-      onSuccess: (data) => {
-        // accessToken을 context에 저장
-        // dataReturnType: 'full' 설정으로 인해 { status, statusText, data, headers } 구조
-        const accessToken = data.accessToken;
-        if (accessToken) {
-          setAccessToken(accessToken);
-          toast.success('로그인되었습니다');
-          // params중에 backUrl이 있으면 그 페이지로 이동
-          const backUrl = new URLSearchParams(window.location.search).get(
-            'backUrl'
-          );
-          if (backUrl) {
-            router.push(backUrl);
-          } else {
-            router.push('/project');
-          }
+      onSuccess: () => {
+        toast.success('로그인되었습니다');
+        // params중에 backUrl이 있으면 그 페이지로 이동
+        const backUrl = new URLSearchParams(window.location.search).get(
+          'backUrl'
+        );
+        if (backUrl) {
+          router.push(backUrl);
+        } else {
+          router.push('/project');
         }
       },
       onError: (error) => {

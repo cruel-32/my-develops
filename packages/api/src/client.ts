@@ -17,17 +17,9 @@ export interface RequestConfig<TData = unknown> {
   data?: TData;
   headers?: Record<string, string>;
   credentials?: RequestCredentials;
-  accessToken?: string;
   [key: string]: unknown;
 }
 
-// export interface ResponseConfig<TData = unknown> {
-//   status: number;
-//   statusText: string;
-//   data: TData;
-//   headers?: Record<string, string>;
-//   [key: string]: unknown;
-// }
 export type ResponseConfig<TData = unknown> = TData;
 
 /**
@@ -36,9 +28,9 @@ export type ResponseConfig<TData = unknown> = TData;
 export type ResponseErrorConfig<T = unknown> = T;
 
 // 클라이언트 설정 저장소
-let globalConfig: Partial<RequestConfig> = {
+let globalConfig: Partial<RequestConfig> & { on401?: () => void } = {
   baseURL: '', // Kubb 생성 URL이 이미 /api/... 형식이므로 baseURL은 비움
-  credentials: 'include',
+  credentials: 'include', // *** 중요: 쿠키를 보내기 위해 필수 ***
 };
 
 /**
@@ -73,7 +65,6 @@ const createFetchClient = () => {
       data,
       headers: configHeaders,
       credentials,
-      accessToken,
     } = mergedConfig;
 
     // URL 구성 (상대 경로 지원)
@@ -109,18 +100,6 @@ const createFetchClient = () => {
     // Content-Type이 없으면 자동으로 application/json 추가
     if (data && !headers.has('content-type') && !headers.has('Content-Type')) {
       headers.set('Content-Type', 'application/json');
-    }
-
-    // Authorization 헤더 추가
-    // 1. 파라미터로 전달된 accessToken이 있으면 사용
-    // 2. 없으면 localStorage에서 accessToken 읽기
-    let authToken = accessToken;
-    if (!authToken) {
-      authToken = localStorage.getItem('accessToken') || undefined;
-    }
-
-    if (authToken && !headers.has('Authorization')) {
-      headers.set('Authorization', `Bearer ${authToken}`);
     }
 
     // Fetch 옵션 구성
@@ -162,44 +141,18 @@ const createFetchClient = () => {
 
     // HTTP 에러 상태 체크 (4xx, 5xx)
     if (!response.ok) {
-      // HTTP 상태 코드가 4xx 또는 5xx인 경우
-      const error = new Error(
-        `HTTP ${response.status}: ${response.statusText}`
-      ) as Error & {
-        error?: string;
-        statusCode?: number;
-        details?: any[];
-      };
-
-      // responseData가 formatted error format이면 필드 추가
-      if (
-        typeof responseData === 'object' &&
-        responseData !== null &&
-        'error' in responseData
-      ) {
-        error.error = (responseData as any).error;
-        error.statusCode = (responseData as any).statusCode;
-        error.details = (responseData as any).details;
+      if (response.status === 401 && globalConfig.on401) {
+        globalConfig.on401();
       }
 
-      // 401 에러인 경우 localStorage에서 accessToken 삭제
-      if (response.status === 401) {
-        localStorage.removeItem('accessToken');
-      }
-
-      throw error;
-    }
-
-    // 성공 응답(2xx)에서 새로운 accessToken이 있으면 저장
-    const newAccessToken = response.headers.get('X-New-Access-Token');
-    if (newAccessToken) {
-      localStorage.setItem('accessToken', newAccessToken);
+      // 백엔드가 보낸 에러 JSON 객체를 그대로 throw하여
+      // React Query 훅의 에러 타입과 일치시킴
+      throw responseData;
     }
 
     return responseData;
   };
 
-  // Kubb의 fetch 클라이언트 API 호환
   client.getConfig = () => globalConfig;
   client.setConfig = (config: Partial<RequestConfig>) => {
     globalConfig = { ...globalConfig, ...config };

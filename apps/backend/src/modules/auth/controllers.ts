@@ -5,17 +5,26 @@ import type {
   LoginRequest,
   ChangePasswordRequest,
 } from './routes';
-import { setRefreshTokenCookie, clearAuthCookies } from '@/be/lib/cookie';
+import {
+  clearAuthCookies,
+  ACCESS_TOKEN_OPTIONS,
+  REFRESH_TOKEN_OPTIONS,
+} from '@/be/lib/cookie';
 import { AuthenticationError } from '@/be/lib/errors';
 
 export const signUpController = async (req: SignUpRequest, res: Response) => {
   const result = await authService.signUp(req.body);
 
-  // refreshToken만 cookie에 설정
-  setRefreshTokenCookie(res, result.refreshToken);
+  res.cookie('accessToken', result.accessToken, {
+    ...ACCESS_TOKEN_OPTIONS,
+    maxAge: ACCESS_TOKEN_OPTIONS.maxAge * 1000,
+  });
+  res.cookie('refreshToken', result.refreshToken, {
+    ...REFRESH_TOKEN_OPTIONS,
+    maxAge: REFRESH_TOKEN_OPTIONS.maxAge * 1000,
+  });
 
   res.status(201).json({
-    accessToken: result.accessToken,
     user: result.user,
     message: result.message,
   });
@@ -24,11 +33,17 @@ export const signUpController = async (req: SignUpRequest, res: Response) => {
 export const loginController = async (req: LoginRequest, res: Response) => {
   const { accessToken, refreshToken } = await authService.login(req.body);
 
-  // refreshToken만 cookie에 설정
-  setRefreshTokenCookie(res, refreshToken);
+  res.cookie('accessToken', accessToken, {
+    ...ACCESS_TOKEN_OPTIONS,
+    maxAge: ACCESS_TOKEN_OPTIONS.maxAge * 1000,
+  });
+  res.cookie('refreshToken', refreshToken, {
+    ...REFRESH_TOKEN_OPTIONS,
+    maxAge: REFRESH_TOKEN_OPTIONS.maxAge * 1000,
+  });
 
   res.json({
-    accessToken,
+    message: 'Logged in successfully',
   });
 };
 

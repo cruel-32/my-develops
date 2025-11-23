@@ -231,7 +231,7 @@ export type DeleteUserRequest = ValidatedRequest<{
  *         description: 권한 없음
  */
 
-router.get('/me', getMeController);
+router.get('/me', authenticate, getMeController);
 
 router.get(
   '/:id',

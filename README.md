@@ -3,8 +3,8 @@
 > 동시편집 가능한 ERD 및 다이어그램 에디터 | 완전 무료 오픈소스 | 로컬/내부망 설치형
 
 **핵심 특징**: 실시간 협업, 보안 걱정 없음, 비용 제로, 설치형 솔루션
-**기술 스택**: Next.js 15, React 19, React Compiler 1.0, tRPC, TypeScript, PostgreSQL, Docker, Turborepo
-**아키텍처**: Feature-Sliced Design (FSD), 모노레포, 타입 안전 API 레이어
+**기술 스택**: Next.js 15, React 19, React Compiler 1.0, REST API + Kubb, TypeScript, PostgreSQL, Docker, Turborepo
+**아키텍처**: Feature-Sliced Design (FSD), 모노레포, Swagger 기반 타입 안전 API 레이어
 
 ---
 
@@ -96,24 +96,54 @@ const handleClick = useCallback(() => doSomething(), []);
 
 // After: Compiler handles it automatically
 const expensiveValue = computeValue(data); // Automatically memoized
-const handleClick = () => doSomething();   // Automatically memoized
+const handleClick = () => doSomething(); // Automatically memoized
 ```
 
 **설정** (next.config.ts:14):
+
 ```typescript
 experimental: {
   reactCompiler: true, // 전체 프로젝트 자동 최적화
 }
 ```
 
-### 2. 고급 타입 시스템 구현
+### 2. Swagger 기반 타입 안전 API 레이어 (Kubb)
 
 **특징**:
 
-- 프론트엔드/백엔드 간 제로 레이턴시 타입 체크
-- TypeScript 추론을 통한 자동 API 문서화
-- 컴파일 타임 검증을 통한 런타임 타입 에러 제거
-- Zod 스키마 검증과 TypeScript 타입 추론 통합
+- **Swagger/OpenAPI 스펙 기반**: Express 라우터에서 JSDoc 주석으로 API 스펙 정의
+- **자동 타입 생성**: Kubb을 통해 Swagger 스펙에서 TypeScript 타입, Zod 스키마, React Query hooks 자동 생성
+- **엔드투엔드 타입 안전성**: 백엔드 API 스펙 변경 시 프론트엔드 타입 에러로 즉시 감지
+- **자동 문서화**: Swagger UI를 통한 인터랙티브 API 문서 (`/docs` 엔드포인트)
+- **React Query 통합**: 생성된 hooks를 바로 사용 가능한 타입 안전 쿼리/뮤테이션
+
+**워크플로우**:
+
+```typescript
+// 1. 백엔드: Swagger JSDoc 주석으로 API 스펙 정의
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     tags: [Authentication]
+ *     ...
+ */
+router.post('/login', validate({ body: loginSchema }), loginController);
+
+// 2. Swagger JSON 생성 (개발 서버 시작 시 자동)
+// → apps/backend/src/swagger-output.json
+
+// 3. Kubb으로 타입 및 hooks 자동 생성
+pnpm api:generate
+// → packages/api/src/generated/
+//   - types/ (TypeScript 타입)
+//   - zod/ (Zod 스키마)
+//   - hooks/ (React Query hooks)
+
+// 4. 프론트엔드: 생성된 hooks 사용
+import { usePostApiAuthLogin } from '@repo/api/hooks';
+const { mutate } = usePostApiAuthLogin();
+```
 
 ### 3. Feature-Sliced Design 아키텍처
 
@@ -163,22 +193,25 @@ src/
 | TypeScript      | 5.9.3  | 타입 안정성       | Strict 모드, 고급 타입 추론       |
 | TailwindCSS     | 4.1.14 | 스타일링          | 유틸리티 우선, v4 CSS 엔진        |
 | React Query     | 5.90.2 | 서버 상태 관리    | 캐싱, 낙관적 업데이트             |
-| tRPC Client     | 11.6.0 | API 클라이언트    | 타입 안전 RPC 호출                |
-| React Hook Form | 7.64.0 | 폼 처리           | 성능, 검증 통합                   |
+| Kubb            | 4.4.1  | API 코드 생성     | Swagger → 타입/hooks 자동 생성    |
+| React Hook Form | 7.66.0 | 폼 처리           | 성능, 검증 통합                   |
 | Zod             | 4.1.12 | 스키마 검증       | 런타임 타입 체크                  |
 | @xyflow/react   | 12.8.6 | 다이어그램 렌더링 | ERD 시각화                        |
+| Zustand         | 5.0.8  | 클라이언트 상태   | 전역 상태 관리                    |
 
 ### 백엔드
 
-| 기술         | 버전      | 목적              | 선택 근거                    |
-| ------------ | --------- | ----------------- | ---------------------------- |
-| Node.js      | >=22      | 런타임            | 최신 LTS, 성능 개선          |
-| tRPC Server  | 11.6.0    | API 서버          | 타입 안전 프로시저           |
-| Express      | 5.1.0     | HTTP 서버         | 미들웨어, 라우팅             |
-| PostgreSQL   | 17-alpine | 데이터베이스      | ACID, 관계형 무결성          |
-| Drizzle ORM  | 0.44.6    | 데이터베이스 툴킷 | 타입 안전 쿼리, 마이그레이션 |
-| jsonwebtoken | 9.0.2     | 인증              | JWT 토큰 처리                |
-| bcrypt       | 6.0.0     | 비밀번호 해싱     | 안전한 비밀번호 저장         |
+| 기술             | 버전         | 목적              | 선택 근거                    |
+| ---------------- | ------------ | ----------------- | ---------------------------- |
+| Node.js          | >=22         | 런타임            | 최신 LTS, 성능 개선          |
+| Express          | 5.0.0-beta.1 | HTTP 서버         | 미들웨어, 라우팅             |
+| PostgreSQL       | 17-alpine    | 데이터베이스      | ACID, 관계형 무결성          |
+| Drizzle ORM      | 0.44.6       | 데이터베이스 툴킷 | 타입 안전 쿼리, 마이그레이션 |
+| jsonwebtoken     | 9.0.2        | 인증              | JWT 토큰 처리                |
+| bcrypt           | 6.0.0        | 비밀번호 해싱     | 안전한 비밀번호 저장         |
+| Swagger JSDoc    | 6.2.8        | API 문서화        | JSDoc 주석 기반 스펙 정의    |
+| express-zod-safe | 3.1.0        | 요청 검증         | Zod 스키마 기반 검증         |
+| AWS SDK S3       | 3.911.0      | 파일 스토리지     | S3 호환 스토리지 (MinIO)     |
 
 ### DevOps 및 도구
 
@@ -196,13 +229,14 @@ src/
 
 ```
 packages/
-├── @repo/api               # tRPC API 레이어 (라우터, 컨트롤러, 서비스)
-├── @repo/db                # 데이터베이스 레이어 (스키마, 마이그레이션, 시드)
+├── @repo/api               # API 클라이언트 (Kubb 생성 타입/hooks)
 ├── @repo/ui                # 재사용 가능한 React 컴포넌트
 ├── @repo/eslint-config     # 공유 린팅 규칙
 ├── @repo/typescript-config # 공유 TS 설정
 └── @repo/tailwind-config   # 공유 스타일링 토큰
 ```
+
+**참고**: 데이터베이스 레이어는 `apps/backend/src/db/`에 직접 구현되어 있습니다.
 
 ---
 
@@ -215,12 +249,13 @@ packages/
 - **JWT 기반 인증** with refresh token rotation
 - **비밀번호 보안**: bcrypt 해싱 with salt rounds
 - **보호된 라우트**: Next.js 미들웨어 통합
-- **자동 토큰 갱신**: tRPC 클라이언트에서 투명한 401 처리
+- **자동 토큰 갱신**: API 클라이언트에서 투명한 401 처리
 - **세션 관리**: httpOnly 플래그를 사용한 쿠키 기반
 
-**코드 하이라이트** (`apps/web/src/shared/api/trpc.ts`):
+**코드 하이라이트** (`packages/api/src/client.ts`):
 
 ```typescript
+// 자동 토큰 갱신이 포함된 fetch 클라이언트
 async function fetchWithTokenRefresh(url, options) {
   const response = await fetch(url, { ...options, credentials: 'include' });
 
@@ -235,6 +270,13 @@ async function fetchWithTokenRefresh(url, options) {
   return await fetch(url, { ...options, credentials: 'include' });
 }
 ```
+
+**인증 흐름**:
+
+1. 로그인 시 HttpOnly Cookie에 accessToken, refreshToken 저장
+2. API 요청 시 Cookie 자동 전송 (`credentials: 'include'`)
+3. 401 에러 시 자동으로 refreshToken으로 accessToken 갱신
+4. 갱신 실패 시 로그인 페이지로 리다이렉트
 
 #### 2. 폼 관리
 
@@ -294,16 +336,31 @@ turbo run build
   ✓ 8개 캐시됨, 0개 빌드됨
 ```
 
-#### 5. Docker 배포
+#### 5. 파일 스토리지 (MinIO/S3)
+
+- **S3 호환 스토리지**: MinIO를 사용한 로컬 S3 서버
+- **Presigned URL**: 클라이언트에서 직접 업로드 가능한 Presigned URL 생성
+- **이미지 관리**: 프로젝트 썸네일, 사용자 프로필 이미지 등 저장
+- **Docker 통합**: docker-compose로 MinIO 자동 설정 및 버킷 생성
+
+**특징**:
+
+- 개발 환경에서도 S3와 동일한 API 사용
+- 프로덕션에서 AWS S3로 쉽게 전환 가능
+- CORS 설정 자동화
+
+#### 6. Docker 배포
 
 프로덕션 최적화를 위한 멀티 스테이지 빌드:
 
 **서비스**:
 
 ```yaml
-postgres: # 헬스 체크가 있는 데이터베이스
-backend: # tRPC API 서버 (포트 4000)
-web: # Next.js 앱 (포트 3000)
+postgres: # 헬스 체크가 있는 데이터베이스 (포트 5432)
+minio: # S3 호환 스토리지 서버 (포트 9000, 9001)
+createbuckets: # MinIO 버킷 자동 생성 스크립트
+# backend: # Express API 서버 (포트 4000) - 주석 처리됨
+# web: # Next.js 앱 (포트 3000) - 주석 처리됨
 ```
 
 **특징**:
@@ -450,9 +507,20 @@ JWT_SECRET=your-secret-key
 JWT_REFRESH_SECRET=your-refresh-secret
 PORT=4000
 
+# S3/MinIO 설정
+AWS_ACCESS_KEY_ID=minioadmin
+AWS_SECRET_ACCESS_KEY=minioadmin
+AWS_REGION=us-east-1
+AWS_ENDPOINT=http://localhost:9000
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=minioadmin
+MINIO_BUCKET_NAME=my-develops
+
 # 프론트엔드 (Next.js)
 NEXT_PUBLIC_API_URL=http://localhost:4000
-NEXT_INTERNAL_APP_URL=http://localhost:3000 (SSR)
+NEXT_INTERNAL_APP_URL=http://localhost:3000
+NEXT_PUBLIC_S3_ENDPOINT=http://localhost:9000
+NEXT_PUBLIC_S3_BUCKET_NAME=my-develops
 ```
 
 ### 배포 스크립트
@@ -484,7 +552,7 @@ scripts/
 **계획**:
 
 - [ ] 단위 테스트 (Vitest, React Testing Library) - 80%+ 목표
-- [ ] 통합 테스트 (tRPC 프로시저, 데이터베이스)
+- [ ] 통합 테스트 (REST API 엔드포인트, 데이터베이스)
 - [ ] E2E 테스트 (Playwright) - 주요 사용자 플로우
 
 #### 2. 에러 핸들링 및 로깅
@@ -492,7 +560,7 @@ scripts/
 - [ ] 구조화된 로깅 (Winston/Pino)
 - [ ] 에러 추적 통합 (Sentry)
 - [ ] 글로벌 에러 바운더리
-- [ ] tRPC 에러 정규화
+- [ ] REST API 에러 정규화
 
 #### 3. 성능 최적화
 
@@ -501,12 +569,14 @@ scripts/
 - [ ] 인덱스 최적화 (users.email, projects.owner_id 등)
 - [ ] Redis 캐싱
 - [ ] N+1 쿼리 제거
+- [ ] 쿼리 성능 모니터링
 
 **프론트엔드**:
 
 - [ ] 코드 스플리팅 및 지연 로딩
 - [ ] Next.js Image 최적화
 - [ ] 번들 크기 분석 및 최적화
+- [ ] React Query 캐시 전략 최적화
 
 ### 중간 우선순위
 
@@ -526,8 +596,8 @@ scripts/
 
 **사용자 프로필**:
 
-- [ ] 아바타 업로드 (MinIO 통합)
-- [ ] 프로필 편집 및 비밀번호 변경
+- [x] 아바타 업로드 (MinIO/S3 통합) - Presigned URL 방식
+- [x] 프로필 편집 및 비밀번호 변경
 
 #### 5. 보안 강화
 
@@ -572,15 +642,21 @@ pnpm install
 cp .env.example .env
 # 설정으로 .env 편집
 
-# 4. 데이터베이스 설정
-docker-compose up -d postgres            # PostgreSQL 시작
-pnpm --filter @repo/db db:migrate        # 마이그레이션 실행
-pnpm --filter @repo/db db:seed           # 초기 데이터 시드
+# 4. 데이터베이스 및 스토리지 설정
+docker-compose up -d postgres minio     # PostgreSQL 및 MinIO 시작
+cd apps/backend
+pnpm db:migrate                          # 마이그레이션 실행
+pnpm db:seed                             # 초기 데이터 시드
 
-# 5. 개발 서버 시작
+# 5. API 타입 생성 (선택사항)
+pnpm api:generate                        # Swagger → 타입/hooks 생성
+
+# 6. 개발 서버 시작
 pnpm dev
 # → 프론트엔드: http://localhost:3000
 # → 백엔드:     http://localhost:4000
+# → Swagger 문서: http://localhost:4000/docs
+# → MinIO 콘솔: http://localhost:9001
 ```
 
 ### 사용 가능한 스크립트
@@ -598,10 +674,15 @@ pnpm format           # Prettier로 포맷
 pnpm format:check     # 포맷팅 체크
 
 # 데이터베이스
-pnpm --filter @repo/db db:migrate   # 마이그레이션 실행
-pnpm --filter @repo/db db:seed      # 데이터 시드
-pnpm --filter @repo/db db:generate  # 마이그레이션 파일 생성
-pnpm --filter @repo/db db:studio    # Drizzle Studio 실행
+cd apps/backend
+pnpm db:migrate   # 마이그레이션 실행
+pnpm db:seed      # 데이터 시드
+pnpm db:generate  # 마이그레이션 파일 생성
+pnpm db:studio    # Drizzle Studio 실행
+
+# API 코드 생성 (Kubb)
+pnpm api:generate      # Swagger → 타입/hooks 생성
+pnpm api:generate:watch # 파일 변경 감지하여 자동 생성
 
 # Docker
 pnpm docker:build:prod    # 프로덕션 이미지 빌드
@@ -618,82 +699,110 @@ my-develops/
 ├── apps/
 │   ├── web/                    # Next.js 프론트엔드
 │   │   ├── app/                # Next.js App Router
-│   │   │   ├── api/trpc/       # tRPC API 라우트 핸들러
-│   │   │   ├── dashboard/      # 대시보드 페이지
 │   │   │   ├── login/          # 로그인 페이지
 │   │   │   ├── join/           # 회원가입 페이지
+│   │   │   ├── project/        # 프로젝트 관련 페이지
+│   │   │   │   ├── create/     # 프로젝트 생성
+│   │   │   │   └── [projectId]/ # 프로젝트 상세/수정
 │   │   │   ├── layout.tsx      # 루트 레이아웃
 │   │   │   └── page.tsx        # 홈 페이지
 │   │   └── src/                # FSD 아키텍처
 │   │       ├── app/            # 앱 초기화
-│   │       │   ├── providers/  # React Query, tRPC 프로바이더
+│   │       │   ├── providers/  # React Query, Theme, Toast 프로바이더
 │   │       │   ├── middleware/ # 인증 미들웨어
 │   │       │   ├── lib/        # 앱 레벨 유틸리티
 │   │       │   └── styles/     # 글로벌 스타일
 │   │       ├── pages/          # 페이지 레벨 컴포넌트
 │   │       │   ├── login/
-│   │       │   └── join/
+│   │       │   ├── join/
+│   │       │   ├── project/        # 프로젝트 목록/상세
+│   │       │   ├── create-project/ # 프로젝트 생성
+│   │       │   └── update-project/ # 프로젝트 수정
 │   │       ├── widgets/        # 복합 UI 블록
 │   │       │   └── base-layout/
 │   │       ├── features/       # 비즈니스 기능
 │   │       │   ├── loginForm/
 │   │       │   │   ├── ui/     # 폼 컴포넌트
 │   │       │   │   ├── model/  # 폼 스키마, 훅
-│   │       │   │   └── api/    # tRPC 뮤테이션
+│   │       │   │   └── api/    # API 호출 (Kubb 생성 hooks)
 │   │       │   └── joinForm/
 │   │       ├── entities/       # 도메인 엔티티
 │   │       │   └── project/    # 프로젝트 엔티티
 │   │       └── shared/         # 공유 유틸리티
-│   │           ├── api/        # tRPC 클라이언트 설정
+│   │           ├── api/        # API 클라이언트 (Kubb 생성 hooks export)
+│   │           ├── model/      # 전역 상태 관리 (Zustand)
 │   │           ├── ui/         # 재사용 가능한 컴포넌트
 │   │           ├── lib/        # 공유 유틸리티 함수
 │   │           ├── config/     # 설정 파일
 │   │           └── i18n/       # 국제화 설정
 │   │
-│   └── backend/                # tRPC API 서버
+│   └── backend/                # Express REST API 서버
 │       └── src/
-│           └── index.ts        # 서버 진입점
+│           ├── index.ts        # 서버 진입점
+│           ├── router.ts       # Express 라우터 설정
+│           ├── swagger.ts      # Swagger 문서 생성
+│           ├── swagger-output.json # 생성된 Swagger 스펙
+│           ├── modules/        # 도메인별 모듈
+│           │   ├── auth/       # 인증 (로그인, 회원가입, 로그아웃)
+│           │   │   ├── routes.ts
+│           │   │   ├── controllers.ts
+│           │   │   ├── services.ts
+│           │   │   └── interfaces.ts
+│           │   ├── users/      # 사용자 관리
+│           │   │   ├── routes.ts
+│           │   │   ├── controllers.ts
+│           │   │   ├── services.ts
+│           │   │   └── interfaces.ts
+│           │   ├── projects/   # 프로젝트 관리
+│           │   │   ├── routes.ts
+│           │   │   ├── controllers.ts
+│           │   │   ├── services.ts
+│           │   │   ├── s3.ts   # S3 Presigned URL 생성
+│           │   │   └── interfaces.ts
+│           │   ├── operator_roles/ # 운영자 역할 관리
+│           │   │   ├── routes.ts
+│           │   │   ├── controllers.ts
+│           │   │   ├── services.ts
+│           │   │   └── interfaces.ts
+│           │   └── images/     # 이미지 관리 (S3 업로드)
+│           │       ├── routes.ts
+│           │       ├── controllers.ts
+│           │       ├── services.ts
+│           │       └── interfaces.ts
+│           ├── db/             # 데이터베이스 레이어
+│           │   ├── schema/     # Drizzle 스키마
+│           │   │   ├── users.schema.ts
+│           │   │   ├── roles.schema.ts
+│           │   │   ├── operator-roles.schema.ts
+│           │   │   ├── projects.schema.ts
+│           │   │   ├── canvases.schema.ts
+│           │   │   ├── erd-canvases.schema.ts
+│           │   │   ├── erd-nodes.schema.ts
+│           │   │   ├── node-fields.schema.ts
+│           │   │   ├── diagram-posts.schema.ts
+│           │   │   ├── images.schema.ts
+│           │   │   └── enums.ts
+│           │   ├── migrations/ # 마이그레이션 파일
+│           │   ├── connection.ts # DB 연결
+│           │   ├── initialize.ts # DB 초기화
+│           │   ├── migrate.ts  # 마이그레이션 실행
+│           │   └── seed.ts     # 시드 데이터
+│           ├── middlewares/    # Express 미들웨어
+│           │   ├── auth.ts     # 인증 미들웨어
+│           │   └── errorHandler.ts
+│           └── lib/            # 공유 유틸리티
+│               ├── cookie.ts   # 쿠키 헬퍼
+│               └── errorFormatter.ts
 │
 ├── packages/
-│   ├── api/                    # tRPC API 레이어
+│   ├── api/                    # API 클라이언트 (Kubb 생성)
 │   │   └── src/
-│   │       ├── trpc.ts         # tRPC 컨텍스트, 미들웨어
-│   │       ├── router.ts       # 루트 라우터
-│   │       ├── modules/        # 도메인별 모듈
-│   │       │   ├── users/      # 사용자 인증 및 관리
-│   │       │   │   ├── routes.ts
-│   │       │   │   ├── controllers.ts
-│   │       │   │   ├── services.ts
-│   │       │   │   └── interfaces.ts
-│   │       │   ├── projects/   # 프로젝트 관리
-│   │       │   │   ├── routes.ts
-│   │       │   │   ├── controllers.ts
-│   │       │   │   ├── services.ts
-│   │       │   │   └── interfaces.ts
-│   │       │   └── operator_roles/ # 운영자 역할 관리
-│   │       │       ├── routes.ts
-│   │       │       ├── controllers.ts
-│   │       │       ├── services.ts
-│   │       │       └── interfaces.ts
-│   │       └── lib/            # 공유 유틸리티 (cookie, jwt 등)
-│   │
-│   ├── db/                     # 데이터베이스 레이어
-│   │   └── src/
-│   │       ├── schema/         # Drizzle 스키마
-│   │       │   ├── users.schema.ts
-│   │       │   ├── roles.schema.ts
-│   │       │   ├── operator-roles.schema.ts
-│   │       │   ├── projects.schema.ts
-│   │       │   ├── canvases.schema.ts
-│   │       │   ├── erd-canvases.schema.ts
-│   │       │   ├── erd-nodes.schema.ts
-│   │       │   ├── node-fields.schema.ts
-│   │       │   ├── diagram-posts.schema.ts
-│   │       │   └── enums.ts
-│   │       ├── migrations/     # 마이그레이션 파일
-│   │       ├── initialize.ts   # DB 연결 초기화
-│   │       ├── migrate.ts      # 마이그레이션 실행
-│   │       └── seed.ts         # 시드 데이터
+│   │       ├── client.ts       # fetch 기반 API 클라이언트
+│   │       ├── generated/      # Kubb으로 자동 생성된 파일
+│   │       │   ├── hooks/      # React Query hooks
+│   │       │   ├── types/      # TypeScript 타입
+│   │       │   └── zod/        # Zod 스키마
+│   │       └── index.ts
 │   │
 │   ├── ui/                     # 공유 React 컴포넌트
 │   ├── eslint-config/          # 공유 ESLint 설정
@@ -716,11 +825,14 @@ my-develops/
 - **TypeScript 커버리지**: 100% (src/에 .js 파일 없음)
 - **패키지**: 8개 (2개 앱 + 6개 공유 패키지)
 - **컴포넌트**: ~20개 React 컴포넌트
-- **데이터베이스 테이블**: 완전한 관계를 가진 10개
-- **tRPC 프로시저**: 13개
-  - **users**: signUp, login, refresh, verifyToken, getMe, logOut, changePassword (7개)
-  - **projects**: create, delete, list (3개)
-  - **operatorRoles**: create, delete, list (3개)
+- **데이터베이스 테이블**: 완전한 관계를 가진 10개 (users, roles, operator_roles, projects, canvases, erd_canvases, erd_nodes, node_fields, diagram_posts, images)
+- **REST API 엔드포인트**: 22개
+- **Swagger 문서**: 자동 생성 (`/docs` 엔드포인트)
+  - **auth**: login, signup, logout, change-password, verify-token (5개)
+  - **users**: me, list, get, update, delete (5개)
+  - **projects**: list, get, create, update, delete (5개)
+  - **operator-roles**: list, create, delete (3개)
+  - **images**: list, get, upload, delete (4개)
 
 ### 빌드 성능
 
@@ -754,9 +866,10 @@ Database (Docker): ~5초 (첫 실행)
 
 - 대규모 Feature-Sliced Design 구현
 - Turborepo를 사용한 모노레포 아키텍처
-- tRPC를 사용한 타입 안전 API 레이어
+- Swagger + Kubb을 사용한 타입 안전 API 레이어
 - 정규화를 사용한 데이터베이스 스키마 설계
-- 인증 플로우 구현
+- HttpOnly Cookie 기반 JWT 인증 플로우 구현
+- S3 호환 스토리지 (MinIO) 통합
 
 ### 기술 능력
 
@@ -764,7 +877,9 @@ Database (Docker): ~5초 (첫 실행)
 - Next.js 15 App Router 및 Server Components
 - PostgreSQL 스키마 설계 및 마이그레이션
 - Docker 멀티 스테이지 빌드
-- tRPC 엔드투엔드 타입 안정성
+- Swagger/OpenAPI 스펙 작성 및 자동 문서화
+- Kubb을 통한 코드 생성 및 타입 안전성
+- Express REST API 설계 및 미들웨어 패턴
 
 ### 모범 사례
 
@@ -784,6 +899,6 @@ Database (Docker): ~5초 (첫 실행)
 
 ---
 
-**최종 업데이트**: 2025년 10월 19일
+**최종 업데이트**: 2025년 11월 23일
 **버전**: 1.0.0-beta
 **상태**: 활발한 개발 중

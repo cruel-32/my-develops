@@ -1,3 +1,5 @@
+import type { Response } from 'express';
+
 // Cookie options configuration
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -16,59 +18,14 @@ const REFRESH_TOKEN_OPTIONS = {
   maxAge: 7 * 24 * 60 * 60, // 7 days in seconds
 };
 
-// Serialize cookie options to Set-Cookie header format
-export function serializeCookie(
-  options: typeof COOKIE_OPTIONS & { maxAge?: number }
-): string {
-  const parts: string[] = [];
-
-  if (options.httpOnly) parts.push('HttpOnly');
-  if (options.secure) parts.push('Secure');
-  if (options.sameSite) parts.push(`SameSite=${options.sameSite}`);
-  if (options.path) parts.push(`Path=${options.path}`);
-  if (options.maxAge) parts.push(`Max-Age=${options.maxAge}`);
-
-  return parts.join('; ');
-}
-
-// Set authentication cookies in HTTP response (refreshToken only)
-export function setAuthCookies(
-  response: any,
-  accessToken: string,
-  refreshToken: string
-): { accessToken: string } {
-  // refreshToken만 cookie에 설정
-  response.setHeader('Set-Cookie', [
-    `refreshToken=${refreshToken}; ${serializeCookie(REFRESH_TOKEN_OPTIONS)}`,
-  ]);
-
-  // accessToken은 응답에 포함하여 반환
-  return { accessToken };
-}
-
 /**
  * Clear authentication cookies (for logout)
  *
- * @param response - HTTP Response object (from tRPC context)
+ * @param res - HTTP Response object
  */
-export function clearAuthCookies(response: any): void {
-  response.setHeader('Set-Cookie', ['refreshToken=; Path=/; Max-Age=0']);
-}
-
-/**
- * Set only refresh token cookie (for refresh operation)
- *
- * @param response - HTTP Response object
- * @param refreshToken - New JWT refresh token
- */
-export function setRefreshTokenCookie(
-  response: any,
-  refreshToken: string
-): void {
-  response.setHeader(
-    'Set-Cookie',
-    `refreshToken=${refreshToken}; ${serializeCookie(REFRESH_TOKEN_OPTIONS)}`
-  );
+export function clearAuthCookies(res: Response): void {
+  res.clearCookie('accessToken', { path: COOKIE_OPTIONS.path });
+  res.clearCookie('refreshToken', { path: COOKIE_OPTIONS.path });
 }
 
 // Extract token from cookie header
@@ -91,3 +48,4 @@ export function extractTokenFromCookie(
 }
 
 export { ACCESS_TOKEN_OPTIONS, REFRESH_TOKEN_OPTIONS, COOKIE_OPTIONS };
+

@@ -12,24 +12,10 @@ import { AuthenticationError } from '@/be/lib/errors';
 // 인증 관련 기능은 auth 모듈로 이동됨
 
 export const getMeController = async (req: Request, res: Response) => {
-  const cookieHeader = req.headers.cookie;
-  let refreshToken: string | undefined;
-  if (cookieHeader) {
-    const cookies = cookieHeader.split(';').reduce(
-      (acc: Record<string, string>, cookie: string) => {
-        const [key, value] = cookie.trim().split('=');
-        if (key && value) acc[key] = value;
-        return acc;
-      },
-      {} as Record<string, string>
-    );
-    refreshToken = cookies['refreshToken'];
+  if (!req.user) {
+    throw new AuthenticationError('User not authenticated');
   }
-  if (!refreshToken) {
-    throw new AuthenticationError('No refresh token provided');
-  }
-  const result = await userService.getMe(refreshToken);
-  res.json(result);
+  res.json(req.user);
 };
 
 export const getUserController = async (req: GetUserRequest, res: Response) => {
