@@ -23,5 +23,4 @@ export const projects = pgTable('projects', {
   imgId: uuid('img_id').references((): AnyPgColumn => images.id, {
     onDelete: 'cascade',
   }),
-  imgUrl: varchar('img_url', { length: 255 }),
 });

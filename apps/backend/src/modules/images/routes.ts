@@ -2,7 +2,10 @@ import { Router } from 'express';
 
 import validate, { type ValidatedRequest } from 'express-zod-safe';
 import { uploadImageController, deleteImageController } from './controllers';
-import { uploadImageSchema, deleteImageSchema } from './interfaces';
+import {
+  postApiImagesUploadMutationRequestSchema,
+  deleteApiImagesImgidPathParamsSchema,
+} from '@repo/api/zod';
 import { authenticate } from '@/be/middlewares';
 
 const router: Router = Router();
@@ -114,8 +117,8 @@ const router: Router = Router();
  *                 statusCode:
  *                   type: number
  */
-export type CreatePostRequest = ValidatedRequest<{
-  body: typeof uploadImageSchema;
+export type UploadImageRequest = ValidatedRequest<{
+  body: typeof postApiImagesUploadMutationRequestSchema;
 }>;
 
 /**
@@ -185,7 +188,7 @@ export type CreatePostRequest = ValidatedRequest<{
  *                   type: number
  */
 export type DeleteImageRequest = ValidatedRequest<{
-  params: typeof deleteImageSchema;
+  params: typeof deleteApiImagesImgidPathParamsSchema;
 }>;
 
 /**
@@ -276,14 +279,14 @@ export type DeleteImageRequest = ValidatedRequest<{
 router.post(
   '/upload',
   authenticate,
-  validate({ body: uploadImageSchema }),
+  validate({ body: postApiImagesUploadMutationRequestSchema }),
   uploadImageController
 );
 
 router.delete(
   '/:imgId',
   authenticate,
-  validate({ params: deleteImageSchema }),
+  validate({ params: deleteApiImagesImgidPathParamsSchema }),
   deleteImageController
 );
 

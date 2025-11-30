@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import validate, { type ValidatedRequest } from 'express-zod-safe';
 import {
-  createOperatorRoleSchema,
-  deleteOperatorRoleSchema,
-} from './interfaces';
+  postApiOperatorRolesCreateMutationRequestSchema,
+  deleteApiOperatorRolesUseridRoleidPathParamsSchema,
+} from '@repo/api/zod';
 import {
   createOperatorRoleController,
   deleteOperatorRoleController,
@@ -78,7 +78,7 @@ const router: Router = Router();
  *         description: 이미 존재하는 역할 할당
  */
 export type CreateOperatorRoleRequest = ValidatedRequest<{
-  body: typeof createOperatorRoleSchema;
+  body: typeof postApiOperatorRolesCreateMutationRequestSchema;
 }>;
 
 /**
@@ -114,7 +114,7 @@ export type CreateOperatorRoleRequest = ValidatedRequest<{
  *         description: 권한 없음
  */
 export type DeleteOperatorRoleRequest = ValidatedRequest<{
-  params: typeof deleteOperatorRoleSchema;
+  params: typeof deleteApiOperatorRolesUseridRoleidPathParamsSchema;
 }>;
 
 /**
@@ -175,14 +175,14 @@ export type ListOperatorRolesRequest = ValidatedRequest<{}>;
 router.post(
   '/create',
   authenticate,
-  validate({ body: createOperatorRoleSchema }),
+  validate({ body: postApiOperatorRolesCreateMutationRequestSchema }),
   createOperatorRoleController
 );
 
 router.delete(
   '/:userId/:roleId',
   authenticate,
-  validate({ params: deleteOperatorRoleSchema }),
+  validate({ params: deleteApiOperatorRolesUseridRoleidPathParamsSchema }),
   deleteOperatorRoleController
 );
 

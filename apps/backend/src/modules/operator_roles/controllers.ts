@@ -9,7 +9,10 @@ export const createOperatorRoleController = async (
   req: CreateOperatorRoleRequest,
   res: Response
 ) => {
-  const result = await operatorRoleService.createOperatorRole(req);
+  const result = await operatorRoleService.createOperatorRole(
+    req.body,
+    req.user!
+  );
   res.status(201).json(result);
 };
 

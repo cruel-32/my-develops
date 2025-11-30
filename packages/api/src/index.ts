@@ -6,6 +6,4 @@ export type {
   ResponseErrorConfig,
 } from './client';
 
-export * from './generated/hooks';
-export * from './generated/types';
-export * from './generated/zod';
+export * from './generated';

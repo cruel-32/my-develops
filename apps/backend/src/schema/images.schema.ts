@@ -13,8 +13,7 @@ export const images = pgTable('images', {
   prjId: bigint('prj_id', { mode: 'number' })
     .references((): AnyPgColumn => projects.id, {
       onDelete: 'cascade',
-    })
-    .notNull(),
+    }),
   imgUrl: varchar('img_url', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

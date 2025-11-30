@@ -5,12 +5,16 @@ import { roles } from './roles.schema';
 export const operatorRoles = pgTable(
   'operator_roles',
   {
-    userId: bigint('user_id', { mode: 'number' }).references(() => users.id, {
-      onDelete: 'cascade',
-    }),
-    roleId: bigint('role_id', { mode: 'number' }).references(() => roles.id, {
-      onDelete: 'cascade',
-    }),
+    userId: bigint('user_id', { mode: 'number' })
+      .references(() => users.id, {
+        onDelete: 'cascade',
+      })
+      .notNull(),
+    roleId: bigint('role_id', { mode: 'number' })
+      .references(() => roles.id, {
+        onDelete: 'cascade',
+      })
+      .notNull(),
   },
   (table) => {
     return {

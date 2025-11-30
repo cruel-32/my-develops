@@ -30,6 +30,13 @@ async function startServer() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  // Request Logging Middleware
+  app.use((req, res, next) => {
+    console.log(`[${req.method}] ${req.url}`);
+    console.log('Headers:', JSON.stringify(req.headers, null, 2));
+    next();
+  });
+
   // CORS 설정
   app.use(
     cors({

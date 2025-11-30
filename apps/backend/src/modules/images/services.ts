@@ -8,12 +8,13 @@ import {
   InternalServerError,
 } from '@/be/lib/errors';
 import { s3 } from '../projects/s3'; // Re-using the s3 client from projects
+import type {
+  PostApiImagesUploadMutationRequest,
+  DeleteApiImagesImgidPathParams,
+} from '@repo/api';
 
-export const uploadImage = async (
-  fileName: string,
-  filePath: string,
-  fileType: string
-) => {
+export const uploadImage = async (input: PostApiImagesUploadMutationRequest) => {
+  const { fileName, filePath } = input;
   // 1. Generate a presigned URL
   const { url, fields } = await createPresignedPost(s3, {
     Bucket: process.env.S3_BUCKET_NAME!,
@@ -47,7 +48,8 @@ export const uploadImage = async (
   };
 };
 
-export const deleteImage = async (imgId: string) => {
+export const deleteImage = async (input: DeleteApiImagesImgidPathParams) => {
+  const { imgId } = input;
   // 1. Get image record from DB
   const imageRecords = await db
     .select()

@@ -1,17 +1,20 @@
-'use client';
 import { ProjectItem } from '@/web/features/projectItem';
 import { CreateProjectButton } from '@/web/features/createProjectButton';
 import {
   type ProjectList as ProjectListType,
-  type Project,
 } from '@/web/entities/project';
+import { useGetApiProjects, getApiProjects } from '@/web/shared/api';
 
 type ProjectListItem = ProjectListType['projects'][number];
 
-export const ProjectList = () => {
+export const ProjectList = ({
+  initialData,
+}: {
+  initialData: ProjectListType | null;
+}) => {
   console.log('ProjectList');
   // const { data, isPending } = useGetProjects();
-  const data = { projects: [] };
+  const data = initialData || { projects: [] };
   const isPending = false;
 
   return (

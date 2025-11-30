@@ -45,8 +45,7 @@ const createFetchClient = () => {
   >(
     config: RequestConfig<TVariables> = {}
   ): Promise<TData> => {
-    // Environment check removed to support SSR/RSC
-    // if (typeof window === 'undefined') { ... }
+    const isServer = typeof window === 'undefined';
 
     const mergedConfig = {
       ...globalConfig,
@@ -63,9 +62,16 @@ const createFetchClient = () => {
       credentials,
     } = mergedConfig;
 
-    // URL 구성 (상대 경로 지원)
-    const baseUrl = baseURL || globalConfig.baseURL;
-    let fullPath = `${baseUrl}${url}`;
+    // 1. Base URL Handling
+    let resolvedBaseUrl = baseURL || globalConfig.baseURL;
+    
+    if (isServer && !resolvedBaseUrl) {
+      // Server-side: Use environment variable or default to backend URL
+      // This avoids "Invalid URL" error for relative paths
+      resolvedBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    }
+    
+    let fullPath = `${resolvedBaseUrl || ''}${url}`;
 
     // Query params 추가
     if (params && typeof params === 'object') {
@@ -91,6 +97,24 @@ const createFetchClient = () => {
           headers.set(key, String(value));
         }
       });
+    }
+
+    // 2. Server-side Cookie Injection
+    if (isServer) {
+      try {
+        // Dynamically import next/headers to avoid build errors in non-Next.js environments
+        // @ts-ignore - next/headers might not be in dependencies but available in runtime
+        const { cookies } = await import('next/headers');
+        const cookieStore = await cookies();
+        const cookieString = cookieStore.toString();
+        
+        if (cookieString) {
+          headers.set('Cookie', cookieString);
+        }
+      } catch (e) {
+        // Ignore errors if next/headers is not available or called outside request context
+        // console.warn('Failed to inject server cookies:', e);
+      }
     }
 
     // Content-Type이 없으면 자동으로 application/json 추가

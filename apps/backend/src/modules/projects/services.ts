@@ -1,6 +1,9 @@
 import { db, projects, roles, operatorRoles, images } from '@/be/db';
 import { eq, and, inArray, or, isNotNull } from 'drizzle-orm';
-import type { CreateProjectInput, UpdateProjectInput } from './interfaces';
+import type {
+  PostApiProjectsCreateMutationRequest,
+  PutApiProjectsIdMutationRequest,
+} from '@repo/api';
 import { s3 } from './s3';
 import {
   AuthorizationError,
@@ -9,7 +12,7 @@ import {
 } from '@/be/lib/errors';
 
 export const createProject = async (
-  input: CreateProjectInput,
+  input: PostApiProjectsCreateMutationRequest,
   ownerId: number
 ) => {
   return await db.transaction(async (tx) => {
@@ -18,9 +21,10 @@ export const createProject = async (
       .insert(projects)
       .values({
         name: input.name,
-        description: input.description,
-        public: input.public,
+        description: input.description ?? '',
+        public: input.public ?? true,
         ownerId,
+        imgId: input.imgId || null,
       })
       .returning();
 
@@ -226,7 +230,7 @@ export const getProject = async (id: number) => {
 };
 
 export const updateProject = async (
-  input: UpdateProjectInput & { id: number },
+  input: PutApiProjectsIdMutationRequest & { id: number },
   user: { id: number; role?: string }
 ) => {
   return await db.transaction(async (tx) => {

@@ -8,15 +8,15 @@ import {
   AuthenticationError,
 } from '@/be/lib/errors';
 import type {
-  GetUserInput,
-  UpdateUserInput,
-  DeleteUserInput,
-} from './interfaces';
+  GetApiUsersIdPathParams,
+  PutApiUsersIdMutationRequest,
+  DeleteApiUsersIdPathParams,
+} from '@repo/api';
 
 // Users 모듈은 이제 사용자 관리 관련 기능만 담당
 // 인증 관련 기능은 auth 모듈로 이동됨
 
-export const getUser = async (input: GetUserInput) => {
+export const getUser = async (input: GetApiUsersIdPathParams) => {
   const userArr = await db
     .select({
       id: users.id,
@@ -40,7 +40,7 @@ export const getUser = async (input: GetUserInput) => {
   };
 };
 
-export const updateUser = async (input: UpdateUserInput) => {
+export const updateUser = async (input: PutApiUsersIdMutationRequest & { id: number }) => {
   const updateData: any = {};
 
   if (input.name) updateData.name = input.name;
@@ -76,7 +76,7 @@ export const updateUser = async (input: UpdateUserInput) => {
   };
 };
 
-export const deleteUser = async (input: DeleteUserInput) => {
+export const deleteUser = async (input: DeleteApiUsersIdPathParams) => {
   const deletedUserArr = await db
     .delete(users)
     .where(eq(users.id, input.id))

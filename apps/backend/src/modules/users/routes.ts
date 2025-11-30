@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import validate, { type ValidatedRequest } from 'express-zod-safe';
 import {
-  getUserSchema,
-  updateUserSchema,
-  deleteUserSchema,
-} from './interfaces';
+  getApiUsersIdPathParamsSchema,
+  putApiUsersIdMutationRequestSchema,
+  deleteApiUsersIdPathParamsSchema,
+} from '@repo/api/zod';
 import {
   getMeController,
   getUserController,
@@ -100,7 +100,7 @@ const router: Router = Router();
  *         description: 인증 실패
  */
 export type GetUserRequest = ValidatedRequest<{
-  params: typeof getUserSchema;
+  params: typeof getApiUsersIdPathParamsSchema;
 }>;
 
 /**
@@ -157,8 +157,8 @@ export type GetUserRequest = ValidatedRequest<{
  *         description: 사용자를 찾을 수 없음
  */
 export type UpdateUserRequest = ValidatedRequest<{
-  params: typeof getUserSchema;
-  body: Omit<typeof updateUserSchema, 'id'>;
+  params: typeof getApiUsersIdPathParamsSchema;
+  body: typeof putApiUsersIdMutationRequestSchema;
 }>;
 
 /**
@@ -188,7 +188,7 @@ export type UpdateUserRequest = ValidatedRequest<{
  *         description: 권한 없음
  */
 export type DeleteUserRequest = ValidatedRequest<{
-  params: typeof deleteUserSchema;
+  params: typeof deleteApiUsersIdPathParamsSchema;
 }>;
 
 /**
@@ -236,7 +236,7 @@ router.get('/me', authenticate, getMeController);
 router.get(
   '/:id',
   authenticate,
-  validate({ params: getUserSchema }),
+  validate({ params: getApiUsersIdPathParamsSchema }),
   getUserController
 );
 
@@ -244,8 +244,8 @@ router.put(
   '/:id',
   authenticate,
   validate({
-    params: getUserSchema,
-    body: updateUserSchema.omit({ id: true }),
+    params: getApiUsersIdPathParamsSchema,
+    body: putApiUsersIdMutationRequestSchema,
   }),
   updateUserController
 );
@@ -253,7 +253,7 @@ router.put(
 router.delete(
   '/:id',
   authenticate,
-  validate({ params: deleteUserSchema }),
+  validate({ params: deleteApiUsersIdPathParamsSchema }),
   deleteUserController
 );
 

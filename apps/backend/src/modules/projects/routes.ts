@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import validate, { type ValidatedRequest } from 'express-zod-safe';
 import {
-  createProjectSchema,
-  deleteProjectSchema,
-  updateProjectSchema,
-  getProjectSchema,
-} from './interfaces';
+  postApiProjectsCreateMutationRequestSchema,
+  deleteApiProjectsIdPathParamsSchema,
+  putApiProjectsIdMutationRequestSchema,
+  getApiProjectsIdPathParamsSchema,
+} from '@repo/api/zod';
 import {
   createProjectController,
   deleteProjectController,
@@ -16,21 +16,6 @@ import {
 import { authenticate } from '@/be/middlewares';
 
 const router: Router = Router();
-
-/**
- * @description 모든 API 응답 형식
- *
- * Success Response (2xx):
- * {
- *   ... 각 엔드포인트의 데이터
- * }
- *
- * Error Response (4xx, 5xx):
- * {
- *   "error": "에러 메시지",
- *   "statusCode": HTTP 상태 코드
- * }
- */
 
 /**
  * @swagger
@@ -93,14 +78,14 @@ const router: Router = Router();
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Project'
- *       404:
- *         description: 프로젝트를 찾을 수 없음
+ *               $ref: "#/components/schemas/Project"
  *       401:
  *         description: 인증 실패
+ *       404:
+ *         description: 프로젝트를 찾을 수 없음
  */
 export type GetProjectRequest = ValidatedRequest<{
-  params: typeof getProjectSchema;
+  params: typeof getApiProjectsIdPathParamsSchema;
 }>;
 
 /**
@@ -140,14 +125,14 @@ export type GetProjectRequest = ValidatedRequest<{
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Project'
+ *               $ref: "#/components/schemas/Project"
  *       400:
  *         description: 잘못된 요청
  *       401:
  *         description: 인증 실패
  */
 export type CreateProjectRequest = ValidatedRequest<{
-  body: typeof createProjectSchema;
+  body: typeof postApiProjectsCreateMutationRequestSchema;
 }>;
 
 /**
@@ -192,17 +177,17 @@ export type CreateProjectRequest = ValidatedRequest<{
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Project'
- *       404:
- *         description: 프로젝트를 찾을 수 없음
+ *               $ref: "#/components/schemas/Project"
  *       400:
  *         description: 잘못된 요청
  *       401:
  *         description: 인증 실패
+ *       404:
+ *         description: 프로젝트를 찾을 수 없음
  */
 export type UpdateProjectRequest = ValidatedRequest<{
-  params: typeof getProjectSchema;
-  body: Omit<typeof updateProjectSchema, 'id'>;
+  params: typeof getApiProjectsIdPathParamsSchema;
+  body: typeof putApiProjectsIdMutationRequestSchema;
 }>;
 
 /**
@@ -232,15 +217,15 @@ export type UpdateProjectRequest = ValidatedRequest<{
  *                 deletedProjectId:
  *                   type: integer
  *                   description: 삭제된 프로젝트 ID
- *       404:
- *         description: 프로젝트를 찾을 수 없음
  *       401:
  *         description: 인증 실패
  *       403:
  *         description: 권한 없음
+ *       404:
+ *         description: 프로젝트를 찾을 수 없음
  */
 export type DeleteProjectRequest = ValidatedRequest<{
-  params: typeof deleteProjectSchema;
+  params: typeof deleteApiProjectsIdPathParamsSchema;
 }>;
 
 /**
@@ -264,7 +249,7 @@ export type DeleteProjectRequest = ValidatedRequest<{
  *                 projects:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Project'
+ *                     $ref: "#/components/schemas/Project"
  *       401:
  *         description: 인증 실패
  */
@@ -273,28 +258,31 @@ export type ListProjectsRequest = ValidatedRequest<{}>;
 router.get(
   '/:id',
   authenticate,
-  validate({ params: getProjectSchema }),
+  validate({ params: getApiProjectsIdPathParamsSchema }),
   getProjectController
 );
 
 router.post(
   '/create',
   authenticate,
-  validate({ body: createProjectSchema }),
+  validate({ body: postApiProjectsCreateMutationRequestSchema }),
   createProjectController
 );
 
 router.put(
-  '/update',
+  '/:id',
   authenticate,
-  validate({ body: updateProjectSchema }),
+  validate({
+    params: getApiProjectsIdPathParamsSchema,
+    body: putApiProjectsIdMutationRequestSchema,
+  }),
   updateProjectController
 );
 
 router.delete(
   '/:id',
   authenticate,
-  validate({ params: deleteProjectSchema }),
+  validate({ params: deleteApiProjectsIdPathParamsSchema }),
   deleteProjectController
 );
 

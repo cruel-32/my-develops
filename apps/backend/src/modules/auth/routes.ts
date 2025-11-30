@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import validate, { type ValidatedRequest } from 'express-zod-safe';
-import { signUpSchema, loginSchema, changePasswordSchema } from './interfaces';
+import {
+  postApiAuthSignupMutationRequestSchema,
+  postApiAuthLoginMutationRequestSchema,
+  postApiAuthChangePasswordMutationRequestSchema,
+} from '@repo/api/zod';
 import {
   signUpController,
   loginController,
@@ -103,7 +107,7 @@ export type RefreshRequest = ValidatedRequest<{}>;
  *                   example: 404
  */
 export type LoginRequest = ValidatedRequest<{
-  body: typeof loginSchema;
+  body: typeof postApiAuthLoginMutationRequestSchema;
 }>;
 
 /**
@@ -183,7 +187,7 @@ export type LoginRequest = ValidatedRequest<{
  *                   example: 500
  */
 export type SignUpRequest = ValidatedRequest<{
-  body: typeof signUpSchema;
+  body: typeof postApiAuthSignupMutationRequestSchema;
 }>;
 
 /**
@@ -281,7 +285,7 @@ export type SignUpRequest = ValidatedRequest<{
  *                   example: 404
  */
 export type ChangePasswordRequest = ValidatedRequest<{
-  body: typeof changePasswordSchema;
+  body: typeof postApiAuthChangePasswordMutationRequestSchema;
 }>;
 
 /**
@@ -395,12 +399,20 @@ export type ChangePasswordRequest = ValidatedRequest<{
 router.post('/verify-token', verifyTokenController);
 router.post('/logout', authenticate, logOutController);
 
-router.post('/login', validate({ body: loginSchema }), loginController);
-router.post('/signup', validate({ body: signUpSchema }), signUpController);
+router.post(
+  '/login',
+  validate({ body: postApiAuthLoginMutationRequestSchema }),
+  loginController
+);
+router.post(
+  '/signup',
+  validate({ body: postApiAuthSignupMutationRequestSchema }),
+  signUpController
+);
 router.post(
   '/change-password',
   authenticate,
-  validate({ body: changePasswordSchema }),
+  validate({ body: postApiAuthChangePasswordMutationRequestSchema }),
   changePasswordController
 );
 

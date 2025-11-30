@@ -7,15 +7,17 @@ import {
   InternalServerError,
 } from '@/be/lib/errors';
 import type {
-  CreateOperatorRoleRequest,
-  DeleteOperatorRoleRequest,
-} from './routes';
-import type { DeleteOperatorRoleInput } from './interfaces';
+  PostApiOperatorRolesCreateMutationRequest,
+  DeleteApiOperatorRolesUseridRoleidPathParams,
+} from '@repo/api';
 
-export const createOperatorRole = async (req: CreateOperatorRoleRequest) => {
-  const { userId, roleId } = req.body;
+export const createOperatorRole = async (
+  input: PostApiOperatorRolesCreateMutationRequest,
+  user: { id: number }
+) => {
+  const { userId, roleId } = input;
 
-  if (!req.user) {
+  if (!user) {
     throw new NotFoundError('User not found.');
   }
 
@@ -25,7 +27,7 @@ export const createOperatorRole = async (req: CreateOperatorRoleRequest) => {
       roleName: roles.roleName,
     })
     .from(operatorRoles)
-    .where(eq(operatorRoles.userId, req.user.id))
+    .where(eq(operatorRoles.userId, user.id))
     .leftJoin(roles, eq(operatorRoles.roleId, roles.id));
 
   const operatorRoleNames = operatorRolesArr.map(
@@ -45,13 +47,13 @@ export const createOperatorRole = async (req: CreateOperatorRoleRequest) => {
 
   // Check if the target user is verified
   const userArr = await db.select().from(users).where(eq(users.id, userId));
-  const user = userArr[0];
+  const targetUser = userArr[0];
 
-  if (!user) {
+  if (!targetUser) {
     throw new NotFoundError('Target user not found.');
   }
 
-  if (!user.is_verified) {
+  if (!targetUser.is_verified) {
     throw new ValidationError('Cannot assign a role to an unverified user.');
   }
 
@@ -89,10 +91,10 @@ export const createOperatorRole = async (req: CreateOperatorRoleRequest) => {
 };
 
 export const deleteOperatorRole = async (
-  params: DeleteOperatorRoleInput,
+  input: DeleteApiOperatorRolesUseridRoleidPathParams,
   user: { id: number; role?: string }
 ) => {
-  const { userId, roleId } = params;
+  const { userId, roleId } = input;
 
   if (!user) {
     throw new NotFoundError('User not found.');

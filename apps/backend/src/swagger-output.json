@@ -75,6 +75,7 @@
           "imgId": {
             "type": "string",
             "format": "uuid",
+            "nullable": true,
             "description": "연관된 이미지 ID"
           },
           "imgUrl": {

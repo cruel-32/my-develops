@@ -11,17 +11,17 @@ import {
   AuthorizationError,
 } from '@/be/lib/errors';
 import type {
-  SignUpInput,
-  LoginInput,
-  ChangePasswordInput,
-} from './interfaces';
+  PostApiAuthSignupMutationRequest,
+  PostApiAuthLoginMutationRequest,
+  PostApiAuthChangePasswordMutationRequest,
+} from '@repo/api';
 
 // 환경 변수에서 시크릿 키와 유효 기간을 가져옵니다.
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'access-secret';
 const REFRESH_TOKEN_SECRET =
   process.env.REFRESH_TOKEN_SECRET || 'refresh-secret';
 
-export const signUp = async (input: SignUpInput) => {
+export const signUp = async (input: PostApiAuthSignupMutationRequest) => {
   const existingUser = await db
     .select()
     .from(users)
@@ -75,7 +75,7 @@ export const signUp = async (input: SignUpInput) => {
   };
 };
 
-export const login = async (input: LoginInput) => {
+export const login = async (input: PostApiAuthLoginMutationRequest) => {
   const userArr = await db
     .select()
     .from(users)
@@ -126,7 +126,7 @@ export const logOut = async (userId: number) => {
 };
 
 export const changePassword = async (
-  input: ChangePasswordInput,
+  input: PostApiAuthChangePasswordMutationRequest,
   currentUserId: number
 ) => {
   // 권한 체크: 현재 사용자 본인이거나 super_admin인 경우만 수정 가능
