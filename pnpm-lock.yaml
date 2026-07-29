@@ -7,6 +7,7 @@ settings:
 overrides:
   react: 19.2.0
   react-dom: 19.2.0
+  react-hook-form: 7.83.0
   '@types/react': 19.2.17
   '@types/react-dom': 19.2.3
 
@@ -16,7 +17,7 @@ importers:
     dependencies:
       '@hookform/resolvers':
         specifier: ^5.5.7
-        version: 5.5.7(@sinclair/typebox@0.34.52)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.83.0(react@19.2.8))(zod@4.4.3)
+        version: 5.5.7(@sinclair/typebox@0.34.52)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.83.0(react@19.2.0))(zod@4.4.3)
       '@trpc/server':
         specifier: ^11.18.0
         version: 11.18.0(typescript@5.9.3)
@@ -25,13 +26,16 @@ importers:
         version: 3.2.1(@types/express@5.0.6)(express@5.0.0-beta.1)(zod@4.4.3)
       next-themes:
         specifier: ^0.4.6
-        version: 0.4.6(react-dom@19.2.0(react@19.2.8))(react@19.2.8)
+        version: 0.4.6(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       pg:
         specifier: ^8.22.0
         version: 8.22.0
+      react:
+        specifier: 19.2.0
+        version: 19.2.0
       react-hook-form:
-        specifier: ^7.83.0
-        version: 7.83.0(react@19.2.8)
+        specifier: 7.83.0
+        version: 7.83.0(react@19.2.0)
       superjson:
         specifier: ^2.2.6
         version: 2.2.6
@@ -83,7 +87,7 @@ importers:
         version: 6.9.1
       '@testing-library/react':
         specifier: ^16.3.2
-        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.0(react@19.2.8))(react@19.2.8)
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
@@ -232,6 +236,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@hookform/resolvers':
+        specifier: ^5.5.7
+        version: 5.5.7(@sinclair/typebox@0.34.52)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.83.0(react@19.2.0))(zod@4.4.3)
       '@repo/api':
         specifier: workspace:*
         version: link:../../packages/api
@@ -259,6 +266,9 @@ importers:
       react-dom:
         specifier: 19.2.0
         version: 19.2.0(react@19.2.0)
+      react-hook-form:
+        specifier: 7.83.0
+        version: 7.83.0(react@19.2.0)
       zustand:
         specifier: ^5.0.8
         version: 5.0.8(@types/react@19.2.17)(react@19.2.0)(use-sync-external-store@1.6.0(react@19.2.0))
@@ -293,6 +303,9 @@ importers:
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
 
   packages/api:
     dependencies:
@@ -382,8 +395,8 @@ importers:
         specifier: 19.2.0
         version: 19.2.0
       react-hook-form:
-        specifier: ^7.65.0
-        version: 7.67.0(react@19.2.0)
+        specifier: 7.83.0
+        version: 7.83.0(react@19.2.0)
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1377,7 +1390,7 @@ packages:
       io-ts: ^2.0.0
       joi: ^17.0.0
       nope-validator: '>=0.12.0'
-      react-hook-form: ^7.55.0
+      react-hook-form: 7.83.0
       superstruct: '>=0.12.0'
       typanion: ^3.3.2
       valibot: '>=0.31.0 || ^1.0.0-beta.4 || ^1.0.0-rc'
@@ -6331,12 +6344,6 @@ packages:
     peerDependencies:
       react: 19.2.0
 
-  react-hook-form@7.67.0:
-    resolution: {integrity: sha512-E55EOwKJHHIT/I6J9DmQbCWToAYSw9nN5R57MZw9rMtjh+YQreMDxRLfdjfxQbiJ3/qbg3Z02wGzBX4M+5fMtQ==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      react: 19.2.0
-
   react-hook-form@7.83.0:
     resolution: {integrity: sha512-AXt8cMCmx5a7u4uvpb2uRFVrWQhllI4pV+LSykxIac/hjt44TnQkmX9BKuQi2i+LDC62esmiLpilkav+kjVf/A==}
     engines: {node: '>=18.0.0'}
@@ -6399,10 +6406,6 @@ packages:
 
   react@19.2.0:
     resolution: {integrity: sha512-tmbWg6W31tQLeB5cdIBOicJDJRR2KzXsV7uSK9iNfLWQ5bIZfxuPEHp7M8wiHyHnn0DD1i7w3Zmin0FtkrwoCQ==}
-    engines: {node: '>=0.10.0'}
-
-  react@19.2.8:
-    resolution: {integrity: sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw==}
     engines: {node: '>=0.10.0'}
 
   readdirp@3.6.0:
@@ -8384,10 +8387,10 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
-  '@hookform/resolvers@5.5.7(@sinclair/typebox@0.34.52)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.83.0(react@19.2.8))(zod@4.4.3)':
+  '@hookform/resolvers@5.5.7(@sinclair/typebox@0.34.52)(ajv-formats@2.1.1(ajv@8.20.0))(ajv@8.20.0)(react-hook-form@7.83.0(react@19.2.0))(zod@4.4.3)':
     dependencies:
       '@standard-schema/utils': 0.3.0
-      react-hook-form: 7.83.0(react@19.2.8)
+      react-hook-form: 7.83.0(react@19.2.0)
     optionalDependencies:
       '@sinclair/typebox': 0.34.52
       ajv: 8.20.0
@@ -10439,12 +10442,12 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
 
-  '@testing-library/react@16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.0(react@19.2.8))(react@19.2.8)':
+  '@testing-library/react@16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@testing-library/dom': 10.4.1
-      react: 19.2.8
-      react-dom: 19.2.0(react@19.2.8)
+      react: 19.2.0
+      react-dom: 19.2.0(react@19.2.0)
     optionalDependencies:
       '@types/react': 19.2.17
       '@types/react-dom': 19.2.3(@types/react@19.2.17)
@@ -13376,11 +13379,6 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
 
-  next-themes@0.4.6(react-dom@19.2.0(react@19.2.8))(react@19.2.8):
-    dependencies:
-      react: 19.2.8
-      react-dom: 19.2.0(react@19.2.8)
-
   next-tick@1.1.0: {}
 
   next@15.5.6(@babel/core@7.29.7)(@playwright/test@1.62.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0):
@@ -13943,18 +13941,9 @@ snapshots:
       react: 19.2.0
       scheduler: 0.27.0
 
-  react-dom@19.2.0(react@19.2.8):
-    dependencies:
-      react: 19.2.8
-      scheduler: 0.27.0
-
-  react-hook-form@7.67.0(react@19.2.0):
+  react-hook-form@7.83.0(react@19.2.0):
     dependencies:
       react: 19.2.0
-
-  react-hook-form@7.83.0(react@19.2.8):
-    dependencies:
-      react: 19.2.8
 
   react-is@16.13.1: {}
 
@@ -14002,8 +13991,6 @@ snapshots:
       '@types/react': 19.2.17
 
   react@19.2.0: {}
-
-  react@19.2.8: {}
 
   readdirp@3.6.0:
     dependencies:

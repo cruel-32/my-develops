@@ -79,6 +79,7 @@
     "express-zod-safe": "^3.2.1",
     "next-themes": "^0.4.6",
     "pg": "^8.22.0",
+    "react": "19.2.0",
     "react-hook-form": "^7.83.0",
     "superjson": "^2.2.6",
     "zod": "^4.4.3"
@@ -91,6 +92,7 @@
     "overrides": {
       "react": "19.2.0",
       "react-dom": "19.2.0",
+      "react-hook-form": "7.83.0",
       "@types/react": "19.2.17",
       "@types/react-dom": "19.2.3"
     }

@@ -4,6 +4,11 @@
       "mode": "auto"
     }
   ],
+  // 에디터의 번들 TypeScript 대신 워크스페이스에 설치된 버전을 사용하도록 강제합니다.
+  // (패키지별 node_modules/typescript가 없으면 tsconfig의 jsx 설정을 못 읽어
+  //  '--jsx' 플래그 관련 오탐 에러(TS17004)가 발생할 수 있음)
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
   // 파일을 저장할 때마다 자동으로 포맷팅을 실행합니다.
   "editor.formatOnSave": true,
 

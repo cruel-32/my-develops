@@ -27,11 +27,13 @@ export const useProjectForm = (initialData?: Project) => {
     resolver: zodResolver(
       isEditMode ? updateProjectSchema : createProjectSchema
     ),
-    defaultValues: initialData || {
-      name: '',
-      description: '',
-      public: true,
-    },
+    defaultValues: initialData
+      ? { ...initialData, imgId: initialData.imgId ?? undefined }
+      : {
+          name: '',
+          description: '',
+          public: true,
+        },
   });
 
   const handleImageUpload = async (file: File, currentImgId?: string) => {
