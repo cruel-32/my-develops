@@ -1,6 +1,6 @@
 # React 개발 핵심 지식
 
-React로 개발할 때 반드시 알아야 하는 개념을 우선순위 순으로 정리한다. 이 프로젝트(Next.js 15 App Router + React 19 + React Compiler + tRPC)를 기준으로 예시를 든다.
+React로 개발할 때 반드시 알아야 하는 개념을 우선순위 순으로 정리한다. 특정 API 레이어(REST, GraphQL, tRPC 등)에 종속되지 않는, React 자체에 대한 지식을 다룬다.
 
 ## 1. 렌더링 모델을 이해하기
 
@@ -45,16 +45,16 @@ React로 개발할 때 반드시 알아야 하는 개념을 우선순위 순으�
   - props/state로부터 값을 계산 → 렌더링 중 바로 계산
   - 사용자 이벤트에 대한 반응(제출, 클릭) → 이벤트 핸들러에서 처리
   - 다른 state가 바뀔 때 state를 "따라 업데이트" → 렌더링 중 계산하거나, 정말 필요하면 이벤트 핸들러에서 한 번에 처리
-- **데이터 페칭을 `useEffect`로 직접 구현하지 않는다.** 이 프로젝트는 tRPC + React Query(`clientTrpc.xxx.useQuery()`)를 쓰므로 캐싱/재요청/race condition 처리를 라이브러리에 위임한다.
+- **데이터 페칭을 `useEffect`로 직접 구현하지 않는다.** `fetch` + `setState`를 이펙트 안에서 직접 조합하면 race condition, 중복 요청, 워터폴 로딩이 쉽게 발생한다. React Query, SWR 같은 캐싱/재요청/취소를 대신 처리해주는 데이터 페칭 라이브러리에 위임하는 것이 기본값이어야 한다.
 - Effect에 cleanup 함수를 반환하면 다음 실행 전 / unmount 시 호출된다 (구독 해제, 타이머 정리에 필수).
 - 의존성 배열은 "정직하게" 채운다. eslint의 `exhaustive-deps` 경고를 임의로 무시(`// eslint-disable`)하지 말 것 — 대부분 로직 결함의 신호다.
 
 ## 6. 컴포넌트 설계
 
 - **합성(Composition) > 상속**: React에는 클래스 상속 개념이 없다. 공통 UI는 `children`을 받는 wrapper 컴포넌트나 커스텀 훅으로 재사용한다.
-- **Controlled vs Uncontrolled**: form input은 value+onChange로 React가 값을 소유(controlled)하거나, `ref`로 DOM이 값을 소유(uncontrolled)하게 한다. 이 프로젝트는 React Hook Form을 쓰므로 대부분 uncontrolled + ref 기반으로 성능 이점을 가져간다.
+- **Controlled vs Uncontrolled**: form input은 value+onChange로 React가 값을 소유(controlled)하거나, `ref`로 DOM이 값을 소유(uncontrolled)하게 한다. Uncontrolled + ref 기반은 매 입력마다 리렌더가 발생하지 않아 대규모 폼에서 성능상 유리하다.
 - **Error Boundary**: 렌더링 중 발생한 에러를 잡아 fallback UI를 보여주는 유일한 방법(현재는 클래스 컴포넌트로만 구현 가능). 페이지/위젯 단위 경계에 배치해 전체 앱 크래시를 방지한다.
-- **Suspense**: 비동기 데이터/코드 로딩 중 fallback을 보여주는 선언적 방법. `use()` API, `React.lazy`, React Query의 `useSuspenseQuery`와 함께 쓴다.
+- **Suspense**: 비동기 데이터/코드 로딩 중 fallback을 보여주는 선언적 방법. `use()` API, `React.lazy`, 데이터 페칭 라이브러리의 suspense 모드와 함께 쓴다.
 
 ## 7. Server Components vs Client Components (Next.js App Router)
 
@@ -73,7 +73,7 @@ React로 개발할 때 반드시 알아야 하는 개념을 우선순위 순으�
 ## 9. 자주 하는 실수 (Anti-patterns)
 
 - 렌더링 중 `setState` 직접 호출 → 무한 루프 위험, React Compiler가 에러로 잡음.
-- `useEffect` 안에서 fetch 후 `setState`로 파생 상태 관리 → race condition, 워터폴 로딩 유발. React Query/tRPC 사용.
+- `useEffect` 안에서 fetch 후 `setState`로 파생 상태 관리 → race condition, 워터폴 로딩 유발. 데이터 페칭 라이브러리 사용.
 - props로 받은 객체/배열을 직접 mutate.
 - 배열 index를 key로 사용.
 - 불필요하게 깊은 prop drilling → Context나 컴포넌트 합성으로 해결.
@@ -83,8 +83,6 @@ React로 개발할 때 반드시 알아야 하는 개념을 우선순위 순으�
 ## 10. 이 프로젝트에서 지켜야 할 추가 규칙
 
 - **Feature-Sliced Design 레이어 규칙 준수**: `app → pages → widgets → features → entities → shared` 방향으로만 import (`CLAUDE.md`, `pnpm steiger` 참고).
-- **타입 안전성은 tRPC가 담당**: 프론트엔드에서 API 응답 타입을 직접 정의하지 말고 `AppRouter` 추론 타입을 사용.
-- **폼은 React Hook Form + Zod + tRPC mutation** 패턴을 따른다 (`features/loginForm` 참고).
 - React Compiler가 켜져 있으므로 컴포넌트는 순수 함수로 작성하고, 조건부 훅 호출·렌더링 중 mutation 같은 패턴을 피한다.
 
 ## 참고 자료
