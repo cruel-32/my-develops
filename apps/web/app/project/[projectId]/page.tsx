@@ -1,3 +1,3 @@
-import { ProjectPage, metadata } from '@/web/pages/project';
+import { ProjectDetailPage, metadata } from '@/web/pages/project-detail';
 export { metadata };
-export default ProjectPage;
+export default ProjectDetailPage;
